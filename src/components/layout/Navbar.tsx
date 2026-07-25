@@ -11,11 +11,10 @@ const NAV_LINKS = [
     { label: "Home", href: "/" },
     { label: "History", href: "/history" },
     { label: "Family Tree", href: "/tree" },
-    { label: "Members", href: "/members" },
+    { label: "Executive Committee", href: "/committee" },
     { label: "Gallery", href: "/gallery" },
-    { label: "Timeline", href: "/timeline" },
-    { label: "Events", href: "/events" },
-    { label: "Documents", href: "/documents" },
+    { label: "Contact", href: "/contact" }
+
 ];
 
 export default function Navbar() {
