@@ -11,10 +11,9 @@ const NAV_LINKS = [
     { label: "Home", href: "/" },
     { label: "History", href: "/history" },
     { label: "Family Tree", href: "/tree" },
-    { label: "Executive Committee", href: "/committee" },
+    { label: "Executive Committee", href: "/members" },
     { label: "Gallery", href: "/gallery" },
     { label: "Contact", href: "/contact" }
-
 ];
 
 export default function Navbar() {
