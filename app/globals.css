@@ -1,12 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-gray-400: #5c635d;
+  --color-gray-500: #444945;
+  --color-gray-600: #2e312f;
+  --color-gray-700: #1c1e1d;
+}
+
 @layer base {
   :root {
     /* Premium Color Palette Tokens */
     --color-forest: #1b3622;
     --color-cream: #fbf9f4;
     --color-gold: #d4af37;
-    --color-charcoal: #2d312e;
+    --color-charcoal: #1e211f;
 
     /* Global Background and Text Defaults */
     background-color: var(--color-cream);
@@ -74,4 +81,8 @@ body {
   border-left: 2px solid #d4af37;
   padding-left: 1.5rem;
   margin: 1.5rem 0;
+}
+
+.Malayalam-font {
+  font-family: 'Noto Serif Malayalam', Georgia, serif;
 }

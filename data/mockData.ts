@@ -36,6 +36,7 @@ export interface GalleryItem {
   title: string;
   description?: string;
   year?: string;
+  branch?: string;
 }
 
 export interface DocumentItem {
@@ -105,6 +106,6 @@ export const MOCK_DOCUMENTS: DocumentItem[] = [
 ];
 
 export const MOCK_GALLERY: GalleryItem[] = [
-  { id: "g1", album: "Historical", imageUrl: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=800", title: "Ancestral Home Construction", year: "1925", description: "The foundation laying of the tharavadu in Thrissur." },
-  { id: "g2", album: "Reunions", imageUrl: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800", title: "Global Reunion 2010", year: "2010", description: "Family gathering with over 200 members attending from 12 countries." }
+  { id: "g1", album: "Historical", imageUrl: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=800", title: "Ancestral Home Construction", year: "1925", description: "The foundation laying of the tharavadu in Thrissur.", branch: "Pullazhiyil" },
+  { id: "g2", album: "Reunions", imageUrl: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800", title: "Global Reunion 2010", year: "2010", description: "Family gathering with over 200 members attending from 12 countries.", branch: "Thykurinjiyil" }
 ];

@@ -413,6 +413,82 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* ── Family Achievements ─────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: NORELL_EASE }}
+          className="space-y-2 text-center md:text-left"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Celebrating Excellence
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+            Family Achievements
+          </h2>
+          <div className="w-16 h-0.5 bg-[#d4af37] mt-4 mx-auto md:mx-0" />
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          {[1, 2, 3].map((num) => (
+            <motion.div
+              key={num}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: num * 0.12, ease: NORELL_EASE }}
+              className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm"
+            >
+              {/* Photo Placeholder Frame (Generous Space) */}
+              <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500">
+                <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
+                <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
+                  Photo Placeholder
+                </span>
+                <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                  Generous space for portrait or award picture
+                </span>
+                
+                {/* Decorative border corners */}
+                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
+                <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
+                <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
+                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
+              </div>
+
+              {/* Information Block */}
+              <div className="space-y-3 flex-grow flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
+                      Family Branch
+                    </span>
+                    <span className="text-gray-500 font-mono text-[10px]">
+                      Year
+                    </span>
+                  </div>
+                  <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
+                    Family Member Name
+                  </h3>
+                  <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
+                    Achievement Title / Recognition
+                  </p>
+                  <p className="text-xs text-gray-500 font-light leading-relaxed">
+                    A short description detailing the award, recognition, or notable contribution achieved by this family member.
+                  </p>
+                </div>
+
+                <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
+                  Pulazhiyil Excellence Registry
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* ── 6. FINALE: ORIGINS + EVENTS ──────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
