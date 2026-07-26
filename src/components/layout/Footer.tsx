@@ -10,7 +10,7 @@ export default function Footer() {
                 {/* Col 1: Core Corporate Branding Statement */}
                 <div className="md:col-span-5 space-y-4">
                     <span className="block font-serif text-lg tracking-wide text-[#fbf9f4] font-light">
-                        പുലാഴിയിൽ കുടുംബയോഗം
+                        പുല്ലാഴിയിൽ കുടുംബയോഗംം
                     </span>
                     <p className="font-sans text-xs font-light leading-relaxed max-w-sm">
                         A timeless archive dedicated to tracing, conserving, and celebrating the generational lineage, historical milestones, and shared values of the Pulazhiyil family.
