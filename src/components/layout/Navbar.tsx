@@ -33,23 +33,19 @@ export default function Navbar() {
     return (
         <header
             className={`sticky top-0 z-50 w-full transition-all duration-500 ${isScrolled
-                ? "bg-[#1b3622]/95 backdrop-blur-md shadow-sm border-b border-[#d4af37]/20 py-2"
-                : "bg-[#1b3622] border-b border-transparent py-3"
+                ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-[#1b3622]/10 py-2"
+                : "bg-white border-b border-[#1b3622]/10 py-3"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
                 {/* ── LOGO BRANDING AREA ────────────────────────────────────────── */}
-                <Link href="/" className="flex flex-col group cursor-pointer select-none">
-                    <span className="font-serif text-[#fbf9f4] text-xl md:text-2xl font-normal leading-none tracking-wide transition-colors duration-300 group-hover:text-[#d4af37]">
-                        പുലാഴിയിൽ
-                    </span>
-                    <span className="font-serif text-[#fbf9f4] text-sm md:text-base font-normal tracking-wide leading-tight transition-colors duration-300 group-hover:text-[#d4af37]">
-                        കുടുംബയോഗം
-                    </span>
-                    <span className="text-[8px] md:text-[9px] uppercase tracking-[0.35em] text-[#d4af37] font-bold mt-1 font-mono">
-                        PULAZHIYIL KUDUMBAYOGAM
-                    </span>
+                <Link href="/" className="group cursor-pointer select-none">
+                    <img
+                        src="/images/logo.png"
+                        alt="Pullazhiyil Kudumbayogam"
+                        className="h-12 md:h-14 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+                    />
                 </Link>
 
                 {/* ── DESKTOP NAVIGATION LINKS ──────────────────────────────────── */}
@@ -60,7 +56,7 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`relative px-3 py-2 text-[11px] xl:text-xs uppercase tracking-[0.2em] font-semibold transition-colors duration-300 font-mono ${isActive ? "text-[#fbf9f4]" : "text-white/60 hover:text-[#fbf9f4]"
+                                className={`relative px-3 py-2 text-[11px] xl:text-xs uppercase tracking-[0.2em] font-semibold transition-colors duration-300 font-mono ${isActive ? "text-[#1b3622]" : "text-[#1b3622]/50 hover:text-[#1b3622]"
                                     }`}
                             >
                                 <span className="relative z-10">{link.label}</span>
@@ -81,14 +77,14 @@ export default function Navbar() {
                     {/* Elegant Search Link */}
                     <Link
                         href="/search"
-                        className="flex items-center gap-2 text-white/60 hover:text-[#fbf9f4] transition-colors duration-300 text-[11px] uppercase tracking-[0.15em] font-mono font-semibold"
+                        className="flex items-center gap-2 text-[#1b3622]/50 hover:text-[#1b3622] transition-colors duration-300 text-[11px] uppercase tracking-[0.15em] font-mono font-semibold"
                     >
                         <Search className="h-3.5 w-3.5 stroke-[2]" />
                         <span>Search</span>
                     </Link>
 
                     {/* Aesthetic Divider Pipe */}
-                    <span className="h-4 w-px bg-white/20" aria-hidden="true" />
+                    <span className="h-4 w-px bg-[#1b3622]/15" aria-hidden="true" />
 
                     {/* Premium Dashboard Action Button */}
                     <Link href="/dashboard" className="relative group overflow-hidden block">
@@ -112,12 +108,12 @@ export default function Navbar() {
 
                 {/* ── MOBILE MENU TOGGLE SYSTEM ─────────────────────────────────── */}
                 <div className="flex lg:hidden items-center space-x-4">
-                    <Link href="/search" className="text-[#fbf9f4] p-1">
+                    <Link href="/search" className="text-[#1b3622] p-1">
                         <Search className="h-4 w-4" />
                     </Link>
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="text-[#fbf9f4] p-1 transition-transform active:scale-95"
+                        className="text-[#1b3622] p-1 transition-transform active:scale-95"
                         aria-label="Toggle Navigation Menu"
                     >
                         {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
