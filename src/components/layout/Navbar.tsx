@@ -50,7 +50,7 @@ export default function Navbar() {
                             Pullazhiyil
                         </span>
                         <span className="Malayalam-font whitespace-nowrap text-sm font-semibold text-[#1b3622]">
-                            പുല്ലാഴിയിൽ കുടുംബയോഗംം
+                            പുല്ലാഴിയിൽ കുടുംബയോഗം
                         </span>
                     </div>
                 </Link>
