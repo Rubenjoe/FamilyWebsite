@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "copy-logo": "node -e \"const fs = require('fs'); fs.copyFileSync('public/images/logo.png', 'app/favicon.ico'); fs.copyFileSync('public/images/logo.png', 'app/icon.png'); fs.copyFileSync('public/images/logo.png', 'app/apple-icon.png'); fs.copyFileSync('public/images/logo.png', 'app/opengraph-image.png'); console.log('Logo copied successfully');\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
