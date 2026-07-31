@@ -37,20 +37,20 @@ export default function Navbar() {
             className={`sticky top-0 z-50 w-full border-b border-[#1b3622]/10 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${isScrolled ? "shadow-sm" : ""
                 }`}
         >
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-3">
+                <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
                     <img
                         src="/images/logo.png"
                         alt="Pullazhiyil Kudumbayogam"
-                        className="h-11 w-auto object-contain md:h-12"
+                        className="h-9 w-auto shrink-0 object-contain sm:h-11 md:h-12"
                     />
-                    <div className="hidden flex-col leading-tight sm:flex">
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1b3622]/55">
+                    <div className="flex min-w-0 flex-col leading-tight">
+                        <span className="hidden font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1b3622]/55 sm:block">
                             Pullazhiyil
                         </span>
                         <span className="Malayalam-font whitespace-nowrap text-sm font-semibold text-[#1b3622]">
-                            പുല്ലാഴിയിൽ കുടുംബയോഗം
+                            പുലഴിയിയിൽ കുടുംബയോഗം
                         </span>
                     </div>
                 </Link>
@@ -91,7 +91,7 @@ export default function Navbar() {
                 {/* Mobile toggle */}
                 <button
                     onClick={() => setIsMobileMenuOpen((open) => !open)}
-                    className="text-[#1b3622] lg:hidden"
+                    className="shrink-0 text-[#1b3622] lg:hidden"
                     aria-label="Toggle navigation menu"
                     aria-expanded={isMobileMenuOpen}
                 >

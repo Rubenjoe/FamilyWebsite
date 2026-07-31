@@ -432,24 +432,62 @@ export default function Home() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-          {[1, 2, 3].map((num) => (
+          {[
+            {
+              id: "ac1",
+              name: "Lt. Cdr Kuriakose Mathew (Aniyan)",
+              branch: "Thanuvelil",
+              year: "1971",
+              title: "First Commissioned Officer of Indian Navy",
+              description: "First Commissioned Officer of Indian Navy from Thanuvelil family. Participated in 1971 Indo-Pak war on board Aircraft Carrier INS VIKRANT.",
+              image: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg"
+            },
+            {
+              id: "ac2",
+              name: "Siby Mathew Thanuvelil",
+              branch: "Thanuvelil",
+              year: "Present",
+              title: "Director at AbbVie & IIM Alumnus",
+              description: "An IIM Alumni. Now Director of a USA based MNC Abbvie. S/o Lt. Cdr. Kuriakose Mathew.",
+              image: "/achv/Siby Mathew Thanuvelil. An IIM Alumni.jpeg"
+            },
+            {
+              id: "ac3",
+              name: "Submit an Achievement",
+              branch: "All Branches",
+              year: "Ongoing",
+              title: "Recognize Excellence",
+              description: "Have you or a family member achieved a milestone, received an award, or made a notable contribution? Let the Kudumbayogam know so we can celebrate and register it here.",
+              image: ""
+            }
+          ].map((achievement, index) => (
             <motion.div
-              key={num}
+              key={achievement.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 1, delay: num * 0.12, ease: NORELL_EASE }}
+              transition={{ duration: 1, delay: index * 0.12, ease: NORELL_EASE }}
               className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm"
             >
-              {/* Photo Placeholder Frame (Generous Space) */}
-              <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500">
-                <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
-                <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
-                  Photo Placeholder
-                </span>
-                <span className="text-[9px] text-[#1b3622]/40 font-light block">
-                  Generous space for portrait or award picture
-                </span>
+              {/* Photo Frame (Generous Space) */}
+              <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
+                {achievement.image ? (
+                  <img
+                    src={achievement.image}
+                    alt={achievement.name}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-750 ease-out"
+                  />
+                ) : (
+                  <div className="p-6 flex flex-col items-center justify-center text-center">
+                    <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
+                    <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
+                      Photo Placeholder
+                    </span>
+                    <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                      Awaiting portrait or recognition image
+                    </span>
+                  </div>
+                )}
                 
                 {/* Decorative border corners */}
                 <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
@@ -463,20 +501,20 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
-                      Family Branch
+                      {achievement.branch} Branch
                     </span>
                     <span className="text-gray-500 font-mono text-[10px]">
-                      Year
+                      {achievement.year}
                     </span>
                   </div>
                   <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
-                    Family Member Name
+                    {achievement.name}
                   </h3>
                   <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
-                    Achievement Title / Recognition
+                    {achievement.title}
                   </p>
                   <p className="text-xs text-gray-500 font-light leading-relaxed">
-                    A short description detailing the award, recognition, or notable contribution achieved by this family member.
+                    {achievement.description}
                   </p>
                 </div>
 

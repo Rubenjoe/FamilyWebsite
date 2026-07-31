@@ -4,18 +4,55 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Heart, User, Bookmark } from "lucide-react";
 
-interface ObituaryPlaceholder {
+interface ObituaryEntry {
     id: string;
+    name: string;
     branch: string;
+    photoUrl?: string;
+    birthYear?: string;
+    deathYear?: string;
+    bio: string;
+    tribute: string;
+    isPlaceholder?: boolean;
 }
 
-const OBITUARY_PLACEHOLDERS: ObituaryPlaceholder[] = [
-    { id: "ob1", branch: "Pullazhiyil" },
-    { id: "ob2", branch: "Thykurinjiyil" },
-    { id: "ob3", branch: "Thanuvelil" },
-    { id: "ob4", branch: "Poovathumparambil" },
-    { id: "ob5", branch: "Pullazhiyil" },
-    { id: "ob6", branch: "Thykurinjiyil" },
+const OBITUARIES: ObituaryEntry[] = [
+    {
+        id: "ob-jacob",
+        name: "Jacob Kurian",
+        branch: "Pullazhiyil",
+        photoUrl: "/obituary/JacobKurian.jpeg",
+        birthYear: "1942",
+        deathYear: "2023",
+        bio: "A cherished patriarch of the Pullazhiyil branch. Known for his unwavering kindness, wisdom, and leadership within the Kudumbayogam.",
+        tribute: "You will always remain in our hearts and prayers. Rest in peace."
+    },
+    {
+        id: "ob-joseph",
+        name: "T. I. Joseph",
+        branch: "Thanuvelil",
+        photoUrl: "/obituary/T I Joseph.jpeg",
+        birthYear: "1939",
+        deathYear: "2022",
+        bio: "A respected elder of the Thanuvelil branch. Remembered for his steadfast faith, guidance, and contributions to our family legacy.",
+        tribute: "Your memory is a guiding light for all of us. Rest in peace."
+    },
+    {
+        id: "ob-placeholder-thykurinjiyil",
+        name: "Remembrance Record",
+        branch: "Thykurinjiyil",
+        isPlaceholder: true,
+        bio: "Remembrance profile pending. Family members from this branch are encouraged to share photographs and biographical details.",
+        tribute: "Submit records to the Kudumbayogam committee."
+    },
+    {
+        id: "ob-placeholder-poovathumparambil",
+        name: "Remembrance Record",
+        branch: "Poovathumparambil",
+        isPlaceholder: true,
+        bio: "Remembrance profile pending. Family members from this branch are encouraged to share photographs and biographical details.",
+        tribute: "Submit records to the Kudumbayogam committee."
+    }
 ];
 
 const FAMILY_BRANCHES = ["All", "Pullazhiyil", "Thykurinjiyil", "Thanuvelil", "Poovathumparambil"];
@@ -23,7 +60,7 @@ const FAMILY_BRANCHES = ["All", "Pullazhiyil", "Thykurinjiyil", "Thanuvelil", "P
 export default function ObituaryPage() {
     const [selectedBranch, setSelectedBranch] = useState<string>("All");
 
-    const filteredObituaries = OBITUARY_PLACEHOLDERS.filter((item) =>
+    const filteredObituaries = OBITUARIES.filter((item) =>
         selectedBranch === "All" || item.branch === selectedBranch
     );
 
@@ -113,18 +150,31 @@ export default function ObituaryPage() {
                                 {/* Top gold thin accent line */}
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#d4af37]/60" />
 
-                                {/* Photo Frame with Silhouette */}
-                                <div className="aspect-square w-full max-w-[200px] mx-auto bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden group-hover:border-[#d4af37]/50 transition-colors duration-500 rounded-full">
-                                    <User className="h-12 w-12 text-[#d4af37] stroke-[0.75] mb-2 opacity-60" />
-                                    <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/40 font-bold block">
-                                        Photograph
-                                    </span>
-                                    <span className="text-[9px] text-[#1b3622]/30 font-light block mt-0.5">
-                                        Placeholder Box
-                                    </span>
+                                {/* Photo Frame with Portrait Style */}
+                                <div className="aspect-[3/4] w-full max-w-[220px] mx-auto bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/50 transition-colors duration-500 rounded-sm shadow-inner">
+                                    {obituary.photoUrl ? (
+                                        <img
+                                            src={obituary.photoUrl}
+                                            alt={obituary.name}
+                                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-750 ease-out"
+                                        />
+                                    ) : (
+                                        <div className="p-4 flex flex-col items-center justify-center text-center">
+                                            <User className="h-12 w-12 text-[#d4af37] stroke-[0.75] mb-2 opacity-60" />
+                                            <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/40 font-bold block">
+                                                Awaiting Photo
+                                            </span>
+                                            <span className="text-[9px] text-[#1b3622]/30 font-light block mt-0.5">
+                                                Portrait
+                                            </span>
+                                        </div>
+                                    )}
 
-                                    {/* Subtle gold concentric ring */}
-                                    <div className="absolute inset-2 border border-[#d4af37]/5 rounded-full pointer-events-none" />
+                                    {/* Decorative border corners */}
+                                    <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/25" />
+                                    <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/25" />
+                                    <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/25" />
+                                    <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/25" />
                                 </div>
 
                                 {/* Content Details */}
@@ -135,27 +185,33 @@ export default function ObituaryPage() {
                                             {obituary.branch} Branch
                                         </span>
                                         <h3 className="text-xl text-[#1b3622] font-serif font-light pt-2">
-                                            Deceased Member Name
+                                            {obituary.name}
                                         </h3>
                                         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 font-mono pt-1">
                                             <Calendar className="h-3.5 w-3.5 text-[#d4af37]" />
-                                            <span>DD/MM/YYYY</span>
-                                            <span className="text-gray-300">—</span>
-                                            <span>DD/MM/YYYY</span>
+                                            {obituary.birthYear && obituary.deathYear ? (
+                                                <>
+                                                    <span>{obituary.birthYear}</span>
+                                                    <span className="text-gray-300">—</span>
+                                                    <span>{obituary.deathYear}</span>
+                                                </>
+                                            ) : (
+                                                <span>Remembrance Record</span>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Biography placeholder */}
+                                    {/* Biography */}
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
                                         <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
                                             Biography
                                         </h4>
                                         <p className="text-xs text-gray-500 font-light leading-relaxed">
-                                            Biography Placeholder — Space dedicated to sharing a brief overview of their life's journey, achievements, character, and legacy within the family.
+                                            {obituary.bio}
                                         </p>
                                     </div>
 
-                                    {/* Tribute Message placeholder */}
+                                    {/* Tribute Message */}
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
                                         <div className="flex items-center gap-1.5">
                                             <Heart className="h-3.5 w-3.5 text-[#d4af37]" />
@@ -164,7 +220,7 @@ export default function ObituaryPage() {
                                             </h4>
                                         </div>
                                         <p className="text-xs text-gray-500 italic font-light leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
-                                            Tribute Message Placeholder — Leave a word of prayer, remembrance, or a special memory dedicated to their lifetime.
+                                            {obituary.tribute}
                                         </p>
                                     </div>
                                 </div>
