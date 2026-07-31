@@ -21,7 +21,7 @@ export default function MembersDirectory() {
         return matchesBranch && matchesSearch;
     });
 
-    const branches = ["All", "Vadakke", "Kizhake", "Thekke", "Padinjare"];
+    const branches = ["All", "Pullazhiyil", "Thanuvelil", "Thykurinjiyil", "Poovathumparambil"];
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-16 space-y-12">

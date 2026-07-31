@@ -443,6 +443,15 @@ export default function Home() {
               image: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg"
             },
             {
+              id: "ac-tc-thomas",
+              name: "TC Thomas Thykurinjiyil-Thoppil",
+              branch: "Thykurinjiyil",
+              year: "Honored",
+              title: "Trustee - Knanaya Samudayam",
+              description: "Served as the Trustee of the Knanaya Samudayam, bringing distinction and honor to the Thykurinjiyil-Thoppil branch.",
+              image: "/achv/TC Thomas.jpeg"
+            },
+            {
               id: "ac2",
               name: "Siby Mathew Thanuvelil",
               branch: "Thanuvelil",
