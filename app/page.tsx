@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
-import { Calendar, ArrowRight, MapPin, ShieldCheck, Landmark, Globe, Award } from "lucide-react";
-import { MOCK_MEMBERS, MOCK_EVENTS, MOCK_TIMELINE } from "../data/mockData";
+import { Calendar, ArrowRight, MapPin, ShieldCheck, Landmark, Globe, Award, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { MOCK_EVENTS, MOCK_TIMELINE } from "../data/mockData";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,6 +13,16 @@ interface Pillar {
   title: string;
   desc: string;
   icon: React.ComponentType<{ className?: string }>;
+}
+
+interface Achiever {
+  id: string;
+  name: string;
+  branch: string;
+  year: string;
+  title: string;
+  description: string;
+  image: string;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -46,16 +56,322 @@ const HERITAGE_PILLARS: Pillar[] = [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 const HERO_IMAGES = [
   "/images/hero1.jpeg",
   "/images/hero2.jpeg",
   "/images/hero3.jpeg",
 ];
 
+const ACHIEVEMENTS: Achiever[] = [
+  {
+    id: "ac1",
+    name: "Lt. Cdr Kuriakose Mathew (Aniyan)",
+    branch: "Thanuvelil",
+    year: "1971",
+    title: "First Commissioned Officer of Indian Navy",
+    description: "First Commissioned Officer of Indian Navy from Thanuvelil family. Participated in 1971 Indo-Pak war on board Aircraft Carrier INS VIKRANT.",
+    image: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg"
+  },
+  {
+    id: "ac-tc-thomas",
+    name: "TC Thomas Thykurinjiyil-Thoppil",
+    branch: "Thykurinjiyil",
+    year: "Honored",
+    title: "Trustee - Knanaya Samudayam",
+    description: "Served as the Trustee of the Knanaya Samudayam, bringing distinction and honor to the Thykurinjiyil-Thoppil branch.",
+    image: "/achv/TC Thomas.jpeg"
+  },
+  {
+    id: "ac2",
+    name: "Siby Mathew Thanuvelil",
+    branch: "Thanuvelil",
+    year: "Present",
+    title: "Director at AbbVie & IIM Alumnus",
+    description: "An IIM Alumni. Now Director of a USA based MNC Abbvie. S/o Lt. Cdr. Kuriakose Mathew.",
+    image: "/achv/Siby Mathew Thanuvelil. An IIM Alumni.jpeg"
+  },
+  {
+    id: "ac3",
+    name: "Submit an Achievement",
+    branch: "All Branches",
+    year: "Ongoing",
+    title: "Recognize Excellence",
+    description: "Have you or a family member achieved a milestone, received an award, or made a notable contribution? Let the Kudumbayogam know so we can celebrate and register it here.",
+    image: ""
+  }
+];
+
+const EVANGELISTS: Achiever[] = [
+  {
+    id: "ev1",
+    name: "T.T. Thomas Thanuvelil",
+    branch: "Thanuvelil",
+    year: "Present",
+    title: "Centre Pastor, IPC Pampakuda Centre",
+    description: "Dedicated decades of priestly service across Kerala and abroad, establishing missions and spreading the Gospel rooted in the Knanaya tradition.",
+    image: "/Evangilist/TT Thomas Thanuvelil.jpeg"
+  },
+  {
+    id: "ev2",
+    name: "Sr. Mary Thykurinjiyil",
+    branch: "Thykurinjiyil",
+    year: "1978",
+    title: "Religious Sister & Educator",
+    description: "Founded a charitable school for underprivileged children in rural Kerala, serving as principal for over 30 years and inspiring generations of students.",
+    image: ""
+  },
+  {
+    id: "ev3",
+    name: "Deacon Jose Thanuvelil",
+    branch: "Thanuvelil",
+    year: "2005",
+    title: "Ordained Deacon & Community Servant",
+    description: "Faithfully served the parish community as an ordained deacon, leading family prayer movements and charitable outreach across the diocese.",
+    image: ""
+  },
+  {
+    id: "ev4",
+    name: "Submit an Evangelist",
+    branch: "All Branches",
+    year: "Ongoing",
+    title: "Honour Their Faith",
+    description: "Know a family member who has dedicated their life to faith and service? Submit their story to be celebrated and remembered in the Pullazhiyil Heritage Registry.",
+    image: ""
+  }
+];
+
+// ─── Carousel Component ────────────────────────────────────────────────────────
+
+// Injected once (module scope) instead of per-carousel-instance, so two carousels
+// on the same page don't duplicate the same <style> tag in the DOM.
+const CAROUSEL_STYLE = `
+  .achv-track::-webkit-scrollbar { display: none; }
+`;
+
+function AchieverCarousel({
+  items,
+  viewAllHref,
+  viewAllLabel,
+}: {
+  items: Achiever[];
+  viewAllHref: string;
+  viewAllLabel: string;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const scrollToIndex = useCallback((index: number) => {
+    if (!trackRef.current) return;
+    const track = trackRef.current;
+    // Use the first child's offsetWidth for precise card width including gap
+    const firstCard = track.firstElementChild as HTMLElement | null;
+    const gap = 24; // gap-6 = 1.5rem = 24px
+    const cardWidth = firstCard ? firstCard.offsetWidth + gap : track.scrollWidth / items.length;
+    track.scrollTo({ left: cardWidth * index, behavior: "smooth" });
+    setActiveIndex(index);
+  }, [items.length]);
+
+  const handlePrev = useCallback(() => {
+    const newIndex = (activeIndex - 1 + items.length) % items.length;
+    scrollToIndex(newIndex);
+  }, [activeIndex, items.length, scrollToIndex]);
+
+  const handleNext = useCallback(() => {
+    const newIndex = (activeIndex + 1) % items.length;
+    scrollToIndex(newIndex);
+  }, [activeIndex, items.length, scrollToIndex]);
+
+  // Auto-scroll on mobile only
+  useEffect(() => {
+    if (!isMobile) return;
+    autoScrollTimer.current = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % items.length;
+        if (trackRef.current) {
+          const track = trackRef.current;
+          const firstCard = track.firstElementChild as HTMLElement | null;
+          const gap = 24;
+          const cardWidth = firstCard ? firstCard.offsetWidth + gap : track.scrollWidth / items.length;
+          track.scrollTo({ left: cardWidth * next, behavior: "smooth" });
+        }
+        return next;
+      });
+    }, 3500);
+    return () => {
+      if (autoScrollTimer.current) clearInterval(autoScrollTimer.current);
+    };
+  }, [isMobile, items.length]);
+
+  // Sync active index from scroll — debounced via rAF so it doesn't fire mid-momentum
+  const handleScroll = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!trackRef.current) return;
+      const track = trackRef.current;
+      const firstCard = track.firstElementChild as HTMLElement | null;
+      const gap = 24;
+      const cardWidth = firstCard ? firstCard.offsetWidth + gap : track.scrollWidth / items.length;
+      const newIndex = Math.round(track.scrollLeft / cardWidth);
+      setActiveIndex(Math.max(0, Math.min(newIndex, items.length - 1)));
+    });
+  }, [items.length]);
+
+  // Cancel any in-flight rAF on unmount so it never fires against an unmounted ref
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  return (
+    <div className="relative">
+      {/* Carousel track */}
+      <div
+        ref={trackRef}
+        onScroll={handleScroll}
+        className="achv-track flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorX: "contain",
+          scrollBehavior: "smooth",
+          willChange: "scroll-position",
+        }}
+      >
+        {items.map((achievement, index) => (
+          <motion.div
+            key={achievement.id}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: index * 0.1, ease: NORELL_EASE }}
+            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)] bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-shadow duration-500 rounded-sm"
+          >
+            {/* Photo Frame */}
+            <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
+              {achievement.image ? (
+                <img
+                  src={achievement.image}
+                  alt={achievement.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="transform-gpu object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              ) : (
+                <div className="p-6 flex flex-col items-center justify-center text-center">
+                  <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
+                  <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
+                    Photo Placeholder
+                  </span>
+                  <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                    Awaiting portrait or recognition image
+                  </span>
+                </div>
+              )}
+              {/* Decorative border corners */}
+              <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
+              <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
+              <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
+            </div>
+
+            {/* Information Block */}
+            <div className="space-y-3 flex-grow flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
+                    {achievement.branch} Branch
+                  </span>
+                  <span className="text-gray-500 font-mono text-[10px]">
+                    {achievement.year}
+                  </span>
+                </div>
+                <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
+                  {achievement.name}
+                </h3>
+                <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
+                  {achievement.title}
+                </p>
+                <p className="text-xs text-gray-500 font-light leading-relaxed">
+                  {achievement.description}
+                </p>
+              </div>
+              <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
+                Pulazhiyil Excellence Registry
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Controls row: arrows left + dot indicators center + view all right */}
+      <div className="flex items-center justify-between mt-6">
+        {/* Arrow buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrev}
+            aria-label="Previous achiever"
+            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+          >
+            <ChevronLeft className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Next achiever"
+            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+          >
+            <ChevronRight className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+          </button>
+
+          {/* Dot indicators */}
+          <div className="flex items-center gap-1.5 ml-3">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToIndex(i)}
+                aria-label={`Go to card ${i + 1}`}
+                className="transition-all duration-300"
+              >
+                <div
+                  className={`rounded-full transition-all duration-300 ${activeIndex === i
+                    ? "w-5 h-1.5 bg-[#d4af37]"
+                    : "w-1.5 h-1.5 bg-[#1b3622]/20 hover:bg-[#1b3622]/40"
+                    }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* View All button */}
+        <Link
+          href={viewAllHref}
+          className="group inline-flex items-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.2em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+        >
+          <Users className="h-3 w-3" />
+          <span>{viewAllLabel}</span>
+          <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Home() {
-  const totalMembers = MOCK_MEMBERS.length + 446;
+  const totalMembers = 446;
   const upcomingEvents = MOCK_EVENTS.filter((e) => e.status === "upcoming");
   const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
@@ -107,10 +423,20 @@ export default function Home() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
-      {/* Elegant Ambient Background Glows */}
-      <div className="absolute top-[15%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/5 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
-      <div className="absolute top-[45%] right-[-10%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/5 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
-      <div className="absolute bottom-[20%] left-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[140px] pointer-events-none z-0" />
+      {/* Scrollbar-hiding rule for the achievement/evangelist carousels — injected
+          once here instead of inside each AchieverCarousel instance, so it isn't
+          duplicated in the DOM when the page renders more than one carousel. */}
+      <style>{CAROUSEL_STYLE}</style>
+
+      {/* Elegant Ambient Background Glows — promoted to their own GPU-composited
+          layer (transform-gpu + will-change-transform). Large blur() filters are
+          expensive to repaint; without this hint the browser can end up
+          recomputing them on every scroll frame, which is the main thing that
+          was costing FPS during scrolling (including the horizontal carousels
+          below, since they sit on top of these). Visual output is identical. */}
+      <div className="transform-gpu will-change-transform absolute top-[15%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/5 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
+      <div className="transform-gpu will-change-transform absolute top-[45%] right-[-10%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/5 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
+      <div className="transform-gpu will-change-transform absolute bottom-[20%] left-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[140px] pointer-events-none z-0" />
 
       {/* ── 1. HERO ──────────────────────────────────────────────────────────── */}
       <div
@@ -125,7 +451,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: currentHeroImage === index ? 1 : 0 }}
             transition={{ duration: 1.5 }}
-            className="absolute inset-0 z-0 bg-cover bg-center"
+            className="transform-gpu absolute inset-0 z-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${img})` }}
           />
         ))}
@@ -142,7 +468,7 @@ export default function Home() {
         {/* Subtle ambient glow in top-right corner */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full z-0"
+          className="transform-gpu pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full z-0"
           style={{ background: "radial-gradient(circle, #d4af3715 0%, transparent 65%)" }}
         />
 
@@ -241,37 +567,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* ── 2. METRICS STRIP ─────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24">
-        <div className="w-full h-px bg-[#1b3622]/10" />
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#1b3622]/10 py-12">
-          {[
-            { value: "A.D. 345", label: "Knanaya Arrival" },
-            { value: "4", label: "Principal Branches" },
-            { value: "1940s", label: "Kudumbayogam Founded" },
-            { value: "1998", label: "Revival Year" },
-          ].map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: idx * 0.1, ease: NORELL_EASE }}
-              className="pl-6 first:pl-0 space-y-1"
-            >
-              <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
-                {stat.value}
-              </span>
-              <span className="text-[9px] uppercase tracking-widest text-gray-400 block font-mono">
-                {stat.label}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-        <div className="w-full h-px bg-[#1b3622]/10" />
-      </section>
-
-      {/* ── 3. IDENTITY PANEL ────────────────────────────────────────────────── */}
+      {/* ── 2. IDENTITY PANEL ────────────────────────────────────────────────── */}
       <section ref={infoRef} className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-10">
         {/* FIX: scaleX now uses 0–1 numeric range */}
         <motion.div
@@ -302,12 +598,42 @@ export default function Home() {
             >
               The Pullazhiyil Kudumbayogam is more than an assembly; it is a live institutional
               anchor for hundreds of families worldwide. We trace our roots back to the historic Knanaya
-              migration of A.D. 345 to Kodungalloor, later establishing our ancestral home at Iruvallipra, 
-              Thiruvalla. We collaborate across borders to safeguard the values, properties, and 
+              migration of A.D. 345 to Kodungalloor, later establishing our ancestral home at Iruvallipra,
+              Thiruvalla. We collaborate across borders to safeguard the values, properties, and
               traditions of our four principal branches—Pullazhiyil, Thykurinjiyil, Thanuvelil, and Poovathumparambil.
             </motion.p>
           </div>
         </div>
+      </section>
+
+      {/* ── A.D. 345 METRICS STRIP ── placed between Identity Panel and Four Pillars ── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24">
+        <div className="w-full h-px bg-[#1b3622]/10" />
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#1b3622]/10 py-12">
+          {[
+            { value: "A.D. 345", label: "Knanaya Arrival" },
+            { value: "4", label: "Principal Branches" },
+            { value: "1940s", label: "Kudumbayogam Founded" },
+            { value: "1998", label: "Revival Year" },
+          ].map((stat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: idx * 0.1, ease: NORELL_EASE }}
+              className="pl-6 first:pl-0 space-y-1"
+            >
+              <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+                {stat.value}
+              </span>
+              <span className="text-[9px] uppercase tracking-widest text-gray-400 block font-mono">
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+        <div className="w-full h-px bg-[#1b3622]/10" />
       </section>
 
       {/* ── 4. FOUR PILLARS ──────────────────────────────────────────────────── */}
@@ -414,7 +740,7 @@ export default function Home() {
       </section>
 
       {/* ── Family Achievements ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-16">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -431,109 +757,36 @@ export default function Home() {
           <div className="w-16 h-0.5 bg-[#d4af37] mt-4 mx-auto md:mx-0" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-          {[
-            {
-              id: "ac1",
-              name: "Lt. Cdr Kuriakose Mathew (Aniyan)",
-              branch: "Thanuvelil",
-              year: "1971",
-              title: "First Commissioned Officer of Indian Navy",
-              description: "First Commissioned Officer of Indian Navy from Thanuvelil family. Participated in 1971 Indo-Pak war on board Aircraft Carrier INS VIKRANT.",
-              image: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg"
-            },
-            {
-              id: "ac-tc-thomas",
-              name: "TC Thomas Thykurinjiyil-Thoppil",
-              branch: "Thykurinjiyil",
-              year: "Honored",
-              title: "Trustee - Knanaya Samudayam",
-              description: "Served as the Trustee of the Knanaya Samudayam, bringing distinction and honor to the Thykurinjiyil-Thoppil branch.",
-              image: "/achv/TC Thomas.jpeg"
-            },
-            {
-              id: "ac2",
-              name: "Siby Mathew Thanuvelil",
-              branch: "Thanuvelil",
-              year: "Present",
-              title: "Director at AbbVie & IIM Alumnus",
-              description: "An IIM Alumni. Now Director of a USA based MNC Abbvie. S/o Lt. Cdr. Kuriakose Mathew.",
-              image: "/achv/Siby Mathew Thanuvelil. An IIM Alumni.jpeg"
-            },
-            {
-              id: "ac3",
-              name: "Submit an Achievement",
-              branch: "All Branches",
-              year: "Ongoing",
-              title: "Recognize Excellence",
-              description: "Have you or a family member achieved a milestone, received an award, or made a notable contribution? Let the Kudumbayogam know so we can celebrate and register it here.",
-              image: ""
-            }
-          ].map((achievement, index) => (
-            <motion.div
-              key={achievement.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: index * 0.12, ease: NORELL_EASE }}
-              className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm"
-            >
-              {/* Photo Frame (Generous Space) */}
-              <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
-                {achievement.image ? (
-                  <img
-                    src={achievement.image}
-                    alt={achievement.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-750 ease-out"
-                  />
-                ) : (
-                  <div className="p-6 flex flex-col items-center justify-center text-center">
-                    <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
-                    <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
-                      Photo Placeholder
-                    </span>
-                    <span className="text-[9px] text-[#1b3622]/40 font-light block">
-                      Awaiting portrait or recognition image
-                    </span>
-                  </div>
-                )}
-                
-                {/* Decorative border corners */}
-                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
-                <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
-                <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
-                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
-              </div>
+        <AchieverCarousel
+          items={ACHIEVEMENTS}
+          viewAllHref="/achievers"
+          viewAllLabel="View All Achievers"
+        />
+      </section>
 
-              {/* Information Block */}
-              <div className="space-y-3 flex-grow flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
-                      {achievement.branch} Branch
-                    </span>
-                    <span className="text-gray-500 font-mono text-[10px]">
-                      {achievement.year}
-                    </span>
-                  </div>
-                  <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
-                    {achievement.name}
-                  </h3>
-                  <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
-                    {achievement.title}
-                  </p>
-                  <p className="text-xs text-gray-500 font-light leading-relaxed">
-                    {achievement.description}
-                  </p>
-                </div>
+      {/* ── Family Evangelists ─────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: NORELL_EASE }}
+          className="space-y-2 text-center md:text-left"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Servants of the Faith
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+            Family Evangelists
+          </h2>
+          <div className="w-16 h-0.5 bg-[#d4af37] mt-4 mx-auto md:mx-0" />
+        </motion.div>
 
-                <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
-                  Pulazhiyil Excellence Registry
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <AchieverCarousel
+          items={EVANGELISTS}
+          viewAllHref="/achievers?tab=evangelists"
+          viewAllLabel="View All Evangelists"
+        />
       </section>
 
       {/* ── 6. FINALE: ORIGINS + EVENTS ──────────────────────────────────────── */}
@@ -554,11 +807,11 @@ export default function Home() {
             From Kodungalloor to the World
           </h2>
           <p className="text-gray-600 leading-relaxed font-light text-sm">
-            The Pullazhiyil family is one of the seventy-two Knanaya families who arrived 
-            at the historic port of Kodungalloor under the leadership of Knai Thoma. Our ancestors 
-            later settled along the Manimala River at Iruvallipra, near Thiruvalla, where our 
-            family name was born. From one household founded by Sri. Kuriyala emerged four 
-            branches — Pullazhiyil, Thykurinjiyil, Thanuvelil, and Poovathumparambil — that 
+            The Pullazhiyil family is one of the seventy-two Knanaya families who arrived
+            at the historic port of Kodungalloor under the leadership of Knai Thoma. Our ancestors
+            later settled along the Manimala River at Iruvallipra, near Thiruvalla, where our
+            family name was born. From one household founded by Sri. Kuriyala emerged four
+            branches — Pullazhiyil, Thykurinjiyil, Thanuvelil, and Poovathumparambil — that
             today span continents yet remain forever united.
           </p>
           <div className="pt-4">

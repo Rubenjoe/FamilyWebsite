@@ -48,14 +48,13 @@ export interface DocumentItem {
   fileSize: string;
 }
 
-export const MOCK_MEMBERS: Member[] = [
-  { id: "1", firstName: "Ouseph", lastName: "Pulazhiyil", malayalamName: "ഔസേപ്പ്", generation: 1, branch: "Vadakke", profession: "Agriculturist", location: "Thrissur", profilePhotoUrl: "/placeholder.png", isAlive: false },
-  { id: "2", firstName: "Mariam", lastName: "Pulazhiyil", malayalamName: "മറിയം", generation: 1, branch: "Vadakke", profession: "Homemaker", location: "Thrissur", profilePhotoUrl: "/placeholder.png", isAlive: false },
-  { id: "3", firstName: "Joseph", lastName: "Pulazhiyil", generation: 2, branch: "Kizhake", profession: "Teacher", location: "Kochi", profilePhotoUrl: "/placeholder.png", isAlive: true },
-  { id: "4", firstName: "Thomas", lastName: "Pulazhiyil", generation: 2, branch: "Thekke", profession: "Engineer", location: "Bangalore", profilePhotoUrl: "/placeholder.png", isAlive: true },
-  { id: "5", firstName: "Ann", lastName: "Pulazhiyil", generation: 2, branch: "Padinjare", profession: "Doctor", location: "Dubai", profilePhotoUrl: "/placeholder.png", isAlive: true },
-  { id: "6", firstName: "Mathew", lastName: "Pulazhiyil", generation: 3, branch: "Vadakke", profession: "Software Developer", location: "USA", profilePhotoUrl: "/placeholder.png", isAlive: true },
-  { id: "7", firstName: "Elizabeth", lastName: "Pulazhiyil", generation: 3, branch: "Kizhake", profession: "Architect", location: "Mumbai", profilePhotoUrl: "/placeholder.png", isAlive: true }
+export const MOCK_MEMBERS: Member[] = [];
+
+export const MOCK_COMMITTEE_MEMBERS: Member[] = [
+  { id: "committee-1", firstName: "Joemon Thomas", lastName: "Thanuvelil", generation: 1, branch: "Thanuvelil", profession: "President", location: "Kerala", profilePhotoUrl: "/members/Joemon Thomas Thanuvelil.jpeg", isAlive: true },
+  { id: "committee-2", firstName: "Lt. Cdr Kuriakose Mathew(Aniyan)", lastName: "Thanuvelil", generation: 1, branch: "Thanuvelil", profession: "TREASURER", location: "Kerala", profilePhotoUrl: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg", isAlive: true },
+  { id: "committee-3", firstName: "Moncy Abraham", lastName: "Thanuvelil Madathil", generation: 1, branch: "Thanuvelil", profession: "Committee Member", location: "Kerala", profilePhotoUrl: "/members/Moncy Abraham,Thanuvelil-Madathil.jpeg", isAlive: true },
+  { id: "committee-4", firstName: "Bino Abraham", lastName: "Thykurinjiyil Thoppil", generation: 1, branch: "Thykurinjiyil", profession: "Committee Member", location: "Kerala", profilePhotoUrl: "/members/Bino Abraham ,Thykurinjiyil Thoppil.jpeg", isAlive: true }
 ];
 
 export const MOCK_EVENTS: Event[] = [

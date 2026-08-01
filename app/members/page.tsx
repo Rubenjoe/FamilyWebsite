@@ -3,14 +3,15 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { MapPin, Briefcase, Search, Users } from "lucide-react";
-import { MOCK_MEMBERS } from "../../data/mockData";
+import { MOCK_COMMITTEE_MEMBERS } from "../../data/mockData";
+import LightboxImage from "@/components/ui/LightboxImage";
 
 export default function MembersDirectory() {
     const [selectedBranch, setSelectedBranch] = useState<string>("All");
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     // Live filter engine checking state bounds
-    const filteredMembers = MOCK_MEMBERS.filter(member => {
+    const filteredMembers = MOCK_COMMITTEE_MEMBERS.filter(member => {
         const matchesBranch = selectedBranch === "All" || member.branch === selectedBranch;
         const matchesSearch =
             member.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -29,8 +30,8 @@ export default function MembersDirectory() {
             {/* Header Block Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-[#1b3622]/5">
                 <div className="space-y-2">
-                    <span className="text-xs uppercase tracking-widest text-[#d4af37] font-semibold block">Family Registry Directory</span>
-                    <h1 className="text-3xl md:text-4xl text-[#1b3622] font-normal">Search Kinship Records</h1>
+                    <span className="text-xs uppercase tracking-widest text-[#d4af37] font-semibold block">Pullazhiyil Kudumbayogam</span>
+                    <h1 className="text-3xl md:text-4xl text-[#1b3622] font-normal">Executive Committee</h1>
                 </div>
 
                 {/* Dynamic Controls Grid Shell */}
@@ -39,7 +40,7 @@ export default function MembersDirectory() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search name, city, job..."
+                            placeholder="Search committee members..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-xs tracking-wide focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
@@ -74,10 +75,10 @@ export default function MembersDirectory() {
                         >
                             {/* Profile Image View Box */}
                             <div className="aspect-square bg-gray-50 relative overflow-hidden shrink-0 border-b border-gray-50">
-                                <img
+                                <LightboxImage
                                     src={member.profilePhotoUrl}
                                     alt={`${member.firstName} profile`}
-                                    className="object-cover w-full h-full filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                                    className="object-cover w-full h-full transition-all duration-500"
                                 />
                                 {!member.isAlive && (
                                     <span className="absolute top-3 right-3 bg-[#2d312e]/90 text-[#fbf9f4] px-2 py-0.5 font-serif italic text-[10px] tracking-wide">

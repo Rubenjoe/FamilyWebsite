@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { Image as ImageIcon, Calendar } from "lucide-react";
 import { MOCK_GALLERY } from "../../data/mockData";
+import LightboxImage from "@/components/ui/LightboxImage";
 
 const FAMILY_BRANCHES = ["All Branches", "Pullazhiyil", "Thykurinjiyil", "Thanuvelil", "Poovathumparambil"];
 
@@ -80,7 +81,7 @@ export default function GalleryPage() {
                         >
                             {/* Image Frame Viewbox */}
                             <div className="md:w-1/2 aspect-video md:aspect-square relative overflow-hidden bg-gray-50">
-                                <img
+                                <LightboxImage
                                     src={item.imageUrl}
                                     alt={item.title}
                                     className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500"

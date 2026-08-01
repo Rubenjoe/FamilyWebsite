@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Heart, User, Bookmark } from "lucide-react";
+import LightboxImage from "@/components/ui/LightboxImage";
 
 interface ObituaryEntry {
     id: string;
@@ -36,6 +37,14 @@ const OBITUARIES: ObituaryEntry[] = [
         deathYear: "2022",
         bio: "A respected elder of the Thanuvelil branch. Remembered for his steadfast faith, guidance, and contributions to our family legacy.",
         tribute: "Your memory is a guiding light for all of us. Rest in peace."
+    },
+    {
+        id: "ob-kuriakose-thykurinjiyil",
+        name: "Kuriakose Thykurinjiyil",
+        branch: "Thykurinjiyil",
+        photoUrl: "/obituary/Kuriakose Thykurinjiyil.jpeg",
+        bio: "Remembered with love and gratitude by the Pullazhiyil Kudumbayogam family.",
+        tribute: "May his memory remain a blessing to all who knew him."
     },
     {
         id: "ob-placeholder-thykurinjiyil",
@@ -153,10 +162,10 @@ export default function ObituaryPage() {
                                 {/* Photo Frame with Portrait Style */}
                                 <div className="aspect-[3/4] w-full max-w-[220px] mx-auto bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/50 transition-colors duration-500 rounded-sm shadow-inner">
                                     {obituary.photoUrl ? (
-                                        <img
+                                        <LightboxImage
                                             src={obituary.photoUrl}
                                             alt={obituary.name}
-                                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-750 ease-out"
+                                            className="object-cover w-full h-full grayscale group-hover:scale-105 group-hover:grayscale-0 transition-all duration-750 ease-out"
                                         />
                                     ) : (
                                         <div className="p-4 flex flex-col items-center justify-center text-center">

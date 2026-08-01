@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Heart, ChevronDown, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import LightboxImage from "@/components/ui/LightboxImage";
 
 export interface Member {
   id: string;
@@ -290,9 +291,10 @@ function MemberCard({ member, generation, isMatch }: { member: Member; generatio
     >
       <div className="flex items-center gap-3">
         {member.photo_url ? (
-          <img
+          <LightboxImage
             src={member.photo_url}
             alt={member.name || "Member Photo"}
+            buttonClassName="h-auto w-auto shrink-0"
             className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover border border-[#1b3622]/15 shrink-0"
           />
         ) : (

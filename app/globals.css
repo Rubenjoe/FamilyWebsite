@@ -31,14 +31,24 @@ h6 {
   font-family: 'Playfair Display', Georgia, serif;
   line-height: 1.3;
   letter-spacing: -0.01em;
+  font-weight: 500;
 }
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 1.0625rem;
-  line-height: 1.7;
+  font-size: 1.15625rem;
+  line-height: 1.75;
   letter-spacing: 0.01em;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Preserve the editorial feel while keeping smaller UI copy comfortably legible. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 /* Parchment texture simulator using SVG fractal noise for high fidelity paper feeling */

@@ -5,13 +5,14 @@ import {
     Users, Calendar, FileText, BarChart3,
     ShieldCheck, UserPlus, CalendarPlus, CheckCircle2, LayoutDashboard
 } from "lucide-react";
-import { MOCK_MEMBERS, MOCK_EVENTS, MOCK_DOCUMENTS } from "../../data/mockData";
+import { MOCK_EVENTS, MOCK_DOCUMENTS } from "../../data/mockData";
+import type { Member } from "../../data/mockData";
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<"overview" | "members" | "events">("overview");
 
     // Local states to handle mock form entries
-    const [membersList, setMembersList] = useState(MOCK_MEMBERS);
+    const [membersList, setMembersList] = useState<Member[]>([]);
     const [eventsList, setEventsList] = useState(MOCK_EVENTS);
     const [notification, setNotification] = useState<string | null>(null);
 
