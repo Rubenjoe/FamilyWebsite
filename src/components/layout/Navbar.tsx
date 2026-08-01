@@ -58,9 +58,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-[#1b3622]/10 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${
-        isScrolled ? "shadow-sm" : ""
-      }`}
+      className={`sticky top-0 z-50 w-full border-b border-[#1b3622]/10 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${isScrolled ? "shadow-sm" : ""
+        }`}
     >
       <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
@@ -75,7 +74,7 @@ export default function Navbar() {
               Pullazhiyil
             </span>
             <span className="Malayalam-font whitespace-nowrap text-sm font-semibold text-[#1b3622]">
-              പുലഴിയിയിൽ കുടുംബയോഗം
+              പുല്ലാഴിയിൽ കുടുംബയോഗം
             </span>
           </div>
         </Link>
@@ -89,9 +88,8 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative px-3.5 py-3 font-serif text-sm italic tracking-[0.04em] transition-colors duration-200 ${
-                  isActive ? "text-[#1b3622]" : "text-[#1b3622]/65 hover:text-[#1b3622]"
-                }`}
+                className={`relative px-3.5 py-3 font-serif text-sm italic tracking-[0.04em] transition-colors duration-200 ${isActive ? "text-[#1b3622]" : "text-[#1b3622]/65 hover:text-[#1b3622]"
+                  }`}
               >
                 {link.label}
                 {isActive && (
@@ -111,9 +109,8 @@ export default function Navbar() {
               id="navbar-more-dropdown"
               onClick={() => setIsMoreOpen((prev) => !prev)}
               onMouseEnter={() => setIsMoreOpen(true)}
-              className={`relative flex items-center gap-1.5 px-3.5 py-3 font-serif text-[15px] italic tracking-[0.04em] transition-colors duration-200 ${
-                isMoreActive ? "text-[#1b3622]" : "text-[#1b3622]/65 hover:text-[#1b3622]"
-              }`}
+              className={`relative flex items-center gap-1.5 px-3.5 py-3 font-serif text-[15px] italic tracking-[0.04em] transition-colors duration-200 ${isMoreActive ? "text-[#1b3622]" : "text-[#1b3622]/65 hover:text-[#1b3622]"
+                }`}
               aria-haspopup="true"
               aria-expanded={isMoreOpen}
             >
@@ -149,11 +146,10 @@ export default function Navbar() {
                       <Link
                         key={link.href}
                         href={link.href}
-                        className={`group flex items-center justify-between border-b border-[#1b3622]/6 px-4 py-3 font-serif text-sm italic tracking-[0.03em] transition-colors duration-150 last:border-b-0 ${
-                          isActive
-                            ? "bg-[#1b3622]/5 text-[#1b3622]"
-                            : "text-[#1b3622]/65 hover:bg-[#fbf9f4] hover:text-[#1b3622]"
-                        }`}
+                        className={`group flex items-center justify-between border-b border-[#1b3622]/6 px-4 py-3 font-serif text-sm italic tracking-[0.03em] transition-colors duration-150 last:border-b-0 ${isActive
+                          ? "bg-[#1b3622]/5 text-[#1b3622]"
+                          : "text-[#1b3622]/65 hover:bg-[#fbf9f4] hover:text-[#1b3622]"
+                          }`}
                       >
                         <span>{link.label}</span>
                         {isActive && (
@@ -205,9 +201,8 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`border-b border-white/10 py-3.5 font-serif text-base italic tracking-[0.04em] last:border-b-0 ${
-                      isActive ? "text-[#d4af37]" : "text-[#fbf9f4]/85"
-                    }`}
+                    className={`border-b border-white/10 py-3.5 font-serif text-base italic tracking-[0.04em] last:border-b-0 ${isActive ? "text-[#d4af37]" : "text-[#fbf9f4]/85"
+                      }`}
                   >
                     {link.label}
                   </Link>

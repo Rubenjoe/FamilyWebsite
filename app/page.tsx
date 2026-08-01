@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import { Calendar, ArrowRight, MapPin, ShieldCheck, Landmark, Globe, Award, ChevronLeft, ChevronRight, Users } from "lucide-react";
-import { MOCK_EVENTS, MOCK_TIMELINE } from "../data/mockData";
+import { MOCK_EVENTS } from "../data/mockData";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -157,9 +157,11 @@ function AchieverCarousel({
   viewAllHref: string;
   viewAllLabel: string;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isInView, setIsInView] = useState(false);
   const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -168,6 +170,20 @@ function AchieverCarousel({
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Only treat the carousel as "in view" once the visitor has actually
+  // scrolled down to it — this is what gates autoplay below, instead of
+  // autoplay starting the instant the page loads regardless of scroll position.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const scrollToIndex = useCallback((index: number) => {
@@ -191,9 +207,12 @@ function AchieverCarousel({
     scrollToIndex(newIndex);
   }, [activeIndex, items.length, scrollToIndex]);
 
-  // Auto-scroll on mobile only
+  // Auto-scroll on mobile only, and only while the carousel is actually
+  // visible on screen. Pauses automatically if the visitor scrolls away
+  // and resumes if they scroll back — matches "should only scroll once
+  // the viewer reaches that part of the page".
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobile || !isInView) return;
     autoScrollTimer.current = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % items.length;
@@ -210,7 +229,7 @@ function AchieverCarousel({
     return () => {
       if (autoScrollTimer.current) clearInterval(autoScrollTimer.current);
     };
-  }, [isMobile, items.length]);
+  }, [isMobile, isInView, items.length]);
 
   // Sync active index from scroll — debounced via rAF so it doesn't fire mid-momentum
   const handleScroll = useCallback(() => {
@@ -234,7 +253,7 @@ function AchieverCarousel({
   }, []);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       {/* Carousel track */}
       <div
         ref={trackRef}
@@ -315,8 +334,10 @@ function AchieverCarousel({
         ))}
       </div>
 
-      {/* Controls row: arrows left + dot indicators center + view all right */}
-      <div className="flex items-center justify-between mt-6">
+      {/* Controls row: arrows + dot indicators, and the View All button.
+          Stacks vertically on mobile (was a single non-wrapping row that
+          overlapped once both groups together exceeded screen width). */}
+      <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 mt-6">
         {/* Arrow buttons */}
         <div className="flex items-center gap-2">
           <button
@@ -357,7 +378,7 @@ function AchieverCarousel({
         {/* View All button */}
         <Link
           href={viewAllHref}
-          className="group inline-flex items-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.2em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.2em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
         >
           <Users className="h-3 w-3" />
           <span>{viewAllLabel}</span>
@@ -371,7 +392,6 @@ function AchieverCarousel({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const totalMembers = 446;
   const upcomingEvents = MOCK_EVENTS.filter((e) => e.status === "upcoming");
   const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
@@ -429,11 +449,8 @@ export default function Home() {
       <style>{CAROUSEL_STYLE}</style>
 
       {/* Elegant Ambient Background Glows — promoted to their own GPU-composited
-          layer (transform-gpu + will-change-transform). Large blur() filters are
-          expensive to repaint; without this hint the browser can end up
-          recomputing them on every scroll frame, which is the main thing that
-          was costing FPS during scrolling (including the horizontal carousels
-          below, since they sit on top of these). Visual output is identical. */}
+          layer (transform-gpu + will-change-transform) so the expensive blur()
+          filters are computed once and just composited during scroll. */}
       <div className="transform-gpu will-change-transform absolute top-[15%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/5 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
       <div className="transform-gpu will-change-transform absolute top-[45%] right-[-10%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/5 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
       <div className="transform-gpu will-change-transform absolute bottom-[20%] left-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[140px] pointer-events-none z-0" />
@@ -488,7 +505,6 @@ export default function Home() {
             </motion.span>
           </div>
 
-          {/* Display headline */}
           {/* Display headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light font-serif tracking-tight leading-[0.9]">
             <div className="overflow-hidden py-1">
@@ -569,7 +585,6 @@ export default function Home() {
 
       {/* ── 2. IDENTITY PANEL ────────────────────────────────────────────────── */}
       <section ref={infoRef} className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-10">
-        {/* FIX: scaleX now uses 0–1 numeric range */}
         <motion.div
           style={{ scaleX: infoLineScale }}
           className="w-full h-px bg-[#d4af37] origin-left"
@@ -641,7 +656,6 @@ export default function Home() {
         ref={pillarsRef}
         className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-16"
       >
-        {/* FIX: pillarsHeadingOpacity / pillarsHeadingY now actually used */}
         <motion.div
           style={{ opacity: pillarsHeadingOpacity, y: pillarsHeadingY }}
           className="space-y-2"
