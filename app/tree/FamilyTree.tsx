@@ -91,8 +91,8 @@ export default function FamilyTree({ members, rootId }: FamilyTreeProps) {
 
   const shouldReduceMotion = useReducedMotion();
 
-  // Prevent circular reference render loops
-  const visited = useMemo(() => new Set<string>(), []);
+  // Prevent circular reference render loops (fresh set per render)
+  const visited = new Set<string>();
 
   // Find root
   const rootPerson = members.find(m => m.id === rootId);
@@ -105,12 +105,9 @@ export default function FamilyTree({ members, rootId }: FamilyTreeProps) {
     );
   }
 
-  // Clear visited set before rendering tree roots
-  visited.clear();
-
   return (
-    <div className="w-full overflow-x-auto py-4 sm:py-8">
-      <div className="min-w-0 sm:min-w-[700px] flex flex-col items-center px-2 sm:px-0">
+    <div className="w-full py-4 sm:py-8 flex justify-center">
+      <div className="min-w-full sm:min-w-fit flex flex-col items-center px-2 sm:px-4">
         {renderTreeNode(
           rootPerson,
           members,
@@ -219,18 +216,14 @@ function renderTreeNode(
                 <div className="w-[2px] h-5 sm:h-6 bg-[#1b3622]/15 mx-auto"></div>
 
                 {/* Sub-tree Container */}
-                <div className="flex flex-col items-stretch max-w-4xl mx-auto pl-6 sm:pl-12 pr-2 sm:pr-4 space-y-5 sm:space-y-6 relative border-l border-[#1b3622]/15 ml-3 sm:ml-8 md:ml-12">
-                  {children.map((child, index) => {
-                    const isLast = index === children.length - 1;
+                <div className="flex flex-col items-center max-w-4xl mx-auto space-y-5 sm:space-y-6 relative">
+                  {children.map((child) => {
                     return (
-                      <div key={child.id} className="relative">
-                        {/* Horizontal Line Connector - desktop/tablet only; mobile relies on the trunk line for hierarchy */}
-                        <div className="hidden sm:block absolute left-[-49px] top-12 w-12 h-[2px] bg-[#1b3622]/15"></div>
-                        {isLast && (
-                          <div className="hidden sm:block absolute left-[-49px] top-12 bottom-0 w-[2px] bg-[#fbf9f4]"></div>
-                        )}
+                      <div key={child.id} className="relative flex flex-col items-center w-full">
+                        {/* Connector line from parent branch to child couple */}
+                        <div className="w-[2px] h-5 sm:h-6 bg-[#1b3622]/15"></div>
 
-                        <div className="w-full flex justify-center sm:justify-start">
+                        <div className="w-full flex justify-center">
                           {renderTreeNode(
                             child,
                             members,

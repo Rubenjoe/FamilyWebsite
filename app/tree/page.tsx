@@ -58,7 +58,7 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
 
       {/* Tree Workspace Dynamic Renderer */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 mt-8 sm:mt-12">
-        <div className="bg-white border border-gray-100 shadow-sm p-3 sm:p-8 min-h-[600px] flex flex-col items-center justify-start relative overflow-hidden">
+        <div className="bg-white border border-gray-100 shadow-sm p-3 sm:p-8 min-h-[600px] flex flex-col items-center justify-start relative overflow-x-auto">
 
           {/* Decorative background grid */}
           <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#1b3622_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
