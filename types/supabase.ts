@@ -65,6 +65,62 @@ export type Database = {
         };
         Relationships: [];
       };
+      heritage_records: {
+        Row: {
+          id: string;
+          kind: "obituary" | "achiever" | "evangelist" | "committee";
+          name: string;
+          branch: string;
+          title: string | null;
+          description: string | null;
+          image_url: string | null;
+          year_label: string | null;
+          birth_year: string | null;
+          death_year: string | null;
+          tribute: string | null;
+          location: string | null;
+          is_placeholder: boolean;
+          is_published: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kind: "obituary" | "achiever" | "evangelist" | "committee";
+          name: string;
+          branch?: string;
+          title?: string | null;
+          description?: string | null;
+          image_url?: string | null;
+          year_label?: string | null;
+          birth_year?: string | null;
+          death_year?: string | null;
+          tribute?: string | null;
+          location?: string | null;
+          is_placeholder?: boolean;
+          is_published?: boolean;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          kind?: "obituary" | "achiever" | "evangelist" | "committee";
+          name?: string;
+          branch?: string;
+          title?: string | null;
+          description?: string | null;
+          image_url?: string | null;
+          year_label?: string | null;
+          birth_year?: string | null;
+          death_year?: string | null;
+          tribute?: string | null;
+          location?: string | null;
+          is_placeholder?: boolean;
+          is_published?: boolean;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
       admin_users: {
         Row: {
           id: string;
@@ -122,7 +178,15 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       get_user_id_by_email: {
-        Args: { email: string };
+        Args: { p_email: string };
+        Returns: string;
+      };
+      create_dashboard_user: {
+        Args: {
+          p_email: string;
+          p_password: string;
+          p_role?: "admin" | "secretary" | "treasurer";
+        };
         Returns: string;
       };
       list_admin_users_with_email: {

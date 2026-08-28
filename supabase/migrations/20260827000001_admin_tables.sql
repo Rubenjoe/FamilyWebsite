@@ -3,11 +3,17 @@
 -- Existing members table is left unchanged.
 
 -- Role enum for admin users
-CREATE TYPE IF NOT EXISTS app_role AS ENUM (
-  'admin',
-  'secretary',
-  'treasurer'
-);
+DO $$
+BEGIN
+  CREATE TYPE app_role AS ENUM (
+    'admin',
+    'secretary',
+    'treasurer'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END
+$$;
 
 -- Events table
 CREATE TABLE IF NOT EXISTS public.events (

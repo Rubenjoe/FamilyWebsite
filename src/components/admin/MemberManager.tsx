@@ -186,6 +186,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                   <tr key={member.id} className="border-b border-gray-50 last:border-b-0 hover:bg-[#fbf9f4]/50">
                     <td className="px-4 py-3">
                       {member.photo_url ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={member.photo_url}
                           alt={member.name || "Member"}
@@ -262,6 +263,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                 setIsCreating(false);
               }}
               isSaving={isSaving}
+              onError={(message) => showToast(message, "error")}
             />
           </div>
         </div>

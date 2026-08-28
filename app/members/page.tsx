@@ -1,17 +1,20 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Briefcase, Search, Users } from "lucide-react";
 import { MOCK_COMMITTEE_MEMBERS } from "../../data/mockData";
 import LightboxImage from "@/components/ui/LightboxImage";
+import { createClient } from "@/utils/supabase/client";
 
 export default function MembersDirectory() {
     const [selectedBranch, setSelectedBranch] = useState<string>("All");
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [committeeMembers, setCommitteeMembers] = useState(MOCK_COMMITTEE_MEMBERS);
+    useEffect(() => { createClient().from("heritage_records").select("id,name,branch,title,location,image_url").eq("kind", "committee").eq("is_published", true).order("sort_order").then(({ data }) => { if (data) setCommitteeMembers(data.map((row) => ({ id: row.id, firstName: row.name, lastName: "", generation: 1, branch: row.branch, profession: row.title || undefined, location: row.location || "", profilePhotoUrl: row.image_url || "/images/logo.png", isAlive: true }))); }); }, []);
 
     // Live filter engine checking state bounds
-    const filteredMembers = MOCK_COMMITTEE_MEMBERS.filter(member => {
+    const filteredMembers = committeeMembers.filter(member => {
         const matchesBranch = selectedBranch === "All" || member.branch === selectedBranch;
         const matchesSearch =
             member.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -22,7 +25,7 @@ export default function MembersDirectory() {
         return matchesBranch && matchesSearch;
     });
 
-    const branches = ["All", "Pullazhiyil", "Thanuvelil", "Thykurinjiyil", "Poovathumparambil"];
+    const branches = ["All", ...Array.from(new Set(committeeMembers.map((member) => member.branch)))];
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-16 space-y-12">

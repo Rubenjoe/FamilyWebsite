@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Heart, User, Bookmark } from "lucide-react";
 import LightboxImage from "@/components/ui/LightboxImage";
+import { createClient } from "@/utils/supabase/client";
 
 interface ObituaryEntry {
     id: string;
@@ -64,12 +65,16 @@ const OBITUARIES: ObituaryEntry[] = [
     }
 ];
 
-const FAMILY_BRANCHES = ["All", "Pullazhiyil", "Thykurinjiyil", "Thanuvelil", "Poovathumparambil"];
-
 export default function ObituaryPage() {
     const [selectedBranch, setSelectedBranch] = useState<string>("All");
+    const [obituaries, setObituaries] = useState<ObituaryEntry[]>(OBITUARIES);
+    useEffect(() => {
+        createClient().from("heritage_records").select("id,name,branch,image_url,birth_year,death_year,description,tribute,is_placeholder").eq("kind", "obituary").eq("is_published", true).order("sort_order").then(({ data }) => {
+            if (data) setObituaries(data.map((row) => ({ id: row.id, name: row.name, branch: row.branch, photoUrl: row.image_url || undefined, birthYear: row.birth_year || undefined, deathYear: row.death_year || undefined, bio: row.description || "", tribute: row.tribute || "", isPlaceholder: row.is_placeholder })));
+        });
+    }, []);
 
-    const filteredObituaries = OBITUARIES.filter((item) =>
+    const filteredObituaries = obituaries.filter((item) =>
         selectedBranch === "All" || item.branch === selectedBranch
     );
 
@@ -126,7 +131,7 @@ export default function ObituaryPage() {
             <div className="max-w-7xl mx-auto px-6 mt-12 space-y-10 relative z-10">
                 {/* Branch Filters */}
                 <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-4">
-                    {FAMILY_BRANCHES.map((branch) => (
+                    {["All", ...Array.from(new Set(obituaries.map((item) => item.branch)))].map((branch) => (
                         <button
                             key={branch}
                             onClick={() => setSelectedBranch(branch)}

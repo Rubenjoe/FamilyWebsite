@@ -20,6 +20,7 @@ const ROLES: AdminRole[] = ["admin", "secretary", "treasurer"];
 export default function RoleManager({ initialAdminUsers, currentUserId }: RoleManagerProps) {
   const [adminUsers, setAdminUsers] = useState<AdminUserRow[]>(initialAdminUsers);
   const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState<AdminRole>("secretary");
   const [isSaving, setIsSaving] = useState(false);
   const { toasts, showToast, closeToast } = useToast();
@@ -40,25 +41,19 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
 
   const handleAdd = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEmail.trim()) return;
+    if (!newEmail.trim() || !newPassword) return;
     setIsSaving(true);
     try {
-      const { data, error } = await supabase.rpc("get_user_id_by_email", {
-        email: newEmail.trim().toLowerCase(),
+      const { error } = await supabase.rpc("create_dashboard_user", {
+        p_email: newEmail.trim().toLowerCase(),
+        p_password: newPassword,
+        p_role: newRole,
       });
       if (error) throw error;
-      if (!data) {
-        throw new Error("No user found with that email. They must sign up first.");
-      }
-      const userId = data as string;
 
-      const { error: insertError } = await supabase
-        .from("admin_users")
-        .insert({ id: userId, role: newRole });
-      if (insertError) throw insertError;
-
-      showToast("Admin role assigned successfully");
+      showToast("Dashboard account created successfully");
       setNewEmail("");
+      setNewPassword("");
       setNewRole("secretary");
       await refresh();
     } catch (err) {
@@ -66,7 +61,7 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
     } finally {
       setIsSaving(false);
     }
-  }, [newEmail, newRole, supabase, showToast, refresh]);
+  }, [newEmail, newPassword, newRole, supabase, showToast, refresh]);
 
   const handleUpdateRole = async (userId: string, role: AdminRole) => {
     if (userId === currentUserId) {
@@ -105,17 +100,17 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
       <Toast messages={toasts} onClose={closeToast} />
       <AdminPageHeader
         title="Role-Based Access"
-        subtitle="Assign admin roles to signed-up users. Only administrators can manage roles."
+        subtitle="Create dashboard accounts and manage administrative roles. Only administrators can manage access."
       />
 
       <form onSubmit={handleAdd} className="bg-white border border-gray-100 p-6 shadow-sm space-y-4">
         <h3 className="text-xs uppercase tracking-widest text-[#d4af37] font-bold border-b border-gray-50 pb-2 flex items-center gap-1.5">
           <UserPlus className="h-3.5 w-3.5" />
-          <span>Assign Admin Access</span>
+          <span>Create Dashboard Account</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-1 md:col-span-2">
+          <div className="space-y-1">
             <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
               User Email
             </label>
@@ -124,6 +119,21 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="user@example.com"
+              required
+              className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+              Temporary Password
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="At least 12 characters"
+              minLength={12}
+              autoComplete="new-password"
               required
               className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
             />
@@ -147,7 +157,7 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
         </div>
 
         <div className="text-[10px] text-gray-400 font-light">
-          The user must already have a Supabase account. Their email must match their auth account exactly.
+          A confirmed Supabase login is created with the email and password above. Share the password securely.
         </div>
 
         <button
@@ -158,7 +168,7 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
           {isSaving && (
             <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
           )}
-          Assign Role
+          Create Account
         </button>
       </form>
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import LightboxImage from "@/components/ui/LightboxImage";
+import { createClient } from "@/utils/supabase/client";
 
 const NORELL_EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -128,8 +129,16 @@ function AchieversContent() {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab) || "achievers";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const [records, setRecords] = useState({ achievers: ACHIEVEMENTS, evangelists: EVANGELISTS });
+  useEffect(() => {
+    createClient().from("heritage_records").select("id,kind,name,branch,title,description,image_url,year_label").in("kind", ["achiever", "evangelist"]).eq("is_published", true).order("sort_order").then(({ data }) => {
+      if (!data) return;
+      const map = (kind: "achiever" | "evangelist") => data.filter((row) => row.kind === kind).map((row) => ({ id: row.id, name: row.name, branch: row.branch, title: row.title || "", description: row.description || "", image: row.image_url || "", year: row.year_label || "" }));
+      setRecords({ achievers: map("achiever"), evangelists: map("evangelist") });
+    });
+  }, []);
 
-  const items = activeTab === "achievers" ? ACHIEVEMENTS : EVANGELISTS;
+  const items = activeTab === "achievers" ? records.achievers : records.evangelists;
 
   return (
     <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen selection:bg-[#1b3622] selection:text-[#fbf9f4]">

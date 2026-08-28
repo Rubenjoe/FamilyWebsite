@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Member } from "@/app/tree/FamilyTree";
-import { Search, Upload } from "lucide-react";
+import { Search, X } from "lucide-react";
+import ImageUpload from "./ImageUpload";
+import DateInput from "./DateInput";
 
 interface MemberFormProps {
   member: Member | null;
@@ -10,6 +12,7 @@ interface MemberFormProps {
   onSubmit: (member: Partial<Member>, file?: File) => void;
   onCancel: () => void;
   isSaving: boolean;
+  onError?: (message: string) => void;
 }
 
 function useMemberOptions(members: Member[], excludeId?: string | null) {
@@ -119,18 +122,15 @@ function RelationSelect({
 function hasCycle(
   memberId: string | undefined,
   proposedParentId: string | null,
-  field: "father_id" | "mother_id",
   members: Member[]
 ): boolean {
   if (!proposedParentId) return false;
   if (memberId && proposedParentId === memberId) return true;
 
   const memberById = new Map(members.map((m) => [m.id, m]));
-
-  // Check if proposedParentId is already a descendant of memberId.
-  // If it is, making it a parent would create a cycle.
   const visited = new Set<string>();
   const queue = [memberId || ""];
+
   while (queue.length > 0) {
     const currentId = queue.shift()!;
     if (!currentId || visited.has(currentId)) continue;
@@ -153,6 +153,7 @@ export default function MemberForm({
   onSubmit,
   onCancel,
   isSaving,
+  onError,
 }: MemberFormProps) {
   const [name, setName] = useState(member?.name || "");
   const [bio, setBio] = useState(member?.bio || "");
@@ -161,40 +162,55 @@ export default function MemberForm({
   const [fatherId, setFatherId] = useState<string | null>(member?.father_id || null);
   const [motherId, setMotherId] = useState<string | null>(member?.mother_id || null);
   const [spouseId, setSpouseId] = useState<string | null>(member?.spouse_id || null);
-  const [photoUrl, setPhotoUrl] = useState(member?.photo_url || "");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(member?.photo_url || null);
   const [file, setFile] = useState<File | undefined>();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(member?.photo_url || null);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const parentOptions = useMemberOptions(members, member?.id);
   const spouseOptions = useMemberOptions(members, member?.id);
 
-  const [errors, setErrors] = useState<string[]>([]);
+  useEffect(() => {
+    if (member) {
+      setName(member.name || "");
+      setBio(member.bio || "");
+      setBirthDate(member.birth_date || "");
+      setDeathDate(member.death_date || "");
+      setFatherId(member.father_id || null);
+      setMotherId(member.mother_id || null);
+      setSpouseId(member.spouse_id || null);
+      setPhotoUrl(member.photo_url || null);
+      setFile(undefined);
+      setErrors([]);
+    } else {
+      setName("");
+      setBio("");
+      setBirthDate("");
+      setDeathDate("");
+      setFatherId(null);
+      setMotherId(null);
+      setSpouseId(null);
+      setPhotoUrl(null);
+      setFile(undefined);
+      setErrors([]);
+    }
+  }, [member]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-    setFile(selected);
-    const url = URL.createObjectURL(selected);
-    setPreviewUrl(url);
+  const handlePhotoUploaded = (url: string | null) => {
+    setPhotoUrl(url);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoUrl(null);
+    setFile(undefined);
   };
 
   const validate = () => {
     const nextErrors: string[] = [];
     if (!name.trim()) nextErrors.push("Name is required.");
-    if (
-      hasCycle(member?.id, fatherId, "father_id", [
-        ...members,
-        ...(member ? [member] : []),
-      ])
-    ) {
+    if (hasCycle(member?.id, fatherId, [...members, ...(member ? [member] : [])])) {
       nextErrors.push("Selected father would create a cycle.");
     }
-    if (
-      hasCycle(member?.id, motherId, "mother_id", [
-        ...members,
-        ...(member ? [member] : []),
-      ])
-    ) {
+    if (hasCycle(member?.id, motherId, [...members, ...(member ? [member] : [])])) {
       nextErrors.push("Selected mother would create a cycle.");
     }
     if (fatherId && motherId && fatherId === motherId) {
@@ -210,7 +226,6 @@ export default function MemberForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
     onSubmit(
       {
         id: member?.id,
@@ -221,7 +236,7 @@ export default function MemberForm({
         father_id: fatherId,
         mother_id: motherId,
         spouse_id: spouseId,
-        photo_url: photoUrl || null,
+        photo_url: photoUrl,
       },
       file
     );
@@ -251,69 +266,33 @@ export default function MemberForm({
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-            Birth Date
-          </label>
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
-          />
-        </div>
+        <DateInput label="Birth Date" value={birthDate} onChange={setBirthDate} />
+        <DateInput label="Death Date" value={deathDate} onChange={setDeathDate} />
 
-        <div className="space-y-1">
+        <div className="bg-[#fbf9f4] border border-gray-100 p-4 space-y-2 md:col-span-2">
           <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-            Death Date
+            Photo
           </label>
-          <input
-            type="date"
-            value={deathDate}
-            onChange={(e) => setDeathDate(e.target.value)}
-            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-            External Photo URL (optional)
-          </label>
-          <input
-            type="url"
-            value={photoUrl}
-            onChange={(e) => {
-              setPhotoUrl(e.target.value);
-              setPreviewUrl(e.target.value || null);
-              setFile(undefined);
+          <ImageUpload
+            bucket="member-photos"
+            folder="members"
+            existingUrl={photoUrl}
+            onUploaded={(url) => {
+              handlePhotoUploaded(url);
+              if (url) setFile(undefined);
             }}
-            placeholder="https://..."
-            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+            onError={onError}
+            disabled={isSaving}
           />
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-          Photo Upload
-        </label>
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 cursor-pointer bg-[#fbf9f4] border border-gray-200 px-4 py-2.5 text-xs text-[#2d312e] hover:border-[#1b3622] transition-colors">
-            <Upload className="h-4 w-4 text-gray-400" />
-            {file ? file.name : "Choose photo..."}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
-          {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="h-12 w-12 rounded-full object-cover border border-[#1b3622]/10"
-            />
+          {photoUrl && (
+            <button
+              type="button"
+              onClick={handleRemovePhoto}
+              disabled={isSaving}
+              className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold text-red-600 hover:text-red-700"
+            >
+              <X className="h-3 w-3" /> Remove photo
+            </button>
           )}
         </div>
       </div>
