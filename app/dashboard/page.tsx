@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Eye, EyeOff, Lock, User, AlertCircle, ArrowRight } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function DashboardSignInPage() {
     const router = useRouter();
@@ -13,31 +14,35 @@ export default function DashboardSignInPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+        if (new URLSearchParams(window.location.search).get("error") === "unauthorized") {
+            setError("Your account is not authorized to access the archive desk.");
+        }
+    }, []);
+
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         if (!memberId || !password) {
-            setError("Please populate all credential input parameters.");
+            setError("Enter your email and password to continue.");
             return;
         }
 
         setIsLoading(true);
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: memberId.trim(),
+            password,
+        });
 
-        // Simulate high-security cryptographic authentication latency
-        await new Promise((resolve) => setTimeout(resolve, 1800));
-
-        // Let's implement a simple demo credentials check:
-        // Accept any credentials, but log an error if they are ridiculously short
-        if (password.length < 4) {
+        if (signInError) {
             setIsLoading(false);
-            setError("Access denied. The secure pass-key must be at least 4 characters long.");
+            setError("Access denied. Check your email and password and try again.");
             return;
         }
 
-        setIsLoading(false);
-        // Successful login mock redirect stream
-        router.push("/admin");
+        router.replace("/admin");
     };
 
     return (
@@ -101,8 +106,8 @@ export default function DashboardSignInPage() {
 
                     {/* Member ID Field */}
                     <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-                            Registry Key ID / Email
+                            <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+                            Registry Email
                         </label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -111,7 +116,7 @@ export default function DashboardSignInPage() {
                             <input
                                 required
                                 type="text"
-                                placeholder="e.g. admin@pulazhiyil.org"
+                                placeholder="you@example.com"
                                 value={memberId}
                                 onChange={(e) => setMemberId(e.target.value)}
                                 className="w-full bg-[#fbf9f4] border border-gray-200 text-xs pl-10 pr-4 py-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
@@ -179,7 +184,7 @@ export default function DashboardSignInPage() {
 
                 {/* Explainer / Hint Info box */}
                 <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-2 text-[10px] text-gray-400 font-light leading-normal">
-                    <span>Pro-tip: For quick local developer evaluation, type any email and a passcode matching/exceeding 4 chars.</span>
+                            <span>Use the email and password issued by the archive administrator.</span>
                 </div>
             </motion.div>
         </div>

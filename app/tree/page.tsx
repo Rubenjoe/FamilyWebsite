@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import FamilyTree from "./FamilyTree";
+import type { Member } from "./FamilyTree";
 
 interface PageProps {
   searchParams: Promise<{ query?: string }>;
@@ -16,7 +17,10 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
   // Fetch all members (small dataset, ~440 people max, no pagination needed)
   const { data: members, error } = await supabase
     .from("members")
-    .select("*");
+    // Only expose fields needed by the public lineage renderer.
+    // Keep private/admin columns out of the browser payload.
+    .select("id,name,photo_url,birth_date,death_date,bio,father_id,mother_id,spouse_id")
+    .returns<Member[]>();
 
   if (error || !members || members.length === 0) {
     console.error("Error loading members:", error);
@@ -57,11 +61,8 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
       </div>
 
       {/* Tree Workspace Dynamic Renderer */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 mt-8 sm:mt-12">
-        <div className="bg-white border border-gray-100 shadow-sm p-3 sm:p-8 min-h-[600px] flex flex-col items-center justify-start relative overflow-x-auto">
-
-          {/* Decorative background grid */}
-          <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#1b3622_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+      <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-6 mt-4 sm:mt-8">
+        <div className="w-full relative">
 
           {error ? (
             <div className="relative z-10 text-center py-12 text-red-700 font-serif px-4">
@@ -76,7 +77,7 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
               Could not determine the patriarch root node in the records.
             </div>
           ) : (
-            <div className="relative z-10 w-full">
+            <div className="relative z-10 w-full shadow-lg rounded-xl">
               <FamilyTree members={members} rootId={rootPerson.id} />
             </div>
           )}
