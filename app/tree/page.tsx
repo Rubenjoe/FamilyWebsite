@@ -39,9 +39,9 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
       <div className="bg-white border-b border-[#1b3622]/5 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-5 sm:gap-6">
           <div className="space-y-2">
-            <span className="text-xs uppercase tracking-[0.3em] text-[#d4af37] font-semibold block">Interactive Lineage Map</span>
+            <span className="text-xs uppercase tracking-[0.22em] text-[#d4af37] font-semibold block">Interactive Lineage Map</span>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#1b3622] font-normal">Ancestral Genealogy Tree</h1>
-            <p className="text-gray-500 font-light text-sm pt-2 max-w-lg">
+            <p className="text-gray-600 font-normal text-base pt-2 max-w-lg">
               Trace the descendants from the original founders across 4 mapped generations.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
                 name="query"
                 defaultValue={query}
                 placeholder="Locate specific member..."
-                className="w-full bg-[#fbf9f4] border border-gray-200 pl-9 pr-4 py-2.5 sm:py-2 text-xs tracking-wide focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37] text-[#2d312e]"
+                className="w-full bg-[#fbf9f4] border border-gray-200 pl-9 pr-4 py-2.5 sm:py-2 text-sm tracking-wide focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37] text-[#2d312e]"
               />
             </form>
           </div>

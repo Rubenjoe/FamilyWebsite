@@ -39,7 +39,7 @@ interface TreeNode {
   totalChildrenCount: number;
 }
 
-const CARD_WIDTH = 160;
+const CARD_WIDTH = 176;
 const COUPLE_GAP = 24;
 const COUPLE_PADDING = 20; // p-2.5 × 2
 // Keep each sibling lane wider than the largest couple card (two cards plus connector).
@@ -128,7 +128,7 @@ function MemberCard({
 
   return (
     <div
-      className="w-[160px] p-1.5 flex flex-col gap-1.5 rounded-xl transition-all"
+      className="w-[176px] p-2 flex flex-col gap-1.5 rounded-xl transition-all"
       style={{
         backgroundColor: isDeceased
           ? "hsla(0, 0%, 92%, 0.85)"
@@ -166,19 +166,19 @@ function MemberCard({
         )}
         <div className="flex flex-col min-w-0 justify-center">
           <span
-            className="text-[7px] font-bold tracking-[0.2em] uppercase select-none leading-none mb-1"
+            className="text-[9px] font-bold tracking-[0.14em] uppercase select-none leading-none mb-1"
             style={{ color: branchColor(branchName, map, 1) }}
           >
             GEN {generation}
           </span>
           <h4
-            className="font-serif text-[12px] font-medium leading-[1.15] line-clamp-2 min-h-[27px] text-[#1b3622]"
+            className="font-serif text-[14px] font-medium leading-[1.2] line-clamp-2 min-h-[34px] text-[#1b3622]"
             title={member.name || "Unknown Member"}
           >
             {member.name || "Unknown Member"}
           </h4>
           {formattedDates && (
-            <span className="text-[9px] font-serif font-light tracking-wide mt-0.5 select-none truncate flex items-center text-gray-500">
+            <span className="text-[11px] font-serif font-normal tracking-wide mt-0.5 select-none truncate flex items-center text-gray-600">
               {formattedDates} {isDeceased && <span className="italic ml-1 opacity-70">✝</span>}
             </span>
           )}
@@ -267,7 +267,7 @@ function TreeLegend({ map }: { map: Record<string, number> }) {
   const branches = Object.keys(map);
   if (branches.length === 0) return null;
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] font-mono uppercase tracking-wider text-gray-500" aria-label="Branch colour legend">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-mono uppercase tracking-[0.1em] text-gray-700" aria-label="Branch colour legend">
       {branches.map((branch) => (
         <span key={branch} className="inline-flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: branchColor(branch, map, 1) }} />
@@ -421,7 +421,7 @@ function DesktopTree({
               >
                 {node.data.generation === 2 && node.data.branchName && (
                   <div
-                    className="absolute -top-12 whitespace-nowrap px-3 py-1.5 bg-white border rounded-full font-serif text-[11px] uppercase tracking-[0.25em] shadow-sm"
+                    className="absolute -top-12 whitespace-nowrap px-3 py-1.5 bg-white border rounded-full font-serif text-xs font-medium uppercase tracking-[0.14em] shadow-sm"
                     style={{
                       color: branchColor(node.data.branchName, map, 1),
                       borderColor: branchColor(node.data.branchName, map, 0.3),
@@ -616,8 +616,8 @@ export default function FamilyTree({ members, rootId }: FamilyTreeProps) {
       <div className="flex flex-col gap-3 rounded-xl border border-[#1b3622]/10 bg-white/80 px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <TreeLegend map={branchHueMap} />
         <div className="flex items-center gap-2">
-          <button type="button" onClick={collapseAll} className="rounded-md border border-[#1b3622]/15 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1b3622] transition-colors hover:bg-[#fbf9f4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]">Collapse</button>
-          <button type="button" onClick={expandAll} className="rounded-md bg-[#1b3622] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#2b5134] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]">Expand all</button>
+          <button type="button" onClick={collapseAll} className="rounded-md border border-[#1b3622]/15 px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-[#1b3622] transition-colors hover:bg-[#fbf9f4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]">Collapse</button>
+          <button type="button" onClick={expandAll} className="rounded-md bg-[#1b3622] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#2b5134] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]">Expand all</button>
         </div>
       </div>
       {isMobile ? (

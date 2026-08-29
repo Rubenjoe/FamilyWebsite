@@ -96,7 +96,7 @@ export default function ObituaryPage() {
                         className="inline-flex items-center gap-2 px-3 py-1 bg-[#1b3622]/5 border border-[#1b3622]/10 rounded-full"
                     >
                         <Bookmark className="h-3.5 w-3.5 text-[#d4af37]" />
-                        <span className="text-[10px] uppercase tracking-[0.25em] text-[#1b3622] font-semibold font-mono">
+                        <span className="text-xs uppercase tracking-[0.18em] text-[#1b3622] font-semibold font-mono">
                             In Loving Remembrance
                         </span>
                     </motion.div>
@@ -121,7 +121,7 @@ export default function ObituaryPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.45 }}
-                        className="text-gray-600 font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed"
+                        className="text-gray-700 font-normal max-w-xl mx-auto text-base md:text-lg leading-relaxed"
                     >
                         Honoring and keeping alive the memories of our beloved family members who have departed from this world. May their souls rest in eternal peace.
                     </motion.p>
@@ -135,7 +135,7 @@ export default function ObituaryPage() {
                         <button
                             key={branch}
                             onClick={() => setSelectedBranch(branch)}
-                            className={`px-4 py-2 text-xs uppercase tracking-widest font-medium transition-all cursor-pointer ${selectedBranch === branch
+                            className={`px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all cursor-pointer ${selectedBranch === branch
                                 ? "bg-[#1b3622] text-[#fbf9f4] font-semibold"
                                 : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30"
                                 }`}
@@ -175,10 +175,10 @@ export default function ObituaryPage() {
                                     ) : (
                                         <div className="p-4 flex flex-col items-center justify-center text-center">
                                             <User className="h-12 w-12 text-[#d4af37] stroke-[0.75] mb-2 opacity-60" />
-                                            <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/40 font-bold block">
+                                            <span className="text-xs uppercase tracking-[0.12em] font-mono text-[#1b3622]/60 font-bold block">
                                                 Awaiting Photo
                                             </span>
-                                            <span className="text-[9px] text-[#1b3622]/30 font-light block mt-0.5">
+                                            <span className="text-xs text-[#1b3622]/50 font-normal block mt-0.5">
                                                 Portrait
                                             </span>
                                         </div>
@@ -195,13 +195,13 @@ export default function ObituaryPage() {
                                 <div className="space-y-4 flex-grow">
                                     {/* Title Header */}
                                     <div className="text-center space-y-1">
-                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10 inline-block">
+                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10 inline-block">
                                             {obituary.branch} Branch
                                         </span>
-                                        <h3 className="text-xl text-[#1b3622] font-serif font-light pt-2">
+                                        <h3 className="text-2xl text-[#1b3622] font-serif font-medium pt-2">
                                             {obituary.name}
                                         </h3>
-                                        <div className="flex items-center justify-center gap-2 text-xs text-gray-500 font-mono pt-1">
+                                        <div className="flex items-center justify-center gap-2 text-sm text-gray-700 font-mono pt-1">
                                             <Calendar className="h-3.5 w-3.5 text-[#d4af37]" />
                                             {obituary.birthYear && obituary.deathYear ? (
                                                 <>
@@ -217,10 +217,10 @@ export default function ObituaryPage() {
 
                                     {/* Biography */}
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
-                                        <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                                        <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
                                             Biography
                                         </h4>
-                                        <p className="text-xs text-gray-500 font-light leading-relaxed">
+                                        <p className="text-sm text-gray-600 font-normal leading-relaxed">
                                             {obituary.bio}
                                         </p>
                                     </div>
@@ -229,11 +229,11 @@ export default function ObituaryPage() {
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
                                         <div className="flex items-center gap-1.5">
                                             <Heart className="h-3.5 w-3.5 text-[#d4af37]" />
-                                            <h4 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                                            <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
                                                 Tribute & Remembrance
                                             </h4>
                                         </div>
-                                        <p className="text-xs text-gray-500 italic font-light leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
+                                        <p className="text-sm text-gray-600 italic font-normal leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
                                             {obituary.tribute}
                                         </p>
                                     </div>

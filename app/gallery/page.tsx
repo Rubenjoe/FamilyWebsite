@@ -34,13 +34,13 @@ export default function GalleryPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2 border-b border-gray-100">
                 {/* Family Branch Selector Tabs */}
                 <div className="space-y-3">
-                    <span className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold block">Filter by Family Branch</span>
+                    <span className="text-xs uppercase tracking-[0.12em] text-[#a57f12] font-bold block">Filter by Family Branch</span>
                     <div className="flex flex-wrap gap-2">
                         {FAMILY_BRANCHES.map(branch => (
                             <button
                                 key={branch}
                                 onClick={() => setSelectedBranch(branch)}
-                                className={`px-3 py-1.5 text-[10px] uppercase tracking-widest font-medium transition-all cursor-pointer ${selectedBranch === branch
+                                className={`px-3 py-2 text-xs uppercase tracking-[0.1em] font-medium transition-all cursor-pointer ${selectedBranch === branch
                                     ? "bg-[#1b3622] text-[#fbf9f4] font-semibold"
                                     : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30"
                                     }`}
@@ -53,13 +53,13 @@ export default function GalleryPage() {
 
                 {/* Album Selector Tabs */}
                 <div className="space-y-3">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold block">Filter by Album Category</span>
+                    <span className="text-xs uppercase tracking-[0.12em] text-gray-600 font-bold block">Filter by Album Category</span>
                     <div className="flex flex-wrap gap-2">
                         {albums.map(album => (
                             <button
                                 key={album}
                                 onClick={() => setSelectedAlbum(album)}
-                                className={`px-3 py-1.5 text-[10px] uppercase tracking-widest font-medium transition-all cursor-pointer ${selectedAlbum === album
+                                className={`px-3 py-2 text-xs uppercase tracking-[0.1em] font-medium transition-all cursor-pointer ${selectedAlbum === album
                                     ? "bg-[#1b3622]/90 text-[#fbf9f4] font-semibold"
                                     : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/20"
                                     }`}
@@ -92,28 +92,28 @@ export default function GalleryPage() {
                             <div className="md:w-1/2 p-6 flex flex-col justify-between space-y-4">
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5">
+                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1">
                                             {item.album}
                                         </span>
                                         {item.branch && (
-                                            <span className="bg-[#d4af37]/10 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#d4af37]/20">
+                                            <span className="bg-[#d4af37]/10 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#d4af37]/20">
                                                 {item.branch}
                                             </span>
                                         )}
                                         {item.year && (
-                                            <span className="text-gray-400 font-mono text-[10px] flex items-center gap-1">
-                                                <Calendar className="h-3 w-3" />
+                                            <span className="text-gray-700 font-mono text-sm font-medium flex items-center gap-1">
+                                                <Calendar className="h-3.5 w-3.5" />
                                                 {item.year}
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-base text-[#2d312e] font-medium leading-snug">{item.title}</h3>
+                                    <h3 className="text-lg text-[#2d312e] font-medium leading-snug">{item.title}</h3>
                                     {item.description && (
-                                        <p className="text-xs text-gray-500 font-light leading-relaxed">{item.description}</p>
+                                        <p className="text-sm text-gray-600 font-normal leading-relaxed">{item.description}</p>
                                     )}
                                 </div>
 
-                                <div className="text-[10px] uppercase tracking-wider text-[#d4af37] font-semibold pt-2 border-t border-gray-50">
+                                <div className="text-xs uppercase tracking-[0.1em] text-[#a57f12] font-semibold pt-2 border-t border-gray-100">
                                     Pulazhiyil Heritage Registry
                                 </div>
                             </div>

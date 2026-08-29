@@ -43,6 +43,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Keep keyboard navigation obvious without changing the visual language. */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
 /* Preserve the editorial feel while keeping smaller UI copy comfortably legible. */
 button,
 input,

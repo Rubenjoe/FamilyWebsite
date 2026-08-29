@@ -378,7 +378,7 @@ function AchieverCarousel({
         {/* View All button */}
         <Link
           href={viewAllHref}
-          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.2em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
         >
           <Users className="h-3 w-3" />
           <span>{viewAllLabel}</span>
@@ -493,13 +493,13 @@ export default function Home() {
           style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
           className="max-w-6xl w-full mx-auto space-y-12 relative z-10"
         >
-          {/* Eyebrow */}
-          <div className="overflow-hidden h-6 flex items-center">
+          {/* Eyebrow / Tagline */}
+          <div className="flex items-center">
             <motion.span
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: NORELL_EASE }}
-              className="text-[10px] md:text-xs uppercase tracking-[0.4em] text-[#d4af37] font-semibold block"
+              className="text-xs sm:text-sm md:text-[14px] uppercase tracking-[0.22em] md:tracking-[0.28em] text-[#d4af37] font-medium block leading-relaxed"
             >
               Rooted in Heritage &bull; United in Faith &bull; Forever Bound by Family
             </motion.span>
@@ -545,7 +545,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.55, ease: NORELL_EASE }}
             >
-              <p className="text-sm md:text-lg lg:text-xl tracking-[0.15em] uppercase text-[#fbf9f4]/70 font-mono">
+              <p className="text-base md:text-lg lg:text-xl tracking-[0.15em] uppercase text-[#fbf9f4]/85 font-mono">
                 Pullazhiyil &bull; Thykurinjiyil &bull; Thanuvelil &bull; Poovathumparambil
               </p>
             </motion.div>
@@ -558,7 +558,7 @@ export default function Home() {
             >
               <Link
                 href="/tree"
-                className="group inline-flex items-center gap-3 bg-[#d4af37] text-[#1b3622] text-[10px] uppercase tracking-[0.25em] font-bold px-8 py-4 hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
+                className="group inline-flex items-center gap-3 bg-[#d4af37] text-[#1b3622] text-sm uppercase tracking-[0.18em] font-bold px-8 py-4 hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
               >
                 <span>Explore Our Family Tree</span>
                 <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -574,7 +574,7 @@ export default function Home() {
           transition={{ delay: 1.4, duration: 1 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <span className="text-[9px] uppercase tracking-[0.3em] font-mono text-[#fbf9f4]/30">Scroll</span>
+          <span className="text-xs uppercase tracking-[0.25em] font-mono text-[#fbf9f4]/50">Scroll</span>
           <motion.div
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
@@ -594,7 +594,7 @@ export default function Home() {
           <div className="md:col-span-5">
             <motion.span
               style={{ opacity: infoTextOpacity }}
-              className="text-[10px] tracking-[0.3em] uppercase font-mono text-[#d4af37] block mb-2"
+              className="text-xs tracking-[0.25em] uppercase font-mono text-[#d4af37] block mb-2"
             >
               Our Heritage
             </motion.span>
@@ -609,7 +609,7 @@ export default function Home() {
           <div className="md:col-span-7">
             <motion.p
               style={{ y: infoTextY, opacity: infoTextOpacity }}
-              className="text-gray-600 font-light text-sm md:text-base leading-relaxed max-w-2xl"
+              className="text-gray-600 font-normal text-base md:text-lg leading-relaxed max-w-2xl"
             >
               The Pullazhiyil Kudumbayogam is more than an assembly; it is a live institutional
               anchor for hundreds of families worldwide. We trace our roots back to the historic Knanaya
@@ -642,7 +642,7 @@ export default function Home() {
               <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
                 {stat.value}
               </span>
-              <span className="text-[9px] uppercase tracking-widest text-gray-400 block font-mono">
+              <span className="text-xs uppercase tracking-[0.12em] text-gray-500 block font-mono">
                 {stat.label}
               </span>
             </motion.div>
@@ -707,7 +707,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <h3 className="text-xs uppercase tracking-widest font-bold text-[#1b3622]">
+                <h3 className="text-sm uppercase tracking-[0.1em] font-bold text-[#1b3622]">
                   {pillar.title}
                 </h3>
 
@@ -746,7 +746,7 @@ export default function Home() {
               &ldquo;The greatness of a family is measured not merely by its wealth or the number of its members, but by the faith, love, unity, and sense of heritage that bind generations together.&rdquo;
             </p>
             <div className="w-16 h-0.5 bg-[#d4af37]/50 mx-auto" />
-            <p className="text-xs uppercase tracking-[0.2em] font-mono text-[#fbf9f4]/50">
+            <p className="text-sm uppercase tracking-[0.15em] font-mono text-[#fbf9f4]/70">
               Pullazhiyil Kudumbayogam Heritage
             </p>
           </div>
@@ -820,7 +820,7 @@ export default function Home() {
           <h2 className="text-4xl text-[#1b3622] font-light font-serif leading-tight">
             From Kodungalloor to the World
           </h2>
-          <p className="text-gray-600 leading-relaxed font-light text-sm">
+          <p className="text-gray-600 leading-relaxed font-normal text-base">
             The Pullazhiyil family is one of the seventy-two Knanaya families who arrived
             at the historic port of Kodungalloor under the leadership of Knai Thoma. Our ancestors
             later settled along the Manimala River at Iruvallipra, near Thiruvalla, where our
@@ -831,7 +831,7 @@ export default function Home() {
           <div className="pt-4">
             <Link
               href="/history"
-              className="group inline-flex items-center gap-4 text-[10px] uppercase tracking-[0.25em] font-bold text-[#1b3622] border-b border-[#1b3622]/20 pb-2 hover:border-[#1b3622] transition-colors duration-300"
+              className="group inline-flex items-center gap-4 text-sm uppercase tracking-[0.15em] font-bold text-[#1b3622] border-b border-[#1b3622]/20 pb-2 hover:border-[#1b3622] transition-colors duration-300"
             >
               <span>Read Our Full History</span>
               <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -848,10 +848,10 @@ export default function Home() {
           transition={{ duration: 1, delay: 0.15, ease: NORELL_EASE }}
         >
           <div className="flex justify-between items-center border-b border-[#1b3622]/10 pb-4">
-            <span className="text-[10px] uppercase tracking-[0.3em] font-mono font-bold text-[#d4af37]">
+            <span className="text-xs uppercase tracking-[0.18em] font-mono font-bold text-[#d4af37]">
               Upcoming Assemblies
             </span>
-            <span className="bg-[#1b3622] text-[#fbf9f4] px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest font-semibold">
+            <span className="bg-[#1b3622] text-[#fbf9f4] px-2 py-0.5 font-mono text-xs uppercase tracking-[0.1em] font-semibold">
               Live System Feed
             </span>
           </div>
@@ -868,7 +868,7 @@ export default function Home() {
                   className="space-y-4"
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400 uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-sm font-mono text-gray-600 uppercase tracking-[0.1em]">
                       <Calendar className="h-3 w-3 text-[#d4af37]" />
                       <span>
                         {new Date(event.date).toLocaleDateString("en-US", {
@@ -878,12 +878,12 @@ export default function Home() {
                         })}
                       </span>
                     </div>
-                    <h3 className="text-xl text-[#1b3622] font-serif font-light">{event.title}</h3>
+                    <h3 className="text-xl text-[#1b3622] font-serif font-medium">{event.title}</h3>
                   </div>
-                  <p className="text-xs text-gray-500 font-light leading-relaxed">
+                  <p className="text-sm text-gray-600 font-normal leading-relaxed">
                     {event.description}
                   </p>
-                  <div className="flex items-center gap-2 pt-2 text-[10px] font-mono text-gray-400">
+                  <div className="flex items-center gap-2 pt-2 text-sm font-mono text-gray-600">
                     <MapPin className="h-3 w-3 text-[#1b3622]" />
                     <span className="truncate">{event.location}</span>
                   </div>
@@ -893,7 +893,7 @@ export default function Home() {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-xs text-gray-400 italic font-light"
+                className="text-sm text-gray-500 italic font-normal"
               >
                 No formal upcoming gatherings scheduled at this time.
               </motion.p>

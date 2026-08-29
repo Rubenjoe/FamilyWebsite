@@ -197,7 +197,7 @@ export default function HistoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.45 }}
-            className="text-[#2d312e]/70 font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed"
+            className="text-[#2d312e] font-normal max-w-xl mx-auto text-base md:text-lg leading-relaxed"
           >
             Trace the centuries-old narrative, migration routes, and institutional growth that bind the branches of the Pullazhiyil family together.
           </motion.p>
@@ -240,7 +240,7 @@ export default function HistoryPage() {
                     />
                   </div>
                   <div className="text-center max-w-xl mx-auto">
-                    <p className="text-xs italic font-serif text-[#1b3622]/70 leading-relaxed">
+                    <p className="text-sm italic font-serif text-[#1b3622] leading-relaxed">
                       The serene waterways of Central Kerala, symbolizing the natural pathways that guided our ancestors through generation-defining migrations.
                     </p>
                     <div className="w-12 h-px bg-[#d4af37]/35 mx-auto mt-2" />
@@ -266,13 +266,13 @@ export default function HistoryPage() {
                     <div className="p-2 bg-[#1b3622]/5 rounded-lg border border-[#1b3622]/10">
                       <IconComponent className="h-5 w-5 text-[#d4af37] stroke-[1.5]" />
                     </div>
-                    <span className="text-[10px] tracking-[0.25em] uppercase font-mono font-bold">
+                    <span className="text-xs tracking-[0.18em] uppercase font-mono font-bold">
                       Section {index + 1}
                     </span>
                   </div>
 
                   {/* Heading */}
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-light font-serif text-[#1b3622] leading-tight">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium font-serif text-[#1b3622] leading-tight">
                     {section.title}
                   </h2>
 
@@ -281,7 +281,7 @@ export default function HistoryPage() {
 
                   {/* Intro Text */}
                   <p 
-                    className="text-gray-700 font-light text-sm sm:text-base leading-relaxed dropcap"
+                    className="text-gray-700 font-normal text-base sm:text-lg leading-relaxed dropcap"
                     dangerouslySetInnerHTML={{ __html: section.intro }}
                   />
 
@@ -293,7 +293,7 @@ export default function HistoryPage() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.6, ease: NORELL_EASE }}
-                        className="overflow-hidden space-y-4 text-gray-600 font-light text-sm leading-relaxed border-t border-gray-100/60 pt-4"
+                        className="overflow-hidden space-y-4 text-gray-700 font-normal text-base leading-relaxed border-t border-gray-100/60 pt-4"
                       >
                         {section.fullText.map((paragraph, pIdx) => (
                           <p 
@@ -309,13 +309,13 @@ export default function HistoryPage() {
                   {/* Accordion Trigger Button */}
                   <button
                     onClick={() => toggleSection(section.id)}
-                    className="group inline-flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-bold text-[#d4af37] hover:text-[#1b3622] transition-colors duration-300 pt-2 cursor-pointer select-none"
+                    className="group inline-flex items-center gap-2 text-xs sm:text-[13px] tracking-[0.18em] uppercase font-bold text-[#d4af37] hover:text-[#1b3622] transition-colors duration-300 pt-2 cursor-pointer select-none"
                   >
                     <span>{isExpanded ? "Read Less" : "Read More"}</span>
                     {isExpanded ? (
-                      <ChevronUp className="h-3.5 w-3.5 transform transition-transform duration-300 group-hover:-translate-y-0.5" />
+                      <ChevronUp className="h-4 w-4 transform transition-transform duration-300 group-hover:-translate-y-0.5" />
                     ) : (
-                      <ChevronDown className="h-3.5 w-3.5 transform transition-transform duration-300 group-hover:translate-y-0.5" />
+                      <ChevronDown className="h-4 w-4 transform transition-transform duration-300 group-hover:translate-y-0.5" />
                     )}
                   </button>
 
@@ -381,10 +381,10 @@ export default function HistoryPage() {
                   transition={{ duration: 0.8, delay: vIdx * 0.08 }}
                   className={`text-[#1b3622] leading-relaxed ${
                     isTagline 
-                      ? "text-lg sm:text-xl font-bold font-serif tracking-wide border-t border-b border-[#d4af37]/25 py-4 max-w-md mx-auto italic" 
+                      ? "text-base sm:text-lg md:text-xl font-bold font-serif tracking-[0.05em] border-t border-b border-[#d4af37]/30 py-4 max-w-lg mx-auto text-[#1b3622]" 
                       : isEmphasized
                         ? "text-sm sm:text-base font-medium font-serif italic"
-                        : "text-xs sm:text-sm font-light"
+                        : "text-sm sm:text-base font-normal"
                   }`}
                 >
                   {verse}

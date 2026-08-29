@@ -159,7 +159,7 @@ function AchieversContent() {
         <div className="relative z-10 max-w-7xl mx-auto">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[#d4af37]/70 hover:text-[#d4af37] text-[10px] uppercase tracking-[0.25em] font-mono font-bold transition-colors duration-200 mb-8 group"
+            className="inline-flex items-center gap-2 text-[#d4af37]/90 hover:text-[#d4af37] text-xs uppercase tracking-[0.18em] font-mono font-bold transition-colors duration-200 mb-8 group"
           >
             <ArrowRight className="h-3 w-3 rotate-180 group-hover:-translate-x-1 transition-transform duration-200" />
             Back to Home
@@ -171,13 +171,13 @@ function AchieversContent() {
             transition={{ duration: 1, ease: NORELL_EASE }}
             className="space-y-4"
           >
-            <span className="text-[10px] uppercase tracking-[0.35em] font-mono text-[#d4af37] block">
+            <span className="text-xs uppercase tracking-[0.22em] font-mono text-[#d4af37] block">
               Pullazhiyil Heritage Registry
             </span>
             <h1 className="text-4xl md:text-6xl font-serif font-light leading-tight">
               {activeTab === "achievers" ? "Family Achievers" : "Family Evangelists"}
             </h1>
-            <p className="text-[#fbf9f4]/60 font-light text-sm md:text-base max-w-xl leading-relaxed">
+            <p className="text-[#fbf9f4]/85 font-normal text-base md:text-lg max-w-xl leading-relaxed">
               {activeTab === "achievers"
                 ? "Honoring the remarkable accomplishments of the Pullazhiyil Kudumbayogam across generations."
                 : "Celebrating those who have dedicated their lives to faith, service, and the Gospel across generations."}
@@ -194,7 +194,7 @@ function AchieversContent() {
               key={tab}
               id={`tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-3 font-mono text-[11px] uppercase tracking-[0.2em] font-bold transition-all duration-300 ${activeTab === tab
+              className={`relative px-6 py-3 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all duration-300 ${activeTab === tab
                   ? "bg-[#1b3622] text-[#fbf9f4]"
                   : "bg-transparent text-[#1b3622]/60 hover:text-[#1b3622] hover:bg-[#1b3622]/5"
                 }`}
@@ -250,10 +250,10 @@ function AchieversContent() {
                       ) : (
                         <Users className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
                       )}
-                      <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
+                      <span className="text-xs uppercase tracking-[0.12em] font-mono text-[#1b3622]/70 font-bold block mb-1">
                         Photo Placeholder
                       </span>
-                      <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                      <span className="text-xs text-[#1b3622]/60 font-normal block">
                         Awaiting portrait or recognition image
                       </span>
                     </div>
@@ -269,20 +269,20 @@ function AchieversContent() {
                 <div className="space-y-3 flex-grow flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
+                      <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10">
                         {item.branch} Branch
                       </span>
                       <span className="text-gray-500 font-mono text-[10px]">
                         {item.year}
                       </span>
                     </div>
-                    <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
+                    <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug">
                       {item.name}
                     </h3>
-                    <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
+                    <p className="text-sm uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
                       {item.title}
                     </p>
-                    <p className="text-xs text-gray-500 font-light leading-relaxed">
+                    <p className="text-sm text-gray-600 font-normal leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -303,7 +303,7 @@ export default function AchieversPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#fbf9f4] flex items-center justify-center">
-        <div className="text-[#1b3622]/40 font-mono text-xs uppercase tracking-widest">Loading...</div>
+        <div className="text-[#1b3622]/60 font-mono text-sm uppercase tracking-[0.15em]">Loading...</div>
       </div>
     }>
       <AchieversContent />
