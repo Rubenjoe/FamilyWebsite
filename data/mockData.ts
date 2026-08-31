@@ -11,15 +11,6 @@ export interface Member {
   isAlive: boolean;
 }
 
-export interface Event {
-  id: string;
-  title: string;
-  description: string;
-  date: string; // ISO format or date string
-  status: "upcoming" | "past";
-  location: string;
-  time?: string;
-}
 
 export interface TimelineItem {
   id: string;
@@ -57,26 +48,6 @@ export const MOCK_COMMITTEE_MEMBERS: Member[] = [
   { id: "committee-4", firstName: "Bino Abraham", lastName: "Thykurinjiyil Thoppil", generation: 1, branch: "Thykurinjiyil", profession: "Committee Member", location: "Kerala", profilePhotoUrl: "/members/Bino Abraham ,Thykurinjiyil Thoppil.jpeg", isAlive: true }
 ];
 
-export const MOCK_EVENTS: Event[] = [
-  {
-    id: "e1",
-    title: "Annual Kudumbayogam General Body Meeting",
-    description: "The official annual get-together of all members of the Pulazhiyil family featuring cultural events, heritage sharing, and standard administrative discussions.",
-    date: "2026-09-12",
-    status: "upcoming",
-    location: "Kudumbayogam Hall, Thrissur, Kerala",
-    time: "10:00 AM"
-  },
-  {
-    id: "e2",
-    title: "Youth Committee Leadership Workshop",
-    description: "Empowering the next generation of leadership with family heritage storytelling, soft skills, and strategic community development planning.",
-    date: "2026-10-25",
-    status: "upcoming",
-    location: "St. Thomas Family Hall, Thrissur",
-    time: "02:00 PM"
-  }
-];
 
 export const MOCK_TIMELINE: TimelineItem[] = [
   {

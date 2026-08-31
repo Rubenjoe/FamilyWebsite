@@ -1,0 +1,993 @@
+"use client";
+
+import { useRef, useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence,
+} from "framer-motion";
+import {
+  Calendar,
+  ArrowRight,
+  MapPin,
+  ShieldCheck,
+  Landmark,
+  Globe,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+} from "lucide-react";
+import type { Database } from "@/types/supabase";
+
+// ─── Derived view-model types from Supabase schema ───────────────────────────
+
+type HeritageRow = Pick<
+  Database["public"]["Tables"]["heritage_records"]["Row"],
+  "id" | "name" | "branch" | "title" | "description" | "image_url" | "year_label"
+>;
+
+type EventRow = Pick<
+  Database["public"]["Tables"]["events"]["Row"],
+  "id" | "title" | "description" | "event_date" | "location"
+>;
+
+// ─── Props ───────────────────────────────────────────────────────────────────
+
+interface HomeClientProps {
+  achievers: HeritageRow[];
+  evangelists: HeritageRow[];
+  upcomingEvents: EventRow[];
+}
+
+// ─── Internal carousel item shape (maps from HeritageRow) ────────────────────
+
+interface CarouselItem {
+  id: string;
+  name: string;
+  branch: string;
+  year: string;
+  title: string;
+  description: string;
+  image: string;
+}
+
+function toCarouselItem(row: HeritageRow): CarouselItem {
+  return {
+    id: row.id,
+    name: row.name,
+    branch: row.branch,
+    year: row.year_label ?? "",
+    title: row.title ?? "",
+    description: row.description ?? "",
+    image: row.image_url ?? "",
+  };
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const NORELL_EASE = [0.16, 1, 0.3, 1] as const;
+
+interface Pillar {
+  num: string;
+  title: string;
+  desc: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const HERITAGE_PILLARS: Pillar[] = [
+  {
+    num: "01",
+    title: "Knanaya Heritage",
+    desc: "Preserving the Jewish-Christian traditions, endogamy, and cultural identity of the Knanaya community since A.D. 345.",
+    icon: ShieldCheck,
+  },
+  {
+    num: "02",
+    title: "Faith & Family Values",
+    desc: "Upholding the faith, love, and unity that our forefathers — from Sri. Kuriyala to the present generation — have entrusted to us.",
+    icon: Landmark,
+  },
+  {
+    num: "03",
+    title: "Heritage Preservation",
+    desc: "Documenting and safeguarding the oral traditions, family records, and ancestral history of the Pullazhiyil lineage for future generations.",
+    icon: Globe,
+  },
+  {
+    num: "04",
+    title: "Global Family Unity",
+    desc: "Connecting members across Kerala, India, the United States, Australia, and Europe through annual gatherings and cultural celebrations.",
+    icon: Award,
+  },
+];
+
+const HERO_IMAGES = [
+  "/images/hero1.jpeg",
+  "/images/hero2.jpeg",
+  "/images/hero3.jpeg",
+];
+
+// ─── Carousel Style ───────────────────────────────────────────────────────────
+
+// Injected once (module scope) instead of per-carousel-instance, so two carousels
+// on the same page don't duplicate the same <style> tag in the DOM.
+const CAROUSEL_STYLE = `
+  .achv-track::-webkit-scrollbar { display: none; }
+`;
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+
+function CarouselEmptyState({ message }: { message: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: NORELL_EASE }}
+      className="w-full border border-dashed border-[#1b3622]/15 bg-white/60 rounded-sm px-8 py-14 flex flex-col items-center justify-center text-center gap-3"
+    >
+      <Award className="h-8 w-8 text-[#d4af37]/40 stroke-[1]" />
+      <p className="text-sm text-gray-400 font-light italic leading-relaxed max-w-xs">
+        {message}
+      </p>
+    </motion.div>
+  );
+}
+
+// ─── Achiever Carousel Component ──────────────────────────────────────────────
+
+function AchieverCarousel({
+  items,
+  viewAllHref,
+  viewAllLabel,
+  emptyMessage,
+}: {
+  items: CarouselItem[];
+  viewAllHref: string;
+  viewAllLabel: string;
+  emptyMessage: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Only treat the carousel as "in view" once the visitor has actually
+  // scrolled down to it — this is what gates autoplay below.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      if (!trackRef.current) return;
+      const track = trackRef.current;
+      const firstCard = track.firstElementChild as HTMLElement | null;
+      const gap = 24; // gap-6 = 1.5rem = 24px
+      const cardWidth =
+        firstCard
+          ? firstCard.offsetWidth + gap
+          : track.scrollWidth / items.length;
+      track.scrollTo({ left: cardWidth * index, behavior: "smooth" });
+      setActiveIndex(index);
+    },
+    [items.length]
+  );
+
+  const handlePrev = useCallback(() => {
+    const newIndex = (activeIndex - 1 + items.length) % items.length;
+    scrollToIndex(newIndex);
+  }, [activeIndex, items.length, scrollToIndex]);
+
+  const handleNext = useCallback(() => {
+    const newIndex = (activeIndex + 1) % items.length;
+    scrollToIndex(newIndex);
+  }, [activeIndex, items.length, scrollToIndex]);
+
+  // Auto-scroll on mobile only, and only while the carousel is visible.
+  useEffect(() => {
+    if (!isMobile || !isInView || items.length === 0) return;
+    autoScrollTimer.current = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % items.length;
+        if (trackRef.current) {
+          const track = trackRef.current;
+          const firstCard = track.firstElementChild as HTMLElement | null;
+          const gap = 24;
+          const cardWidth =
+            firstCard
+              ? firstCard.offsetWidth + gap
+              : track.scrollWidth / items.length;
+          track.scrollTo({ left: cardWidth * next, behavior: "smooth" });
+        }
+        return next;
+      });
+    }, 3500);
+    return () => {
+      if (autoScrollTimer.current) clearInterval(autoScrollTimer.current);
+    };
+  }, [isMobile, isInView, items.length]);
+
+  // Sync active index from scroll — debounced via rAF so it doesn't fire mid-momentum
+  const handleScroll = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!trackRef.current) return;
+      const track = trackRef.current;
+      const firstCard = track.firstElementChild as HTMLElement | null;
+      const gap = 24;
+      const cardWidth =
+        firstCard
+          ? firstCard.offsetWidth + gap
+          : track.scrollWidth / items.length;
+      const newIndex = Math.round(track.scrollLeft / cardWidth);
+      setActiveIndex(Math.max(0, Math.min(newIndex, items.length - 1)));
+    });
+  }, [items.length]);
+
+  // Cancel any in-flight rAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  // Empty state — no carousel rendered
+  if (items.length === 0) {
+    return (
+      <div className="space-y-6">
+        <CarouselEmptyState message={emptyMessage} />
+        <div className="flex justify-start">
+          <Link
+            href={viewAllHref}
+            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+          >
+            <Users className="h-3 w-3" />
+            <span>{viewAllLabel}</span>
+            <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Carousel track */}
+      <div
+        ref={trackRef}
+        onScroll={handleScroll}
+        className="achv-track flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorX: "contain",
+          scrollBehavior: "smooth",
+          willChange: "scroll-position",
+        }}
+      >
+        {items.map((achievement, index) => (
+          <motion.div
+            key={achievement.id}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: index * 0.1, ease: NORELL_EASE }}
+            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)] bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-shadow duration-500 rounded-sm"
+          >
+            {/* Photo Frame */}
+            <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
+              {achievement.image ? (
+                <img
+                  src={achievement.image}
+                  alt={achievement.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="transform-gpu object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              ) : (
+                <div className="p-6 flex flex-col items-center justify-center text-center">
+                  <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
+                  <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
+                    Photo Placeholder
+                  </span>
+                  <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                    Awaiting portrait or recognition image
+                  </span>
+                </div>
+              )}
+              {/* Decorative border corners */}
+              <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
+              <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
+              <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
+            </div>
+
+            {/* Information Block */}
+            <div className="space-y-3 flex-grow flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
+                    {achievement.branch} Branch
+                  </span>
+                  <span className="text-gray-500 font-mono text-[10px]">
+                    {achievement.year}
+                  </span>
+                </div>
+                <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
+                  {achievement.name}
+                </h3>
+                <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
+                  {achievement.title}
+                </p>
+                <p className="text-xs text-gray-500 font-light leading-relaxed">
+                  {achievement.description}
+                </p>
+              </div>
+              <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
+                Pulazhiyil Excellence Registry
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Controls row: arrows + dot indicators + View All button */}
+      <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 mt-6">
+        {/* Arrow buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrev}
+            aria-label="Previous achiever"
+            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+          >
+            <ChevronLeft className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Next achiever"
+            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+          >
+            <ChevronRight className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+          </button>
+
+          {/* Dot indicators */}
+          <div className="flex items-center gap-1.5 ml-3">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToIndex(i)}
+                aria-label={`Go to card ${i + 1}`}
+                className="transition-all duration-300"
+              >
+                <div
+                  className={`rounded-full transition-all duration-300 ${
+                    activeIndex === i
+                      ? "w-5 h-1.5 bg-[#d4af37]"
+                      : "w-1.5 h-1.5 bg-[#1b3622]/20 hover:bg-[#1b3622]/40"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* View All button */}
+        <Link
+          href={viewAllHref}
+          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+        >
+          <Users className="h-3 w-3" />
+          <span>{viewAllLabel}</span>
+          <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Client Component ─────────────────────────────────────────────────────
+
+export default function HomeClient({
+  achievers,
+  evangelists,
+  upcomingEvents,
+}: HomeClientProps) {
+  const achieverItems = achievers.map(toCarouselItem);
+  const evangelistItems = evangelists.map(toCarouselItem);
+
+  const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
+  const [currentHeroImage, setCurrentHeroImage] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHeroImage((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Section refs
+  const heroRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const pillarsRef = useRef<HTMLDivElement>(null);
+
+  // ── 1. Hero scroll transforms ──────────────────────────────────────────────
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(heroScroll, [0, 1], [0, -120]);
+  // spring-smooth the opacity so it doesn't snap harshly
+  const heroOpacityRaw = useTransform(heroScroll, [0, 0.65], [1, 0]);
+  const heroOpacity = useSpring(heroOpacityRaw, { stiffness: 80, damping: 20 });
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 0.95]);
+
+  // ── 2. Info section scroll transforms ─────────────────────────────────────
+  const { scrollYProgress: infoScroll } = useScroll({
+    target: infoRef,
+    offset: ["start end", "end start"],
+  });
+  const infoLineScale = useTransform(infoScroll, [0.1, 0.45], [0, 1]);
+  const infoTextY = useTransform(infoScroll, [0.1, 0.4], [40, 0]);
+  const infoTextOpacity = useTransform(infoScroll, [0.1, 0.4], [0, 1]);
+
+  // ── 4. Pillars scroll transforms ──────────────────────────────────────────
+  const { scrollYProgress: pillarsScroll } = useScroll({
+    target: pillarsRef,
+    offset: ["start end", "end start"],
+  });
+  const pillarsHeadingOpacity = useTransform(
+    pillarsScroll,
+    [0.05, 0.25],
+    [0, 1]
+  );
+  const pillarsHeadingY = useTransform(pillarsScroll, [0.05, 0.25], [30, 0]);
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  return (
+    <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
+      {/* Scrollbar-hiding rule for the achievement/evangelist carousels — injected
+          once here instead of inside each AchieverCarousel instance, so it isn't
+          duplicated in the DOM when the page renders more than one carousel. */}
+      <style>{CAROUSEL_STYLE}</style>
+
+      {/* Elegant Ambient Background Glows — promoted to their own GPU-composited
+          layer (transform-gpu + will-change-transform) so the expensive blur()
+          filters are computed once and just composited during scroll. */}
+      <div className="transform-gpu will-change-transform absolute top-[15%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/5 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
+      <div className="transform-gpu will-change-transform absolute top-[45%] right-[-10%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/5 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
+      <div className="transform-gpu will-change-transform absolute bottom-[20%] left-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[140px] pointer-events-none z-0" />
+
+      {/* ── 1. HERO ──────────────────────────────────────────────────────────── */}
+      <div
+        ref={heroRef}
+        className="relative h-[95vh] flex flex-col justify-center px-6 md:px-12 lg:px-20 border-b border-[#1b3622]/10 text-[#fbf9f4]"
+        style={{ overflow: "hidden" }}
+      >
+        {/* Background Slideshow */}
+        {HERO_IMAGES.map((img, index) => (
+          <motion.div
+            key={img}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: currentHeroImage === index ? 1 : 0 }}
+            transition={{ duration: 1.5 }}
+            className="transform-gpu absolute inset-0 z-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${img})` }}
+          />
+        ))}
+        {/* Dark overlay to keep text readable against images */}
+        <div className="absolute inset-0 z-0 bg-[#1b3622]/70" />
+
+        {/* Dot grid */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.045] z-0"
+          style={{
+            backgroundImage: "radial-gradient(#d4af37 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        {/* Subtle ambient glow in top-right corner */}
+        <div
+          aria-hidden
+          className="transform-gpu pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full z-0"
+          style={{
+            background: "radial-gradient(circle, #d4af3715 0%, transparent 65%)",
+          }}
+        />
+
+        <motion.div
+          style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
+          className="max-w-6xl w-full mx-auto space-y-12 relative z-10"
+        >
+          {/* Eyebrow / Tagline */}
+          <div className="flex items-center">
+            <motion.span
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: NORELL_EASE }}
+              className="text-xs sm:text-sm md:text-[14px] uppercase tracking-[0.22em] md:tracking-[0.28em] text-[#d4af37] font-medium block leading-relaxed"
+            >
+              Rooted in Heritage &bull; United in Faith &bull; Forever Bound by
+              Family
+            </motion.span>
+          </div>
+
+          {/* Display headline */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light font-serif tracking-tight leading-[0.9]">
+            <div className="overflow-hidden py-1">
+              <motion.span
+                className="block"
+                initial={{ y: "110%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1.1, delay: 0.1, ease: NORELL_EASE }}
+              >
+                Pullazhiyil
+              </motion.span>
+            </div>
+
+            <div className="overflow-hidden py-1">
+              <motion.span
+                className="block italic font-normal text-[#d4af37]"
+                initial={{ y: "50%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1.1, delay: 0.2, ease: NORELL_EASE }}
+              >
+                Kudumbayogam
+              </motion.span>
+            </div>
+          </h1>
+          {/* Divider line */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.6, delay: 0.35, ease: NORELL_EASE }}
+            className="w-full h-px bg-[#fbf9f4]/20 origin-left"
+          />
+
+          {/* Bottom row */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <motion.div
+              className="md:col-span-7"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.55, ease: NORELL_EASE }}
+            >
+              <p className="text-base md:text-lg lg:text-xl tracking-[0.15em] uppercase text-[#fbf9f4]/85 font-mono">
+                Pullazhiyil &bull; Thykurinjiyil &bull; Thanuvelil &bull;
+                Poovathumparambil
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="md:col-span-5 md:text-right"
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.9, delay: 0.7, ease: NORELL_EASE }}
+            >
+              <Link
+                href="/tree"
+                className="group inline-flex items-center gap-3 bg-[#d4af37] text-[#1b3622] text-sm uppercase tracking-[0.18em] font-bold px-8 py-4 hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
+              >
+                <span>Explore Our Family Tree</span>
+                <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Scroll cue at bottom */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 1 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-xs uppercase tracking-[0.25em] font-mono text-[#fbf9f4]/50">
+            Scroll
+          </span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="w-px h-8 bg-gradient-to-b from-[#d4af37]/50 to-transparent"
+          />
+        </motion.div>
+      </div>
+
+      {/* ── 2. IDENTITY PANEL ────────────────────────────────────────────────── */}
+      <section
+        ref={infoRef}
+        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-10"
+      >
+        <motion.div
+          style={{ scaleX: infoLineScale }}
+          className="w-full h-px bg-[#d4af37] origin-left"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
+          <div className="md:col-span-5">
+            <motion.span
+              style={{ opacity: infoTextOpacity }}
+              className="text-xs tracking-[0.25em] uppercase font-mono text-[#d4af37] block mb-2"
+            >
+              Our Heritage
+            </motion.span>
+            <motion.h2
+              style={{ y: infoTextY, opacity: infoTextOpacity }}
+              className="text-3xl md:text-4xl font-serif font-light text-[#1b3622] leading-tight"
+            >
+              One Family. Four Branches. Centuries of Faith.
+            </motion.h2>
+          </div>
+
+          <div className="md:col-span-7">
+            <motion.p
+              style={{ y: infoTextY, opacity: infoTextOpacity }}
+              className="text-gray-600 font-normal text-base md:text-lg leading-relaxed max-w-2xl"
+            >
+              The Pullazhiyil Kudumbayogam is more than an assembly; it is a
+              live institutional anchor for hundreds of families worldwide. We
+              trace our roots back to the historic Knanaya migration of A.D. 345
+              to Kodungalloor, later establishing our ancestral home at
+              Iruvallipra, Thiruvalla. We collaborate across borders to
+              safeguard the values, properties, and traditions of our four
+              principal branches—Pullazhiyil, Thykurinjiyil, Thanuvelil, and
+              Poovathumparambil.
+            </motion.p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── A.D. 345 METRICS STRIP ── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24">
+        <div className="w-full h-px bg-[#1b3622]/10" />
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#1b3622]/10 py-12">
+          {[
+            { value: "A.D. 345", label: "Knanaya Arrival" },
+            { value: "4", label: "Principal Branches" },
+            { value: "1940s", label: "Kudumbayogam Founded" },
+            { value: "1998", label: "Revival Year" },
+          ].map((stat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: idx * 0.1, ease: NORELL_EASE }}
+              className="pl-6 first:pl-0 space-y-1"
+            >
+              <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+                {stat.value}
+              </span>
+              <span className="text-xs uppercase tracking-[0.12em] text-gray-500 block font-mono">
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+        <div className="w-full h-px bg-[#1b3622]/10" />
+      </section>
+
+      {/* ── 4. FOUR PILLARS ──────────────────────────────────────────────────── */}
+      <section
+        ref={pillarsRef}
+        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-16"
+      >
+        <motion.div
+          style={{ opacity: pillarsHeadingOpacity, y: pillarsHeadingY }}
+          className="space-y-2"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Our Foundation
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-light">
+            The Pillars of Our Family
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+          {HERITAGE_PILLARS.map((pillar, idx) => {
+            const IconComponent = pillar.icon;
+            const isHovered = hoveredPillar === idx;
+
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 1,
+                  delay: idx * 0.12,
+                  ease: NORELL_EASE,
+                }}
+                onHoverStart={() => setHoveredPillar(idx)}
+                onHoverEnd={() => setHoveredPillar(null)}
+                className="space-y-4 group relative pt-6 cursor-default"
+              >
+                {/* Animated top border */}
+                <motion.div
+                  className="absolute top-0 left-0 h-px bg-[#d4af37]"
+                  initial={{ width: "0%" }}
+                  whileInView={{ width: "100%" }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.9,
+                    delay: idx * 0.12 + 0.3,
+                    ease: NORELL_EASE,
+                  }}
+                />
+
+                <div className="flex justify-between items-center">
+                  <motion.div
+                    animate={{
+                      rotate: isHovered ? 12 : 0,
+                      scale: isHovered ? 1.1 : 1,
+                    }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <IconComponent className="h-5 w-5 text-[#d4af37] stroke-[1.25]" />
+                  </motion.div>
+                  <span
+                    className="font-serif text-4xl text-[#1b3622] font-bold transition-opacity duration-500"
+                    style={{ opacity: isHovered ? 0.25 : 0.08 }}
+                  >
+                    {pillar.num}
+                  </span>
+                </div>
+
+                <h3 className="text-sm uppercase tracking-[0.1em] font-bold text-[#1b3622]">
+                  {pillar.title}
+                </h3>
+
+                <motion.p
+                  animate={{ color: isHovered ? "#4b5563" : "#9ca3af" }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xs font-light leading-relaxed"
+                >
+                  {pillar.desc}
+                </motion.p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Heritage Quote Banner ─────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: NORELL_EASE }}
+          className="relative bg-[#1b3622] text-[#fbf9f4] p-10 md:p-16 overflow-hidden"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "radial-gradient(#d4af37 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
+          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+              From Our Ancestors
+            </span>
+            <p className="text-xl md:text-2xl lg:text-3xl font-serif font-light italic leading-relaxed">
+              &ldquo;The greatness of a family is measured not merely by its
+              wealth or the number of its members, but by the faith, love,
+              unity, and sense of heritage that bind generations
+              together.&rdquo;
+            </p>
+            <div className="w-16 h-0.5 bg-[#d4af37]/50 mx-auto" />
+            <p className="text-sm uppercase tracking-[0.15em] font-mono text-[#fbf9f4]/70">
+              Pullazhiyil Kudumbayogam Heritage
+            </p>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── Family Achievements ─────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: NORELL_EASE }}
+          className="space-y-2 text-center md:text-left"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Celebrating Excellence
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+            Family Achievements
+          </h2>
+          <div className="w-16 h-0.5 bg-[#d4af37] mt-4 mx-auto md:mx-0" />
+        </motion.div>
+
+        <AchieverCarousel
+          items={achieverItems}
+          viewAllHref="/achievers"
+          viewAllLabel="View All Achievers"
+          emptyMessage="No family achievements have been published yet."
+        />
+      </section>
+
+      {/* ── Family Evangelists ─────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: NORELL_EASE }}
+          className="space-y-2 text-center md:text-left"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Servants of the Faith
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+            Family Evangelists
+          </h2>
+          <div className="w-16 h-0.5 bg-[#d4af37] mt-4 mx-auto md:mx-0" />
+        </motion.div>
+
+        <AchieverCarousel
+          items={evangelistItems}
+          viewAllHref="/achievers?tab=evangelists"
+          viewAllLabel="View All Evangelists"
+          emptyMessage="No family evangelist records have been published yet."
+        />
+      </section>
+
+      {/* ── 6. FINALE: ORIGINS + EVENTS ──────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+
+        {/* Left: origin story */}
+        <motion.div
+          className="lg:col-span-6 space-y-6 lg:pr-12"
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: NORELL_EASE }}
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block">
+            Our Journey Since A.D. 345
+          </span>
+          <h2 className="text-4xl text-[#1b3622] font-light font-serif leading-tight">
+            From Kodungalloor to the World
+          </h2>
+          <p className="text-gray-600 leading-relaxed font-normal text-base">
+            The Pullazhiyil family is one of the seventy-two Knanaya families
+            who arrived at the historic port of Kodungalloor under the
+            leadership of Knai Thoma. Our ancestors later settled along the
+            Manimala River at Iruvallipra, near Thiruvalla, where our family
+            name was born. From one household founded by Sri. Kuriyala emerged
+            four branches — Pullazhiyil, Thykurinjiyil, Thanuvelil, and
+            Poovathumparambil — that today span continents yet remain forever
+            united.
+          </p>
+          <div className="pt-4">
+            <Link
+              href="/history"
+              className="group inline-flex items-center gap-4 text-sm uppercase tracking-[0.15em] font-bold text-[#1b3622] border-b border-[#1b3622]/20 pb-2 hover:border-[#1b3622] transition-colors duration-300"
+            >
+              <span>Read Our Full History</span>
+              <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Right: events board */}
+        <motion.div
+          className="lg:col-span-6 w-full bg-white border border-[#1b3622]/10 p-8 space-y-8 shadow-sm"
+          initial={{ opacity: 0, x: 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.15, ease: NORELL_EASE }}
+        >
+          <div className="flex justify-between items-center border-b border-[#1b3622]/10 pb-4">
+            <span className="text-xs uppercase tracking-[0.18em] font-mono font-bold text-[#d4af37]">
+              Upcoming Assemblies
+            </span>
+            <Link
+              href="/events"
+              className="group inline-flex items-center gap-1.5 text-[9px] uppercase tracking-[0.12em] font-mono font-semibold text-[#1b3622]/60 hover:text-[#1b3622] transition-colors duration-200"
+            >
+              <span>View All</span>
+              <ArrowRight className="h-2.5 w-2.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+            </Link>
+          </div>
+
+          <AnimatePresence>
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: i * 0.1,
+                    ease: NORELL_EASE,
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm font-mono text-gray-600 uppercase tracking-[0.1em]">
+                      <Calendar className="h-3 w-3 text-[#d4af37]" />
+                      <span>
+                        {new Date(event.event_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                    <h3 className="text-xl text-[#1b3622] font-serif font-medium">
+                      {event.title}
+                    </h3>
+                  </div>
+                  {event.description && (
+                    <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                      {event.description}
+                    </p>
+                  )}
+                  {event.location && (
+                    <div className="flex items-center gap-2 pt-2 text-sm font-mono text-gray-600">
+                      <MapPin className="h-3 w-3 text-[#1b3622]" />
+                      <span className="truncate">{event.location}</span>
+                    </div>
+                  )}
+                </motion.div>
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-8 text-center gap-3"
+              >
+                <Calendar className="h-7 w-7 text-[#d4af37]/40 stroke-[1]" />
+                <div className="space-y-1">
+                  <p className="text-sm text-[#1b3622]/70 font-serif font-light">
+                    No upcoming events at this time.
+                  </p>
+                  <p className="text-xs text-gray-400 font-light italic">
+                    Check back soon for the next family gathering.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </section>
+    </div>
+  );
+}
