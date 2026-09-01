@@ -2,6 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, RefreshCw, ImageIcon } from "lucide-react";
+import {
+  validateImageFile,
+  buildGalleryStoragePath,
+} from "@/utils/storage";
 
 interface ImageUploadProps {
   bucket: string;
@@ -10,6 +14,10 @@ interface ImageUploadProps {
   onUploaded: (url: string | null) => void;
   onError?: (message: string) => void;
   disabled?: boolean;
+  /** When true, onUploaded receives the storage object path instead of a public URL. */
+  returnPath?: boolean;
+  /** Use gallery-style unique paths (gallery/<uuid>-filename). */
+  useGalleryPath?: boolean;
 }
 
 export default function ImageUpload({
@@ -19,6 +27,8 @@ export default function ImageUpload({
   onUploaded,
   onError,
   disabled,
+  returnPath = false,
+  useGalleryPath = false,
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(existingUrl);
   const [isUploading, setIsUploading] = useState(false);
@@ -32,8 +42,10 @@ export default function ImageUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      onError?.("Please select an image file.");
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      onError?.(validationError);
+      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
@@ -45,8 +57,9 @@ export default function ImageUpload({
       const { createClient } = await import("@/utils/supabase/client");
       const supabase = createClient();
 
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-      const path = `${folder ? `${folder}/` : ""}${Date.now()}-${Math.random().toString(36).slice(2)}-${sanitizedName}`;
+      const path = useGalleryPath
+        ? buildGalleryStoragePath(file.name)
+        : `${folder ? `${folder}/` : ""}${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
 
       const { error: uploadError } = await supabase.storage
         .from(bucket)
@@ -54,8 +67,12 @@ export default function ImageUpload({
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
-      onUploaded(urlData.publicUrl);
+      if (returnPath) {
+        onUploaded(path);
+      } else {
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+        onUploaded(urlData.publicUrl);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed";
       onError?.(message);
@@ -78,7 +95,7 @@ export default function ImageUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
           onChange={handleFileChange}
           disabled={disabled || isUploading}
           className="hidden"

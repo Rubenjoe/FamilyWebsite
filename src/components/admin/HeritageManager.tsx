@@ -11,7 +11,9 @@ import Toast, { useToast } from "./Toast";
 type HeritageRecordRow = Database["public"]["Tables"]["heritage_records"]["Row"];
 type HeritageRecordKind = HeritageRecordRow["kind"];
 
-const KINDS: { value: HeritageRecordKind | "all"; label: string }[] = [
+type FilterKind = HeritageRecordKind | "all";
+
+const KINDS: { value: FilterKind; label: string }[] = [
   { value: "all", label: "All sections" },
   { value: "obituary", label: "Obituary" },
   { value: "achiever", label: "Achiever" },
@@ -42,7 +44,7 @@ interface HeritageManagerProps {
 export default function HeritageManager({ initialRecords }: HeritageManagerProps) {
   const [records, setRecords] = useState<HeritageRecordRow[]>(initialRecords);
   const [query, setQuery] = useState("");
-  const [kindFilter, setKindFilter] = useState<HeritageRecordKind | "all">("all");
+  const [kindFilter, setKindFilter] = useState<FilterKind>("all");
   const [editingRecord, setEditingRecord] = useState<HeritageRecordRow | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,13 +69,14 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
     const q = query.trim().toLowerCase();
     return records.filter((r) => {
       const matchesKind = kindFilter === "all" || r.kind === kindFilter;
-      const matchesQuery =
-        !q ||
+      if (!matchesKind) return false;
+      if (!q) return true;
+      return (
         r.name.toLowerCase().includes(q) ||
         r.branch.toLowerCase().includes(q) ||
         (r.title && r.title.toLowerCase().includes(q)) ||
-        (r.description && r.description.toLowerCase().includes(q));
-      return matchesKind && matchesQuery;
+        (r.description && r.description.toLowerCase().includes(q))
+      );
     });
   }, [records, query, kindFilter]);
 
@@ -136,9 +139,6 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
     [supabase, showToast, refresh]
   );
 
-  const kindLabel = (kind: HeritageRecordKind) =>
-    kind.charAt(0).toUpperCase() + kind.slice(1);
-
   return (
     <div className="space-y-8">
       <Toast messages={toasts} onClose={closeToast} />
@@ -163,7 +163,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
             <Filter className="h-4 w-4 text-gray-400" />
             <select
               value={kindFilter}
-              onChange={(e) => setKindFilter(e.target.value as HeritageRecordKind | "all")}
+              onChange={(e) => setKindFilter(e.target.value as FilterKind)}
               className="bg-white border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
             >
               {KINDS.map((k) => (
@@ -180,7 +180,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
           className="flex items-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors"
         >
           <Plus className="h-4 w-4" />
-          Add Heritage Record
+          Add Record
         </button>
       </div>
 
@@ -193,7 +193,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
                 <th className="px-4 py-3 text-left font-semibold">Name</th>
                 <th className="px-4 py-3 text-left font-semibold">Section</th>
                 <th className="px-4 py-3 text-left font-semibold">Branch</th>
-                <th className="px-4 py-3 text-left font-semibold">Title</th>
+                <th className="px-4 py-3 text-left font-semibold">Subtitle</th>
                 <th className="px-4 py-3 text-left font-semibold">Published</th>
                 <th className="px-4 py-3 text-right font-semibold">Order</th>
                 <th className="px-4 py-3 text-right font-semibold">Actions</th>
@@ -203,7 +203,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
               {filteredRecords.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-gray-400 font-light">
-                    No heritage records match your filters.
+                    No records match your filters.
                   </td>
                 </tr>
               ) : (
@@ -229,7 +229,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
                     <td className="px-4 py-3 font-medium text-[#2d312e]">{record.name}</td>
                     <td className="px-4 py-3">
                       <span className="text-[10px] uppercase tracking-wider font-semibold bg-[#1b3622]/5 text-[#1b3622] px-2 py-1 border border-[#1b3622]/10">
-                        {kindLabel(record.kind)}
+                        {record.kind.charAt(0).toUpperCase() + record.kind.slice(1)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500">{record.branch}</td>
@@ -281,7 +281,7 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
           <div className="bg-white w-full max-w-3xl my-8 shadow-2xl border border-[#1b3622]/10">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-serif text-[#1b3622]">
-                {isCreating ? "Add Heritage Record" : "Edit Heritage Record"}
+                {editingRecord ? "Edit Heritage Record" : "Add Heritage Record"}
               </h2>
               <button
                 type="button"

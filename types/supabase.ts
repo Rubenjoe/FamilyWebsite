@@ -65,6 +65,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      gallery_records: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          album: string | null;
+          branch: string | null;
+          year_label: string | null;
+          image_path: string;
+          is_published: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          album?: string | null;
+          branch?: string | null;
+          year_label?: string | null;
+          image_path: string;
+          is_published?: boolean;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string | null;
+          album?: string | null;
+          branch?: string | null;
+          year_label?: string | null;
+          image_path?: string;
+          is_published?: boolean;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
       heritage_records: {
         Row: {
           id: string;

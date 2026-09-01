@@ -68,7 +68,13 @@ const EMPTY: HeritageFormData = {
   sort_order: 0,
 };
 
-export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onError }: HeritageFormProps) {
+export default function HeritageForm({
+  record,
+  onSubmit,
+  onCancel,
+  isSaving,
+  onError,
+}: HeritageFormProps) {
   const [form, setForm] = useState<HeritageFormData>(EMPTY);
 
   useEffect(() => {
@@ -98,7 +104,6 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
 
   const kind = form.kind;
   const isOtherBranch = form.branch === "Other";
-  const finalBranch = isOtherBranch ? (form.otherBranch?.trim() || "Other") : form.branch;
 
   const setField = <K extends keyof HeritageFormData>(key: K, value: HeritageFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -110,6 +115,7 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
       onError("Name is required.");
       return;
     }
+    const finalBranch = isOtherBranch ? form.otherBranch?.trim() || "Other" : form.branch;
     onSubmit({ ...form, branch: finalBranch });
   };
 
@@ -148,20 +154,6 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
         placeholder="YYYY"
         value={form[key]}
         onChange={(e) => setField(key, e.target.value.replace(/\D/g, "").slice(0, 4))}
-        className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
-      />
-    </div>
-  );
-
-  const textareaField = (key: "description" | "tribute", label: string, rows = 3) => (
-    <div className="space-y-1">
-      <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-        {label}
-      </label>
-      <textarea
-        value={form[key]}
-        onChange={(e) => setField(key, e.target.value)}
-        rows={rows}
         className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
       />
     </div>
@@ -209,12 +201,30 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
             ))}
           </select>
         </div>
-        {isOtherBranch && textField("otherBranch", "Other Branch Name", true)}
+        {isOtherBranch && (
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+              Other Branch Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={form.otherBranch}
+              onChange={(e) => setField("otherBranch", e.target.value)}
+              className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {textField("name", "Name", true, "e.g. Jacob Kurian")}
-        {textField("title", kind === "committee" ? "Committee Position" : "Title / Achievement / Ministry", false, kind === "committee" ? "e.g. President" : "e.g. First Commissioned Officer")}
+        {textField(
+          "title",
+          kind === "committee" ? "Committee Position" : "Title / Achievement / Ministry",
+          false,
+          kind === "committee" ? "e.g. President" : "e.g. First Commissioned Officer"
+        )}
       </div>
 
       <div className="bg-[#fbf9f4] border border-gray-100 p-4 space-y-2">
@@ -223,7 +233,7 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
         </label>
         <ImageUpload
           bucket="heritage-photos"
-          folder={form.kind}
+          folder={kind}
           existingUrl={form.image_url}
           onUploaded={(url) => setField("image_url", url)}
           onError={onError}
@@ -240,13 +250,38 @@ export default function HeritageForm({ record, onSubmit, onCancel, isSaving, onE
 
       {(kind === "achiever" || kind === "evangelist" || kind === "committee") && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {yearField("year_label", kind === "committee" ? "Service Period / Year" : "Year Achieved / Ordained")}
+          {yearField(
+            "year_label",
+            kind === "committee" ? "Service Period / Year" : "Year Achieved / Ordained"
+          )}
           {kind === "committee" && textField("location", "Location", false, "e.g. Kerala")}
         </div>
       )}
 
-      {textareaField("description", "Biography / Description", 4)}
-      {kind === "obituary" && textareaField("tribute", "Tribute", 3)}
+      <div className="space-y-1">
+        <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+          Biography / Description
+        </label>
+        <textarea
+          value={form.description}
+          onChange={(e) => setField("description", e.target.value)}
+          rows={4}
+          className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+        />
+      </div>
+      {kind === "obituary" && (
+        <div className="space-y-1">
+          <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+            Tribute
+          </label>
+          <textarea
+            value={form.tribute}
+            onChange={(e) => setField("tribute", e.target.value)}
+            rows={3}
+            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
         <div className="space-y-1">

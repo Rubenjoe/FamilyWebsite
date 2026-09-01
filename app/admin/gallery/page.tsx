@@ -1,25 +1,25 @@
 import { createClient } from "@/utils/supabase/server";
 import { getAdminSession } from "@/utils/admin";
 import { redirect } from "next/navigation";
-import HeritageManager from "@/components/admin/HeritageManager";
+import GalleryManager from "@/components/admin/GalleryManager";
 import type { Database } from "@/types/supabase";
 
-type Record = Database["public"]["Tables"]["heritage_records"]["Row"];
+type GalleryRecord = Database["public"]["Tables"]["gallery_records"]["Row"];
 
-export default async function HeritagePage() {
+export default async function GalleryPage() {
   const session = await getAdminSession();
   if (!session || !session.canEditMembers) redirect("/dashboard?error=unauthorized");
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("heritage_records")
+    .from("gallery_records")
     .select("*")
-    .order("kind")
+    .order("branch")
     .order("sort_order")
-    .returns<Record[]>();
+    .returns<GalleryRecord[]>();
 
   if (error) {
     console.error(
-      "[Admin Heritage] Error loading heritage records:",
+      "[Admin Gallery] Error loading gallery records:",
       error.message || error,
       "code:",
       error.code,
@@ -28,5 +28,5 @@ export default async function HeritagePage() {
     );
   }
 
-  return <HeritageManager initialRecords={data || []} />;
+  return <GalleryManager initialRecords={data || []} />;
 }
