@@ -76,3 +76,24 @@ export function buildGalleryStoragePath(originalName: string): string {
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return `gallery/${uniqueId}-${sanitizedName}`;
 }
+
+/** Build a Cloudinary public_id for gallery images with year-based folder structure */
+export function buildCloudinaryPublicId(originalName: string, year?: string): string {
+  const sanitizedName = originalName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const uniqueId =
+    typeof crypto !== "undefined" && "randomUUID" in crypto && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const folder = year ? `gallery/${year}` : "gallery/historical";
+  return `${folder}/${uniqueId}-${sanitizedName}`;
+}
+
+/** Generate Cloudinary delivery URL from public_id */
+export function resolveCloudinaryUrl(publicId: string): string {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  if (!cloudName) {
+    console.error("[Cloudinary] NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME not set");
+    return "";
+  }
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
+}

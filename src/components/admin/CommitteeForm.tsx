@@ -1,29 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import type { Database } from "@/types/supabase";
-import CloudinaryUpload from "./CloudinaryUpload";
+import ImageUpload from "./ImageUpload";
 import { Calendar } from "lucide-react";
+import { HERITAGE_BUCKET, resolveStorageUrl } from "@/utils/storage";
 
-type GalleryRow = Database["public"]["Tables"]["gallery_records"]["Row"];
+type CommitteeRow = Database["public"]["Tables"]["committee_members"]["Row"];
 
-export interface GalleryFormData {
+export interface CommitteeFormData {
   id?: string;
-  title: string;
-  album: string;
+  committee_year: number;
+  name: string;
+  role: string;
   branch: string;
   otherBranch?: string;
-  year_label: string;
-  description: string;
-  cloudinary_public_id: string;
-  cloudinary_secure_url: string;
+  location: string;
+  image_url: string | null;
   is_published: boolean;
   sort_order: number;
 }
 
-interface GalleryFormProps {
-  record?: GalleryRow | null;
-  onSubmit: (data: GalleryFormData) => void;
+interface CommitteeFormProps {
+  record?: CommitteeRow | null;
+  onSubmit: (data: CommitteeFormData) => void;
   onCancel: () => void;
   isSaving: boolean;
   onError: (message: string) => void;
@@ -39,27 +39,35 @@ const BRANCHES = [
   "Other",
 ];
 
-const EMPTY: GalleryFormData = {
-  title: "",
-  album: "",
+const ROLES = [
+  "President",
+  "Secretary",
+  "Treasurer",
+  "Vice President",
+  "Joint Secretary",
+  "Committee Member",
+];
+
+const EMPTY: CommitteeFormData = {
+  committee_year: new Date().getFullYear(),
+  name: "",
+  role: "Committee Member",
   branch: "Pullazhiyil",
   otherBranch: "",
-  year_label: "",
-  description: "",
-  cloudinary_public_id: "",
-  cloudinary_secure_url: "",
+  location: "",
+  image_url: null,
   is_published: true,
   sort_order: 0,
 };
 
-export default function GalleryForm({
+export default function CommitteeForm({
   record,
   onSubmit,
   onCancel,
   isSaving,
   onError,
-}: GalleryFormProps) {
-  const [form, setForm] = useState<GalleryFormData>(EMPTY);
+}: CommitteeFormProps) {
+  const [form, setForm] = useState<CommitteeFormData>(EMPTY);
 
   useEffect(() => {
     if (!record) {
@@ -69,20 +77,19 @@ export default function GalleryForm({
     const isOther = !BRANCHES.includes(record.branch || "") || record.branch === "Other";
     setForm({
       id: record.id,
-      title: record.title,
-      album: record.album || "",
+      committee_year: record.committee_year,
+      name: record.name,
+      role: record.role,
       branch: isOther ? "Other" : record.branch || "Pullazhiyil",
       otherBranch: isOther ? record.branch || "" : "",
-      year_label: record.year_label || "",
-      description: record.description || "",
-      cloudinary_public_id: record.cloudinary_public_id || "",
-      cloudinary_secure_url: record.cloudinary_secure_url || "",
+      location: record.location || "",
+      image_url: record.image_url,
       is_published: record.is_published,
       sort_order: record.sort_order,
     });
   }, [record]);
 
-  const setField = <K extends keyof GalleryFormData>(key: K, value: GalleryFormData[K]) => {
+  const setField = <K extends keyof CommitteeFormData>(key: K, value: CommitteeFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -90,64 +97,72 @@ export default function GalleryForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim()) {
-      onError("Title is required.");
+    if (!form.name.trim()) {
+      onError("Name is required.");
       return;
     }
-    if (!form.cloudinary_public_id) {
-      onError("Please upload a photo before saving.");
+    if (!form.role.trim()) {
+      onError("Role is required.");
+      return;
+    }
+    if (form.committee_year < 1900 || form.committee_year > 2100) {
+      onError("Please enter a valid year between 1900 and 2100.");
       return;
     }
     const finalBranch = isOtherBranch ? form.otherBranch?.trim() || "Other" : form.branch;
     onSubmit({ ...form, branch: finalBranch });
   };
 
-  const handleCloudinaryUpload = (publicId: string, secureUrl: string) => {
-    setField("cloudinary_public_id", publicId);
-    setField("cloudinary_secure_url", secureUrl);
-  };
+  const previewUrl = form.image_url ? resolveStorageUrl(HERITAGE_BUCKET, form.image_url) : null;
 
   return (
     <form onSubmit={handleSubmit} className="p-6 space-y-6">
-      <div className="bg-[#fbf9f4] border border-gray-100 p-4 space-y-2">
-        <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-          Photo <span className="text-red-500">*</span>
-        </label>
-        <CloudinaryUpload
-          existingUrl={form.cloudinary_secure_url}
-          onUploaded={handleCloudinaryUpload}
-          disabled={isSaving}
-          year={form.year_label}
-        />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="space-y-1">
           <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-            Title <span className="text-red-500">*</span>
+            Committee Year <span className="text-red-500">*</span>
           </label>
           <input
-            type="text"
+            type="number"
+            min={1900}
+            max={2100}
             required
-            value={form.title}
-            onChange={(e) => setField("title", e.target.value)}
-            placeholder="e.g. Ancestral Home Construction"
+            value={form.committee_year}
+            onChange={(e) => setField("committee_year", parseInt(e.target.value) || new Date().getFullYear())}
             className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
           />
         </div>
 
         <div className="space-y-1">
           <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-            Album / Category <span className="text-gray-300 font-normal">(optional)</span>
+            Role <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            value={form.album}
-            onChange={(e) => setField("album", e.target.value)}
-            placeholder="e.g. Historical"
+          <select
+            value={form.role}
+            onChange={(e) => setField("role", e.target.value)}
             className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
-          />
+          >
+            {ROLES.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+          Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          required
+          value={form.name}
+          onChange={(e) => setField("name", e.target.value)}
+          placeholder="e.g. Joemon Thomas Thanuvelil"
+          className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -185,30 +200,29 @@ export default function GalleryForm({
         <div className="space-y-1">
           <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            Year
+            Location
           </label>
           <input
             type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={4}
-            placeholder="YYYY"
-            value={form.year_label}
-            onChange={(e) => setField("year_label", e.target.value.replace(/\D/g, "").slice(0, 4))}
+            value={form.location}
+            onChange={(e) => setField("location", e.target.value)}
+            placeholder="e.g. Kerala"
             className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
           />
         </div>
       </div>
 
-      <div className="space-y-1">
+      <div className="bg-[#fbf9f4] border border-gray-100 p-4 space-y-2">
         <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
-          Description
+          Photo
         </label>
-        <textarea
-          value={form.description}
-          onChange={(e) => setField("description", e.target.value)}
-          rows={4}
-          className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+        <ImageUpload
+          bucket={HERITAGE_BUCKET}
+          existingUrl={previewUrl}
+          onUploaded={(path) => setField("image_url", path)}
+          onError={onError}
+          disabled={isSaving}
+          returnPath
         />
       </div>
 
@@ -253,7 +267,7 @@ export default function GalleryForm({
           {isSaving && (
             <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
           )}
-          {record ? "Save Changes" : "Create Photo"}
+          {record ? "Save Changes" : "Add Committee Member"}
         </button>
       </div>
     </form>

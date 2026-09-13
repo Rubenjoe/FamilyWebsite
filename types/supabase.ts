@@ -74,6 +74,8 @@ export type Database = {
           branch: string | null;
           year_label: string | null;
           image_path: string;
+          cloudinary_public_id: string | null;
+          cloudinary_secure_url: string | null;
           is_published: boolean;
           sort_order: number;
           created_at: string;
@@ -87,6 +89,8 @@ export type Database = {
           branch?: string | null;
           year_label?: string | null;
           image_path: string;
+          cloudinary_public_id?: string | null;
+          cloudinary_secure_url?: string | null;
           is_published?: boolean;
           sort_order?: number;
         };
@@ -98,6 +102,8 @@ export type Database = {
           branch?: string | null;
           year_label?: string | null;
           image_path?: string;
+          cloudinary_public_id?: string | null;
+          cloudinary_secure_url?: string | null;
           is_published?: boolean;
           sort_order?: number;
         };
@@ -209,6 +215,44 @@ export type Database = {
           target_id?: string | null;
           changes?: object | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      committee_members: {
+        Row: {
+          id: string;
+          committee_year: number;
+          name: string;
+          role: string;
+          branch: string | null;
+          location: string | null;
+          image_url: string | null;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          committee_year: number;
+          name: string;
+          role: string;
+          branch?: string | null;
+          location?: string | null;
+          image_url?: string | null;
+          sort_order?: number;
+          is_published?: boolean;
+        };
+        Update: {
+          id?: string;
+          committee_year?: number;
+          name?: string;
+          role?: string;
+          branch?: string | null;
+          location?: string | null;
+          image_url?: string | null;
+          sort_order?: number;
+          is_published?: boolean;
         };
         Relationships: [];
       };

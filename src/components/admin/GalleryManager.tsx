@@ -7,7 +7,7 @@ import type { Database } from "@/types/supabase";
 import AdminPageHeader from "./AdminPageHeader";
 import GalleryForm, { type GalleryFormData } from "./GalleryForm";
 import Toast, { useToast } from "./Toast";
-import { GALLERY_BUCKET, deleteStorageObject, resolveGalleryImageUrl } from "@/utils/storage";
+import { resolveGalleryImageUrl } from "@/utils/storage";
 
 type GalleryRecordRow = Database["public"]["Tables"]["gallery_records"]["Row"];
 
@@ -87,21 +87,21 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
           branch: formData.branch || null,
           year_label: formData.year_label.trim() || null,
           description: formData.description.trim() || null,
-          image_path: formData.image_path!,
+          image_path: formData.cloudinary_public_id || "", // For backward compatibility
+          cloudinary_public_id: formData.cloudinary_public_id || null,
+          cloudinary_secure_url: formData.cloudinary_secure_url || null,
           is_published: formData.is_published,
           sort_order: formData.sort_order,
         };
 
         if (formData.id) {
-          const previous = records.find((r) => r.id === formData.id);
           const { error } = await supabase
             .from("gallery_records")
             .update(payload)
             .eq("id", formData.id);
           if (error) throw error;
-          if (previous && previous.image_path && previous.image_path !== payload.image_path) {
-            await deleteStorageObject(supabase, GALLERY_BUCKET, previous.image_path);
-          }
+          // Note: Cloudinary cleanup would require server-side API calls
+          // For now, we're keeping old assets in Cloudinary for safety
           showToast("Gallery photo updated");
         } else {
           const { error } = await supabase.from("gallery_records").insert(payload);
@@ -118,7 +118,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
         setIsSaving(false);
       }
     },
-    [supabase, showToast, refresh, records]
+    [supabase, showToast, refresh]
   );
 
   const handleDelete = useCallback(
@@ -128,7 +128,8 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
       if (error) {
         showToast(error.message || "Delete failed", "error");
       } else {
-        await deleteStorageObject(supabase, GALLERY_BUCKET, record.image_path);
+        // Note: Cloudinary cleanup would require server-side API calls
+        // For now, we're keeping old assets in Cloudinary for safety
         showToast("Gallery photo deleted");
         await refresh();
       }
@@ -199,7 +200,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
                   <div className="aspect-square relative overflow-hidden bg-gray-50">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={resolveGalleryImageUrl(record.image_path)}
+                      src={record.cloudinary_secure_url || resolveGalleryImageUrl(record.image_path)}
                       alt={record.title}
                       className="h-full w-full object-cover"
                     />

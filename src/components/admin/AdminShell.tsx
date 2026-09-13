@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Users2,
 } from "lucide-react";
 import type { AdminSession } from "@/utils/admin";
 
@@ -50,6 +51,7 @@ export default function AdminShell({
   const navItems: NavItem[] = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard, visible: true },
     { href: "/admin/members", label: "Members", icon: Users, visible: session.canEditMembers },
+    { href: "/admin/committee", label: "Committee", icon: Users2, visible: session.canEditMembers },
     { href: "/admin/events", label: "Events", icon: Calendar, visible: session.canEditEvents },
     { href: "/admin/gallery", label: "Gallery", icon: ImageIcon, visible: session.canEditMembers },
     { href: "/admin/heritage", label: "Heritage", icon: BookOpen, visible: session.canEditMembers },
