@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Upload, X, RefreshCw, ImageIcon } from "lucide-react";
-import { CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget, type CloudinaryUploadWidgetError } from "next-cloudinary";
 
 interface CloudinaryUploadProps {
   existingUrl: string | null;
   onUploaded: (publicId: string, secureUrl: string) => void;
+  onError: (message: string) => void;
   disabled?: boolean;
   year?: string;
 }
@@ -24,6 +25,7 @@ interface CloudinaryUploadResult {
 export default function CloudinaryUpload({
   existingUrl,
   onUploaded,
+  onError,
   disabled,
   year,
 }: CloudinaryUploadProps) {
@@ -49,6 +51,15 @@ export default function CloudinaryUpload({
     setIsUploading(true);
   };
 
+  const handleUploadError = (error: CloudinaryUploadWidgetError) => {
+    setIsUploading(false);
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String(error.message)
+        : "Cloudinary upload failed. The existing image was kept.";
+    onError(message);
+  };
+
   const handleRemove = () => {
     setPreview(null);
     onUploaded("", "");
@@ -69,6 +80,7 @@ export default function CloudinaryUpload({
             clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
           }}
           onUpload={handleUpload}
+          onError={handleUploadError}
           onOpen={handleUploadStart}
         >
           {({ open }) => (

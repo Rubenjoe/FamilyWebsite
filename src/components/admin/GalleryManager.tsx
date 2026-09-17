@@ -94,20 +94,23 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
           sort_order: formData.sort_order,
         };
 
-        if (formData.id) {
-          const { error } = await supabase
-            .from("gallery_records")
-            .update(payload)
-            .eq("id", formData.id);
-          if (error) throw error;
-          // Note: Cloudinary cleanup would require server-side API calls
-          // For now, we're keeping old assets in Cloudinary for safety
-          showToast("Gallery photo updated");
-        } else {
-          const { error } = await supabase.from("gallery_records").insert(payload);
-          if (error) throw error;
-          showToast("Gallery photo created");
+        const response = await fetch("/api/admin/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, id: formData.id }),
+        });
+        const result = (await response.json()) as {
+          error?: string;
+          message?: string;
+          warning?: string;
+        };
+        if (!response.ok) {
+          throw new Error(result.error || "Save failed");
         }
+        showToast(
+          result.warning || result.message || "Gallery photo saved",
+          result.warning ? "error" : "success"
+        );
 
         setEditingRecord(null);
         setIsCreating(false);
@@ -118,23 +121,34 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
         setIsSaving(false);
       }
     },
-    [supabase, showToast, refresh]
+    [showToast, refresh]
   );
 
   const handleDelete = useCallback(
     async (record: GalleryRecordRow) => {
       if (!confirm(`Delete "${record.title}"? This cannot be undone.`)) return;
-      const { error } = await supabase.from("gallery_records").delete().eq("id", record.id);
-      if (error) {
-        showToast(error.message || "Delete failed", "error");
-      } else {
-        // Note: Cloudinary cleanup would require server-side API calls
-        // For now, we're keeping old assets in Cloudinary for safety
-        showToast("Gallery photo deleted");
+      try {
+        const response = await fetch("/api/admin/gallery", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: record.id }),
+        });
+        const result = (await response.json()) as {
+          error?: string;
+          message?: string;
+          warning?: string;
+        };
+        if (!response.ok) throw new Error(result.error || "Delete failed");
+        showToast(
+          result.warning || result.message || "Gallery photo deleted",
+          result.warning ? "error" : "success"
+        );
         await refresh();
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : "Delete failed", "error");
       }
     },
-    [supabase, showToast, refresh]
+    [showToast, refresh]
   );
 
   return (

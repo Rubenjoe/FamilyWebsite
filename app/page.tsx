@@ -56,11 +56,22 @@ export default async function HomePage() {
   if (heritageResult.error) {
     console.error(
       "[Homepage] Error loading heritage records:",
-      heritageResult.error
+      heritageResult.error.message || heritageResult.error,
+      "code:",
+      heritageResult.error.code,
+      "details:",
+      heritageResult.error.details
     );
   }
   if (eventsResult.error) {
-    console.error("[Homepage] Error loading events:", eventsResult.error);
+    console.error(
+      "[Homepage] Error loading events:",
+      eventsResult.error.message || eventsResult.error,
+      "code:",
+      eventsResult.error.code,
+      "details:",
+      eventsResult.error.details
+    );
   }
 
   const allHeritage = heritageResult.data ?? [];

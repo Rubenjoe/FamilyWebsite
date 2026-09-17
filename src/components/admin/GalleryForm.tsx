@@ -116,6 +116,7 @@ export default function GalleryForm({
         <CloudinaryUpload
           existingUrl={form.cloudinary_secure_url}
           onUploaded={handleCloudinaryUpload}
+          onError={onError}
           disabled={isSaving}
           year={form.year_label}
         />
