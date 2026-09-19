@@ -69,7 +69,11 @@ export default function CloudinaryUpload({
     <div className="space-y-2">
       <div className="flex items-center gap-3">
         <CldUploadWidget
-          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+          // Gallery uploads are signed by the authenticated server endpoint.
+          // This avoids depending on a public unsigned upload preset, which can
+          // cause the Cloudinary widget to fail to load when that preset is not
+          // available for the cloud account.
+          signatureEndpoint="/api/sign-cloudinary-params"
           options={{
             maxFiles: 1,
             maxFileSize: 5000000, // 5MB
@@ -79,7 +83,7 @@ export default function CloudinaryUpload({
             resourceType: "image",
             clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
           }}
-          onUpload={handleUpload}
+          onSuccess={handleUpload}
           onError={handleUploadError}
           onOpen={handleUploadStart}
         >
