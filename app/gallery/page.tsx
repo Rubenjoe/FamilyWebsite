@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import type { Database } from "@/types/supabase";
-import { resolveGalleryImageUrl } from "@/utils/storage";
+import { resolveGalleryImageUrl, withCloudinaryTransform } from "@/utils/storage";
 import GalleryClient, { type GalleryItemView } from "./_GalleryClient";
 
 export const metadata = {
@@ -34,15 +34,21 @@ export default async function GalleryPage() {
     );
   }
 
-  const items: GalleryItemView[] = (data ?? []).map((row) => ({
-    id: row.id,
-    album: row.album,
-    imageUrl: row.cloudinary_secure_url || resolveGalleryImageUrl(row.image_path),
-    title: row.title,
-    description: row.description ?? undefined,
-    year: row.year_label ?? undefined,
-    branch: row.branch ?? undefined,
-  }));
+  const items: GalleryItemView[] = (data ?? []).map((row) => {
+    const rawUrl = row.cloudinary_secure_url || resolveGalleryImageUrl(row.image_path);
+    return {
+      id: row.id,
+      album: row.album,
+      // Serve a right-sized, auto-formatted rendition in the grid; the untouched
+      // original (or a larger rendition) is only fetched when the lightbox opens.
+      imageUrl: withCloudinaryTransform(rawUrl, 900),
+      fullImageUrl: withCloudinaryTransform(rawUrl, 1600),
+      title: row.title,
+      description: row.description ?? undefined,
+      year: row.year_label ?? undefined,
+      branch: row.branch ?? undefined,
+    };
+  });
 
   return <GalleryClient items={items} />;
 }

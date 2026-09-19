@@ -1,10 +1,43 @@
-/* eslint-disable @next/next/no-page-custom-font */
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Plus_Jakarta_Sans, Noto_Serif_Malayalam } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MotionProvider from "@/components/MotionProvider";
+
+/* Self-hosted via next/font — no render-blocking external font requests,
+   no layout shift, and automatic font-display handling. */
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const malayalam = Noto_Serif_Malayalam({
+  subsets: ["malayalam"],
+  variable: "--font-malayalam-serif",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  ),
   title: "Pulazhiyil Kudumbayogam — Digital Archive",
   description: "The premium historical platform preserving the heritage and genealogy of the Pulazhiyil family.",
 };
@@ -15,22 +48,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <head>
-        {/* Inject Premium Google Web Fonts manually */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Serif+Malayalam:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="en"
+      className={`scroll-smooth ${playfair.variable} ${jakarta.variable} ${malayalam.variable}`}
+    >
       <body className="bg-[#fbf9f4] text-[#2d312e] min-h-screen flex flex-col antialiased selection:bg-[#d4af37]/20 selection:text-[#1b3622]">
-        <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+        <MotionProvider>
+          <Navbar />
+          <main id="main-content" className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

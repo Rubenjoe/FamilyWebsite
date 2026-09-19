@@ -105,8 +105,8 @@ export default function DashboardSignInPage() {
                     </AnimatePresence>
 
                     {/* Member ID Field */}
-                    <div className="space-y-1">
-                            <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+                    <div className="space-y-1.5">
+                        <label htmlFor="signin-email" className="text-[11px] uppercase tracking-[0.14em] text-gray-500 block font-semibold">
                             Registry Email
                         </label>
                         <div className="relative">
@@ -114,26 +114,28 @@ export default function DashboardSignInPage() {
                                 <User className="h-4 w-4 stroke-[1.5]" />
                             </span>
                             <input
+                                id="signin-email"
                                 required
                                 type="text"
+                                autoComplete="email"
                                 placeholder="you@example.com"
                                 value={memberId}
                                 onChange={(e) => setMemberId(e.target.value)}
-                                className="w-full bg-[#fbf9f4] border border-gray-200 text-xs pl-10 pr-4 py-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
+                                className="w-full bg-[#fbf9f4] border border-gray-200 text-sm pl-10 pr-4 py-3 focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37]/40 text-[#2d312e] transition-colors"
                             />
                         </div>
                     </div>
 
                     {/* Password Field */}
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
-                            <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+                            <label htmlFor="signin-password" className="text-[11px] uppercase tracking-[0.14em] text-gray-500 block font-semibold">
                                 Security Access Password
                             </label>
                             <button
                                 type="button"
                                 onClick={() => alert("Administrative access keys can be recovered from the primary parish registrar.")}
-                                className="text-[9px] uppercase tracking-wider font-mono text-[#d4af37] hover:text-[#1b3622] transition-colors"
+                                className="text-[10px] uppercase tracking-[0.12em] font-mono text-[#a57f12] hover:text-[#1b3622] transition-colors"
                             >
                                 Forgotten?
                             </button>
@@ -143,17 +145,20 @@ export default function DashboardSignInPage() {
                                 <Lock className="h-4 w-4 stroke-[1.5]" />
                             </span>
                             <input
+                                id="signin-password"
                                 required
                                 type={showPassword ? "text" : "password"}
+                                autoComplete="current-password"
                                 placeholder="Enter secure key phrase"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-[#fbf9f4] border border-gray-200 text-xs pl-10 pr-10 py-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
+                                className="w-full bg-[#fbf9f4] border border-gray-200 text-sm pl-10 pr-10 py-3 focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37]/40 text-[#2d312e] transition-colors"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                                 {showPassword ? (
                                     <EyeOff className="h-4 w-4 stroke-[1.5]" />

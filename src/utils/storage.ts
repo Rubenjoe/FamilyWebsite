@@ -97,3 +97,25 @@ export function resolveCloudinaryUrl(publicId: string): string {
   }
   return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
 }
+
+/**
+ * Insert client-side delivery transformations into an existing Cloudinary URL
+ * so visitors never download more pixels than they need (f_auto picks WebP/AVIF,
+ * q_auto tunes quality, w_ caps the width). Non-Cloudinary URLs pass through
+ * untouched, so Supabase-hosted and local images keep working.
+ */
+export function withCloudinaryTransform(url: string, width: number): string {
+  if (!url || !url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) {
+    return url;
+  }
+  const marker = "/image/upload/";
+  const [head, tail] = splitOnce(url, marker);
+  if (!tail || tail.startsWith("f_auto,")) return url; // already transformed
+  return `${head}${marker}f_auto,q_auto,w_${width}/${tail}`;
+}
+
+function splitOnce(value: string, separator: string): [string, string | null] {
+  const index = value.indexOf(separator);
+  if (index === -1) return [value, null];
+  return [value.slice(0, index), value.slice(index + separator.length)];
+}

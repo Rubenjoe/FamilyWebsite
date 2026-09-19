@@ -275,8 +275,8 @@ export default function CommitteeManager({ initialRecords }: CommitteeManagerPro
       )}
 
       {(isCreating || editingRecord) && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white w-full max-w-3xl my-8 shadow-2xl border border-[#1b3622]/10">
+        <div className="admin-modal-overlay fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+          <div className="admin-modal-panel bg-white w-full max-w-3xl my-8 shadow-2xl border border-[#1b3622]/10">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-serif text-[#1b3622]">
                 {editingRecord ? "Edit Committee Member" : "Add Committee Member"}

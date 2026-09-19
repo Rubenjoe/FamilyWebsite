@@ -51,15 +51,6 @@ const ACHIEVEMENTS = [
     image: "/achv/Dr.Susan Thomas,Thyparampil.jpeg",
   },
   {
-    id: "ac-kurian-molikutty",
-    name: "T. K. Kurian & Molikutty Kurian",
-    branch: "Knanaya Samudhayam",
-    year: "Ordained",
-    title: "Evangelists of the Knanaya Samudhayam",
-    description: "Ordained as Evangelists of the Knanaya Samudhayam, in recognition of their life of faith and service.",
-    image: "/achv/T. K. Kurian and Molikutty Kurian.jpeg",
-  },
-  {
     id: "ac3",
     name: "Submit an Achievement",
     branch: "All Branches",
@@ -72,6 +63,15 @@ const ACHIEVEMENTS = [
 ];
 
 const EVANGELISTS = [
+  {
+    id: "ac-kurian-molikutty",
+    name: "T. K. Kurian & Molikutty Kurian",
+    branch: "Knanaya Samudhayam",
+    year: "Ordained",
+    title: "Evangelists of the Knanaya Samudhayam",
+    description: "Ordained as Evangelists of the Knanaya Samudhayam, in recognition of their life of faith and service.",
+    image: "/achv/T. K. Kurian and Molikutty Kurian.jpeg",
+  },
   {
     id: "ev-tt-thomas",
     name: "T. T. Thomas Thanuvelil",
@@ -131,7 +131,7 @@ function AchieversContent() {
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [records, setRecords] = useState({ achievers: ACHIEVEMENTS, evangelists: EVANGELISTS });
   useEffect(() => {
-    createClient().from("heritage_records").select("id,kind,name,branch,title,description,image_url,year_label").in("kind", ["achiever", "evangelist"]).eq("is_published", true).order("sort_order").then(({ data }) => {
+    createClient().from("heritage_records").select("id,kind,name,branch,title,description,image_url,year_label").in("kind", ["achiever", "evangelist"]).eq("is_published", true).eq("is_placeholder", false).order("sort_order").then(({ data }) => {
       if (!data) return;
       const map = (kind: "achiever" | "evangelist") => data.filter((row) => row.kind === kind).map((row) => ({ id: row.id, name: row.name, branch: row.branch, title: row.title || "", description: row.description || "", image: row.image_url || "", year: row.year_label || "" }));
       setRecords({ achievers: map("achiever"), evangelists: map("evangelist") });
@@ -186,7 +186,7 @@ function AchieversContent() {
         </div>
       </div>
 
-      {/* ── Tab Switcher ── */}
+      {/* ── Tab Switcher + Grid ── */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-12">
         <div className="flex gap-0 border border-[#1b3622]/15 w-fit">
           {(["achievers", "evangelists"] as Tab[]).map((tab) => (
@@ -194,12 +194,20 @@ function AchieversContent() {
               key={tab}
               id={`tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-3 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all duration-300 ${activeTab === tab
-                  ? "bg-[#1b3622] text-[#fbf9f4]"
-                  : "bg-transparent text-[#1b3622]/60 hover:text-[#1b3622] hover:bg-[#1b3622]/5"
+              aria-pressed={activeTab === tab}
+              className={`relative px-6 py-3 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-colors duration-300 cursor-pointer ${activeTab === tab
+                  ? "text-[#fbf9f4]"
+                  : "text-[#1b3622]/60 hover:text-[#1b3622]"
                 }`}
             >
-              <span className="flex items-center gap-2">
+              {activeTab === tab && (
+                <motion.span
+                  layoutId="achieverTabIndicator"
+                  className="absolute inset-0 bg-[#1b3622]"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                />
+              )}
+              <span className="relative flex items-center gap-2">
                 {tab === "achievers" ? (
                   <Award className="h-3 w-3" />
                 ) : (
@@ -233,7 +241,7 @@ function AchieversContent() {
                   delay: index * 0.09,
                   ease: NORELL_EASE,
                 }}
-                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm"
+                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
               >
                 {/* Photo frame */}
                 <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
@@ -272,7 +280,7 @@ function AchieversContent() {
                       <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10">
                         {item.branch} Branch
                       </span>
-                      <span className="text-gray-500 font-mono text-[10px]">
+                      <span className="text-gray-500 font-mono text-xs tracking-wide">
                         {item.year}
                       </span>
                     </div>
@@ -286,7 +294,7 @@ function AchieversContent() {
                       {item.description}
                     </p>
                   </div>
-                  <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
+                  <div className="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-100">
                     Pulazhiyil Excellence Registry
                   </div>
                 </div>
@@ -302,8 +310,11 @@ function AchieversContent() {
 export default function AchieversPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#fbf9f4] flex items-center justify-center">
-        <div className="text-[#1b3622]/60 font-mono text-sm uppercase tracking-[0.15em]">Loading...</div>
+      <div className="min-h-screen bg-[#fbf9f4] flex flex-col items-center justify-center gap-4">
+        <div className="h-8 w-8 rounded-full border-2 border-[#1b3622]/15 border-t-[#d4af37] animate-spin" aria-hidden />
+        <div className="text-[#1b3622]/60 font-mono text-xs uppercase tracking-[0.25em]">
+          Opening the Registry
+        </div>
       </div>
     }>
       <AchieversContent />

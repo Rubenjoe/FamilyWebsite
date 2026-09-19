@@ -5,6 +5,24 @@
   --color-gray-500: #444945;
   --color-gray-600: #2e312f;
   --color-gray-700: #1c1e1d;
+
+  /* Motion system — a single pair of signature easing curves reused everywhere.
+     Available as Tailwind utilities: ease-premium / ease-soft. */
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Wire the self-hosted next/font families into Tailwind's font utilities so
+   `font-serif` / `font-sans` / `font-mono` render the premium faces everywhere,
+   not just on headings. Uses @theme inline because the underlying CSS variables
+   are emitted at runtime by next/font. */
+@theme inline {
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas,
+    monospace;
+  --font-malayalam: var(--font-malayalam-serif), "Noto Serif Malayalam", Georgia,
+    serif;
 }
 
 @layer base {
@@ -28,19 +46,22 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Playfair Display', Georgia, serif;
-  line-height: 1.3;
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  line-height: 1.25;
   letter-spacing: -0.01em;
   font-weight: 500;
+  /* Prevents awkward single-word wraps on display headings. */
+  text-wrap: balance;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 1.15625rem;
   line-height: 1.75;
   letter-spacing: 0.01em;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Keep keyboard navigation obvious without changing the visual language. */
@@ -55,6 +76,25 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+/* Accessible skip link — visually hidden until focused. */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  background: var(--color-forest);
+  color: var(--color-cream);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: top 0.2s var(--ease-premium);
+}
+.skip-link:focus {
+  top: 1rem;
 }
 
 /* Parchment texture simulator using SVG fractal noise for high fidelity paper feeling */
@@ -73,15 +113,15 @@ textarea {
 }
 
 .highlight-date {
-  color: #d4af37;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 500;
+  color: #a57f12;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 600;
   letter-spacing: 0.05em;
 }
 
 /* Dropcap for beautiful story starting */
 .dropcap::first-letter {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   float: left;
   font-size: 3.5rem;
   line-height: 2.8rem;
@@ -94,7 +134,7 @@ textarea {
 
 /* Quote styling */
 .editorial-quote {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-style: italic;
   font-size: 1.15rem;
   line-height: 1.75;
@@ -105,5 +145,96 @@ textarea {
 }
 
 .Malayalam-font {
-  font-family: 'Noto Serif Malayalam', Georgia, serif;
+  font-family: var(--font-malayalam-serif), "Noto Serif Malayalam", Georgia, serif;
+}
+
+/* Shared lightbox entrance — transform/opacity only, GPU friendly. */
+@keyframes lightbox-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightbox-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.965) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.lightbox-overlay {
+  animation: lightbox-overlay-in 0.25s var(--ease-soft) both;
+}
+
+.lightbox-content {
+  animation: lightbox-content-in 0.35s var(--ease-premium) both;
+}
+
+/* Server-component entrance — used where a client-side animation library is
+   unnecessary. Stagger with inline animation-delay. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s var(--ease-premium) both;
+}
+
+/* Shared admin modal entrance — backdrop fades while the panel rises gently. */
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-modal-overlay {
+  animation: modal-overlay-in 0.2s var(--ease-soft) both;
+}
+
+.admin-modal-panel {
+  animation: modal-panel-in 0.35s var(--ease-premium) both;
+}
+
+/* Respect users who prefer reduced motion: collapse CSS-driven animation to
+   instant, non-repeating states. Framer Motion animations are handled
+   separately via <MotionConfig reducedMotion="user" />. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

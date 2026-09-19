@@ -170,7 +170,7 @@ export default function ObituaryPage() {
                                         <LightboxImage
                                             src={obituary.photoUrl}
                                             alt={obituary.name}
-                                            className="object-cover w-full h-full grayscale group-hover:scale-105 group-hover:grayscale-0 transition-all duration-750 ease-out"
+                                            className="object-cover w-full h-full grayscale group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out"
                                         />
                                     ) : (
                                         <div className="p-4 flex flex-col items-center justify-center text-center">

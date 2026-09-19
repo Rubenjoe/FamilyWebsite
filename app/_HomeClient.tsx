@@ -294,7 +294,7 @@ function AchieverCarousel({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: index * 0.1, ease: NORELL_EASE }}
-            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)] bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-md transition-shadow duration-500 rounded-sm"
+            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)] bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
           >
             {/* Photo Frame */}
             <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
@@ -312,7 +312,7 @@ function AchieverCarousel({
                   <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
                     Photo Placeholder
                   </span>
-                  <span className="text-[9px] text-[#1b3622]/40 font-light block">
+                  <span className="text-[10px] text-[#1b3622]/40 font-light block">
                     Awaiting portrait or recognition image
                   </span>
                 </div>
@@ -328,24 +328,24 @@ function AchieverCarousel({
             <div className="space-y-3 flex-grow flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="bg-[#1b3622]/5 text-[#1b3622] text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 border border-[#1b3622]/10">
+                  <span className="bg-[#1b3622]/5 text-[#1b3622] text-[10px] uppercase tracking-[0.12em] font-bold px-2 py-1 border border-[#1b3622]/10">
                     {achievement.branch} Branch
                   </span>
-                  <span className="text-gray-500 font-mono text-[10px]">
+                  <span className="text-gray-500 font-mono text-xs tracking-wide">
                     {achievement.year}
                   </span>
                 </div>
-                <h3 className="text-lg text-[#1b3622] font-serif font-light leading-snug">
+                <h3 className="text-xl text-[#1b3622] font-serif font-normal leading-snug">
                   {achievement.name}
                 </h3>
-                <p className="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold font-mono">
+                <p className="text-xs uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
                   {achievement.title}
                 </p>
-                <p className="text-xs text-gray-500 font-light leading-relaxed">
+                <p className="text-sm text-gray-500 font-light leading-relaxed">
                   {achievement.description}
                 </p>
               </div>
-              <div className="text-[9px] font-mono text-gray-500 pt-3 border-t border-gray-100">
+              <div className="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-100">
                 Pulazhiyil Excellence Registry
               </div>
             </div>
@@ -467,6 +467,10 @@ export default function HomeClient({
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
+      {/* Hint the browser to start fetching the first hero frame immediately —
+          it is the LCP element on this page. React hoists this into <head>. */}
+      <link rel="preload" as="image" href={HERO_IMAGES[0]} />
+
       {/* Scrollbar-hiding rule for the achievement/evangelist carousels — injected
           once here instead of inside each AchieverCarousel instance, so it isn't
           duplicated in the DOM when the page renders more than one carousel. */}
@@ -485,19 +489,31 @@ export default function HomeClient({
         className="relative h-[95vh] flex flex-col justify-center px-6 md:px-12 lg:px-20 border-b border-[#1b3622]/10 text-[#fbf9f4]"
         style={{ overflow: "hidden" }}
       >
-        {/* Background Slideshow */}
-        {HERO_IMAGES.map((img, index) => (
-          <motion.div
-            key={img}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: currentHeroImage === index ? 1 : 0 }}
-            transition={{ duration: 1.5 }}
-            className="transform-gpu absolute inset-0 z-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${img})` }}
-          />
-        ))}
+        {/* Background Slideshow — the active frame receives a slow Ken Burns
+            push-in (transform-only, GPU friendly) for a documentary feel. */}
+        {HERO_IMAGES.map((img, index) => {
+          const isActive = currentHeroImage === index;
+          return (
+            <motion.div
+              key={img}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isActive ? 1 : 0, scale: isActive ? 1.06 : 1 }}
+              transition={{
+                opacity: { duration: 1.5, ease: "easeInOut" },
+                scale: { duration: 6.8, ease: "linear" },
+              }}
+              className="transform-gpu absolute inset-0 z-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${img})` }}
+            />
+          );
+        })}
         {/* Dark overlay to keep text readable against images */}
         <div className="absolute inset-0 z-0 bg-[#1b3622]/70" />
+        {/* Grounding gradient — gently anchors the hero content to the fold */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 z-0 h-48 bg-gradient-to-t from-[#102517]/70 via-[#102517]/25 to-transparent"
+        />
 
         {/* Dot grid */}
         <div

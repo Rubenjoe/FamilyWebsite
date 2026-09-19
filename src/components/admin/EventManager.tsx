@@ -134,8 +134,8 @@ export default function EventManager({ initialEvents }: EventManagerProps) {
       </div>
 
       {(isCreating || editingEvent) && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg shadow-2xl border border-[#1b3622]/10">
+        <div className="admin-modal-overlay fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="admin-modal-panel bg-white w-full max-w-lg shadow-2xl border border-[#1b3622]/10">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-serif text-[#1b3622]">
                 {isCreating ? "Add New Event" : "Edit Event"}

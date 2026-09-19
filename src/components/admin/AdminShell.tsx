@@ -15,7 +15,6 @@ import {
   ImageIcon,
   Menu,
   X,
-  ChevronRight,
   Users2,
 } from "lucide-react";
 import type { AdminSession } from "@/utils/admin";
@@ -62,10 +61,39 @@ export default function AdminShell({
 
   const visibleNavItems = navItems.filter((item) => item.visible);
 
+  const renderNavItems = () =>
+    visibleNavItems.map((item) => {
+      const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+      const Icon = item.icon;
+      return (
+        <Link
+          key={item.href}
+          href={item.href}
+          onClick={() => setIsMobileOpen(false)}
+          aria-current={isActive ? "page" : undefined}
+          className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-sm text-left shrink-0 transition-colors duration-200 ${
+            isActive
+              ? "bg-[#d4af37]/15 text-[#fbf9f4]"
+              : "text-[#fbf9f4]/70 hover:bg-white/5 hover:text-[#fbf9f4]"
+          }`}
+        >
+          {isActive && (
+            <motion.span
+              layoutId="adminNavIndicator"
+              className="absolute left-0 top-1 bottom-1 w-0.5 bg-[#d4af37] rounded-full"
+              transition={{ type: "spring", stiffness: 400, damping: 34 }}
+            />
+          )}
+          <Icon className={`h-4 w-4 ${isActive ? "text-[#d4af37]" : ""}`} />
+          <span className="tracking-widest">{item.label}</span>
+        </Link>
+      );
+    });
+
   return (
-    <div className="min-h-screen bg-[#fbf9f4] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#fbf9f4] bg-parchment flex flex-col lg:flex-row">
       {/* Mobile header */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#1b3622] text-[#fbf9f4]">
+      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#1b3622] text-[#fbf9f4] border-b border-[#d4af37]/10">
         <div className="flex items-center gap-2.5">
           <ShieldCheck className="h-5 w-5 text-[#d4af37]" />
           <span className="text-xs font-bold uppercase tracking-widest">Staff Archive Desk</span>
@@ -74,6 +102,7 @@ export default function AdminShell({
           type="button"
           onClick={() => setIsMobileOpen((open) => !open)}
           aria-label={isMobileOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={isMobileOpen}
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -82,41 +111,24 @@ export default function AdminShell({
       {/* Sidebar */}
       <aside className="w-full lg:w-64 bg-[#1b3622] text-[#fbf9f4]/80 px-6 py-8 flex flex-col justify-between shrink-0 border-r border-[#d4af37]/10">
         <div className="space-y-8">
-          <div className="hidden lg:flex items-center gap-2.5 border-b border-[#fbf9f4]/10 pb-4">
+          <div className="hidden lg:flex items-center gap-2.5 border-b border-[#fbf9f4]/10 pb-5">
             <ShieldCheck className="h-5 w-5 text-[#d4af37]" />
             <div>
               <span className="block text-xs font-bold uppercase tracking-widest text-[#fbf9f4]">
                 Staff Archive Desk
               </span>
-              <span className="text-[10px] text-gray-400 font-mono">{roleLabel(session.role)}</span>
+              <span className="text-[10px] text-[#d4af37]/90 font-mono uppercase tracking-[0.15em]">
+                {roleLabel(session.role)}
+              </span>
             </div>
           </div>
 
-          <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 text-xs uppercase tracking-widest font-semibold">
-            {visibleNavItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-left shrink-0 transition-colors ${
-                    isActive
-                      ? "bg-[#d4af37] text-[#1b3622]"
-                      : "hover:bg-white/5"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                  {isActive && <ChevronRight className="h-3 w-3 ml-auto lg:hidden" />}
-                </Link>
-              );
-            })}
+          <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 text-xs uppercase font-semibold lg:border-t border-[#fbf9f4]/10 lg:pt-4">
+            {renderNavItems()}
           </nav>
         </div>
 
-        <div className="hidden lg:block pt-6 border-t border-[#fbf9f4]/5 text-[10px] text-gray-400 leading-normal font-light">
+        <div className="hidden lg:block pt-6 border-t border-[#fbf9f4]/5 text-[10px] text-[#fbf9f4]/50 leading-normal font-light">
           Signed in as {session.user.email || "unknown"}.<br />
           Secured session. All actions are logged.
         </div>
@@ -129,9 +141,10 @@ export default function AdminShell({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="lg:hidden bg-[#1b3622] border-t border-[#d4af37]/10 px-4 pb-4"
           >
-            <nav className="flex flex-col gap-1 text-xs uppercase tracking-widest font-semibold">
+            <nav className="flex flex-col gap-1 text-xs uppercase font-semibold">
               {visibleNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 const Icon = item.icon;
@@ -147,7 +160,7 @@ export default function AdminShell({
                     }`}
                   >
                     <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <span className="tracking-widest">{item.label}</span>
                   </Link>
                 );
               })}

@@ -6,7 +6,7 @@ import { Mail, MapPin, Phone, Clock, Send, CheckCircle2 } from "lucide-react";
 
 export default function ContactPage() {
     const [name, setName] = useState("");
-    const [branch, setBranch] = useState("Vadakke");
+    const [branch, setBranch] = useState("Pullazhiyil");
     const [email, setEmail] = useState("");
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
@@ -196,10 +196,10 @@ export default function ContactPage() {
                                             onChange={(e) => setBranch(e.target.value)}
                                             className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e] h-[42px]"
                                         >
-                                            <option value="Vadakke">Vadakke Branch</option>
-                                            <option value="Kizhake">Kizhake Branch</option>
-                                            <option value="Thekke">Thekke Branch</option>
-                                            <option value="Padinjare">Padinjare Branch</option>
+                                            <option value="Pullazhiyil">Pullazhiyil Branch</option>
+                                            <option value="Thykurinjiyil">Thykurinjiyil Branch</option>
+                                            <option value="Thanuvelil">Thanuvelil Branch</option>
+                                            <option value="Poovathumparambil">Poovathumparambil Branch</option>
                                             <option value="Other">Other / Non-Direct Relation</option>
                                         </select>
                                     </div>

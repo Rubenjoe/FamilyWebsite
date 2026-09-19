@@ -5,9 +5,16 @@ interface AdminPageHeaderProps {
 
 export default function AdminPageHeader({ title, subtitle }: AdminPageHeaderProps) {
   return (
-    <div className="space-y-1 mb-8">
-      <h1 className="text-2xl font-serif text-[#1b3622]">{title}</h1>
-      {subtitle && <p className="text-xs text-gray-500 font-light">{subtitle}</p>}
+    <div className="mb-8">
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-0.5 w-8 bg-[#d4af37]" />
+        <h1 className="text-2xl md:text-3xl font-serif text-[#1b3622] font-light tracking-tight">
+          {title}
+        </h1>
+      </div>
+      {subtitle && (
+        <p className="text-xs text-gray-500 font-light mt-1.5 pl-11">{subtitle}</p>
+      )}
     </div>
   );
 }

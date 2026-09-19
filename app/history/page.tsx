@@ -2,18 +2,17 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Anchor, 
-  Compass, 
-  Shield, 
-  Users, 
-  BookOpen, 
-  Calendar, 
-  Heart, 
-  ChevronDown, 
-  ChevronUp, 
-  Bookmark,
-  MapPin
+import {
+  Anchor,
+  Compass,
+  Shield,
+  Users,
+  BookOpen,
+  Calendar,
+  Heart,
+  ChevronDown,
+  ChevronUp,
+  Bookmark
 } from "lucide-react";
 
 // ─── Data Definitions ────────────────────────────────────────────────────────
@@ -227,15 +226,17 @@ export default function HistoryPage() {
                   transition={{ duration: 1.2, ease: NORELL_EASE }}
                   className="w-full space-y-4"
                 >
-                  <div className="relative h-[300px] sm:h-[450px] md:h-[550px] w-full overflow-hidden shadow-2xl rounded-2xl group border border-[#1b3622]/15">
+                  <div className="relative h-[300px] sm:h-[450px] md:h-[550px] w-full overflow-hidden shadow-2xl rounded-sm group border border-[#1b3622]/15">
                     {/* Background tint overlay */}
                     <div className="absolute inset-0 bg-[#1b3622]/10 z-10 transition-opacity duration-500 group-hover:opacity-0" />
-                    
-                    <motion.img 
+
+                    <motion.img
                       whileHover={{ scale: 1.025 }}
                       transition={{ duration: 0.8 }}
-                      src="https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&q=80&w=1200" 
-                      alt="Traditional Kerala landscape and river channels" 
+                      src="https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&q=80&w=1200"
+                      alt="Traditional Kerala landscape and river channels"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -331,14 +332,16 @@ export default function HistoryPage() {
                     isEven ? "order-1 lg:order-1" : "order-1 lg:order-2"
                   }`}
                 >
-                  <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-500 border border-[#1b3622]/10 group aspect-[4/3] w-full">
+                  <div className="relative overflow-hidden rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-500 border border-[#1b3622]/10 group aspect-[4/3] w-full">
                     {/* Ambient image vignette */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none" />
-                    <motion.img 
+                    <motion.img
                       whileHover={{ scale: 1.04 }}
                       transition={{ duration: 0.6 }}
-                      src={section.image} 
-                      alt={section.alt} 
+                      src={section.image}
+                      alt={section.alt}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -360,7 +363,7 @@ export default function HistoryPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: NORELL_EASE }}
-          className="bg-white/40 border border-[#1b3622]/10 p-8 sm:p-12 rounded-2xl shadow-sm space-y-8 backdrop-blur-[2px]"
+          className="bg-white/40 border border-[#1b3622]/10 p-8 sm:p-12 rounded-sm shadow-sm space-y-8 backdrop-blur-[2px]"
         >
           <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-[#d4af37] block font-semibold">
             The Eternal Covenant
