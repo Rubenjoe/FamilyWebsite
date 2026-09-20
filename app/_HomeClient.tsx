@@ -20,8 +20,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  Pause,
+  Play,
 } from "lucide-react";
 import type { Database } from "@/types/supabase";
+import { withCloudinaryTransform } from "@/utils/storage";
+import InitialsMonogram from "@/components/ui/InitialsMonogram";
 
 // ─── Derived view-model types from Supabase schema ───────────────────────────
 
@@ -40,6 +44,9 @@ type EventRow = Pick<
 interface HomeClientProps {
   achievers: HeritageRow[];
   evangelists: HeritageRow[];
+  /** Total published records per kind (not capped) for "Showing N of M". */
+  achieverTotal: number;
+  evangelistTotal: number;
   upcomingEvents: EventRow[];
 }
 
@@ -141,11 +148,13 @@ function CarouselEmptyState({ message }: { message: string }) {
 
 function AchieverCarousel({
   items,
+  totalCount,
   viewAllHref,
   viewAllLabel,
   emptyMessage,
 }: {
   items: CarouselItem[];
+  totalCount: number;
   viewAllHref: string;
   viewAllLabel: string;
   emptyMessage: string;
@@ -155,6 +164,10 @@ function AchieverCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  // Mobile auto-advance is suspended while paused — via the explicit toggle
+  // button, while the visitor is interacting with the carousel, or while it
+  // holds focus (WCAG 2.2.2 pause-stop-hide).
+  const [isPaused, setIsPaused] = useState(false);
   const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -204,9 +217,10 @@ function AchieverCarousel({
     scrollToIndex(newIndex);
   }, [activeIndex, items.length, scrollToIndex]);
 
-  // Auto-scroll on mobile only, and only while the carousel is visible.
+  // Auto-scroll on mobile only, only while the carousel is visible, and never
+  // while paused (toggle button / hover / keyboard focus).
   useEffect(() => {
-    if (!isMobile || !isInView || items.length === 0) return;
+    if (!isMobile || !isInView || isPaused || items.length === 0) return;
     autoScrollTimer.current = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % items.length;
@@ -226,7 +240,7 @@ function AchieverCarousel({
     return () => {
       if (autoScrollTimer.current) clearInterval(autoScrollTimer.current);
     };
-  }, [isMobile, isInView, items.length]);
+  }, [isMobile, isInView, isPaused, items.length]);
 
   // Sync active index from scroll — debounced via rAF so it doesn't fire mid-momentum
   const handleScroll = useCallback(() => {
@@ -272,7 +286,14 @@ function AchieverCarousel({
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div
+      ref={containerRef}
+      className="relative"
+      onPointerEnter={() => setIsPaused(true)}
+      onPointerLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
       {/* Carousel track */}
       <div
         ref={trackRef}
@@ -294,68 +315,66 @@ function AchieverCarousel({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: index * 0.1, ease: NORELL_EASE }}
-            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)] bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
+            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)]"
           >
-            {/* Photo Frame */}
-            <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
-              {achievement.image ? (
-                <img
-                  src={achievement.image}
-                  alt={achievement.name}
-                  loading="lazy"
-                  decoding="async"
-                  className="transform-gpu object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-              ) : (
-                <div className="p-6 flex flex-col items-center justify-center text-center">
-                  <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
-                  <span className="text-[10px] uppercase tracking-widest font-mono text-[#1b3622]/50 font-bold block mb-1">
-                    Photo Placeholder
-                  </span>
-                  <span className="text-[10px] text-[#1b3622]/40 font-light block">
-                    Awaiting portrait or recognition image
-                  </span>
-                </div>
-              )}
-              {/* Decorative border corners */}
-              <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
-              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
-              <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
-              <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
-            </div>
+            <Link
+              href={viewAllHref}
+              className="group flex h-full flex-col justify-between space-y-5 bg-white border border-[#1b3622]/10 p-6 shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
+            >
+              {/* Photo Frame */}
+              <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
+                {achievement.image ? (
+                  <img
+                    src={withCloudinaryTransform(achievement.image, 600)}
+                    alt={achievement.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="transform-gpu object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                ) : (
+                  <InitialsMonogram name={achievement.name} />
+                )}
+                {/* Decorative border corners */}
+                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
+                <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
+                <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
+                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
+              </div>
 
-            {/* Information Block */}
-            <div className="space-y-3 flex-grow flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="bg-[#1b3622]/5 text-[#1b3622] text-[10px] uppercase tracking-[0.12em] font-bold px-2 py-1 border border-[#1b3622]/10">
-                    {achievement.branch} Branch
-                  </span>
-                  <span className="text-gray-500 font-mono text-xs tracking-wide">
-                    {achievement.year}
-                  </span>
+              {/* Information Block */}
+              <div className="space-y-3 flex-grow flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="bg-[#1b3622]/5 text-[#1b3622] text-[10px] uppercase tracking-[0.12em] font-bold px-2 py-1 border border-[#1b3622]/10">
+                      {achievement.branch} Branch
+                    </span>
+                    <span className="text-gray-500 font-mono text-xs tracking-wide">
+                      {achievement.year}
+                    </span>
+                  </div>
+                  <h3 className="text-xl text-[#1b3622] font-serif font-normal leading-snug">
+                    {achievement.name}
+                  </h3>
+                  <p className="text-xs uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
+                    {achievement.title}
+                  </p>
+                  <p className="text-sm text-gray-500 font-light leading-relaxed">
+                    {achievement.description}
+                  </p>
                 </div>
-                <h3 className="text-xl text-[#1b3622] font-serif font-normal leading-snug">
-                  {achievement.name}
-                </h3>
-                <p className="text-xs uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
-                  {achievement.title}
-                </p>
-                <p className="text-sm text-gray-500 font-light leading-relaxed">
-                  {achievement.description}
-                </p>
+                <div className="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-100 flex items-center justify-between">
+                  <span>Pulazhiyil Excellence Registry</span>
+                  <ArrowRight className="h-3 w-3 text-[#d4af37] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </div>
               </div>
-              <div className="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-100">
-                Pulazhiyil Excellence Registry
-              </div>
-            </div>
+            </Link>
           </motion.div>
         ))}
       </div>
 
-      {/* Controls row: arrows + dot indicators + View All button */}
+      {/* Controls row: arrows + pause + dot indicators + View All button */}
       <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 mt-6">
-        {/* Arrow buttons */}
+        {/* Arrow buttons + mobile pause toggle + dot indicators */}
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrev}
@@ -371,6 +390,22 @@ function AchieverCarousel({
           >
             <ChevronRight className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           </button>
+
+          {/* Auto-scroll pause toggle — only relevant on mobile where autoplay runs */}
+          {isMobile && items.length > 1 && (
+            <button
+              onClick={() => setIsPaused((prev) => !prev)}
+              aria-label={isPaused ? "Resume auto-scroll" : "Pause auto-scroll"}
+              aria-pressed={isPaused}
+              className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+            >
+              {isPaused ? (
+                <Play className="h-3.5 w-3.5" />
+              ) : (
+                <Pause className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
 
           {/* Dot indicators */}
           <div className="flex items-center gap-1.5 ml-3">
@@ -393,18 +428,79 @@ function AchieverCarousel({
           </div>
         </div>
 
-        {/* View All button */}
-        <Link
-          href={viewAllHref}
-          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
-        >
-          <Users className="h-3 w-3" />
-          <span>{viewAllLabel}</span>
-          <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
-        </Link>
+        {/* Count + View All button */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+          {totalCount > items.length && (
+            <p className="text-xs font-mono text-gray-400 tracking-wide">
+              Showing {items.length} of {totalCount}
+            </p>
+          )}
+          <Link
+            href={viewAllHref}
+            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+          >
+            <Users className="h-3 w-3" />
+            <span>{viewAllLabel}</span>
+            <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
+          </Link>
+        </div>
       </div>
     </div>
   );
+}
+
+// ─── Structured data (schema.org) ─────────────────────────────────────────────
+
+/** Build a JSON-LD @graph covering homepage honourees and upcoming events so
+ *  search engines can index family members and gatherings by name. */
+function buildJsonLd(
+  honourees: HeritageRow[],
+  events: EventRow[]
+): Record<string, unknown> {
+  const people = honourees.map((record) => ({
+    "@type": "Person",
+    name: record.name,
+    ...(record.description ? { description: record.description } : {}),
+    ...(record.title ? { jobTitle: record.title } : {}),
+    ...(record.image_url ? { image: record.image_url } : {}),
+    ...(record.branch
+      ? { additionalName: `${record.branch} branch, Pullazhiyil Kudumbayogam` }
+      : {}),
+  }));
+
+  const eventNodes = events.map((event) => ({
+    "@type": "Event",
+    name: event.title,
+    startDate: event.event_date,
+    ...(event.description ? { description: event.description } : {}),
+    ...(event.location
+      ? { location: { "@type": "Place", name: event.location } }
+      : {}),
+    organizer: {
+      "@type": "Organization",
+      name: "Pullazhiyil Kudumbayogam",
+    },
+  }));
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      ...(people.length > 0
+        ? [
+            {
+              "@type": "ItemList",
+              name: "Pullazhiyil Heritage Registry — honourees",
+              itemListElement: people.map((person, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: person,
+              })),
+            },
+          ]
+        : []),
+      ...eventNodes,
+    ],
+  };
 }
 
 // ─── Main Client Component ─────────────────────────────────────────────────────
@@ -412,6 +508,8 @@ function AchieverCarousel({
 export default function HomeClient({
   achievers,
   evangelists,
+  achieverTotal,
+  evangelistTotal,
   upcomingEvents,
 }: HomeClientProps) {
   const achieverItems = achievers.map(toCarouselItem);
@@ -475,6 +573,16 @@ export default function HomeClient({
           once here instead of inside each AchieverCarousel instance, so it isn't
           duplicated in the DOM when the page renders more than one carousel. */}
       <style>{CAROUSEL_STYLE}</style>
+
+      {/* schema.org structured data for honourees and upcoming events */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildJsonLd([...achievers, ...evangelists], upcomingEvents)
+          ),
+        }}
+      />
 
       {/* Elegant Ambient Background Glows — promoted to their own GPU-composited
           layer (transform-gpu + will-change-transform) so the expensive blur()
@@ -847,6 +955,7 @@ export default function HomeClient({
 
         <AchieverCarousel
           items={achieverItems}
+          totalCount={Math.max(achieverTotal, achieverItems.length)}
           viewAllHref="/achievers"
           viewAllLabel="View All Achievers"
           emptyMessage="No family achievements have been published yet."
@@ -873,6 +982,7 @@ export default function HomeClient({
 
         <AchieverCarousel
           items={evangelistItems}
+          totalCount={Math.max(evangelistTotal, evangelistItems.length)}
           viewAllHref="/achievers?tab=evangelists"
           viewAllLabel="View All Evangelists"
           emptyMessage="No family evangelist records have been published yet."

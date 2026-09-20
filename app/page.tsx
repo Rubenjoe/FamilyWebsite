@@ -20,76 +20,70 @@ type EventRow = Pick<
   "id" | "title" | "description" | "event_date" | "location"
 >;
 
-// Internal shape that includes `kind` for splitting into achievers / evangelists
-type HeritageRowWithKind = HeritageRow & {
-  kind: Database["public"]["Tables"]["heritage_records"]["Row"]["kind"];
-};
-
 // ─── Server Component ─────────────────────────────────────────────────────────
+
+// Number of cards shown per carousel section on the homepage.
+const HOMEPAGE_SECTION_LIMIT = 4;
 
 export default async function HomePage() {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // Run both queries in parallel for performance.
-  // A single heritage query fetches both achievers and evangelists (up to 8 total)
-  // so the page makes only two round-trips regardless of content volume.
-  const [heritageResult, eventsResult] = await Promise.all([
+  // Published, non-placeholder heritage records of one kind, newest-pinned
+  // first via sort_order, capped at the carousel size.
+  const sectionQuery = (kind: "achiever" | "evangelist") =>
     supabase
       .from("heritage_records")
-      .select("id,kind,name,branch,title,description,image_url,year_label")
-      .in("kind", ["achiever", "evangelist"])
+      .select("id,name,branch,title,description,image_url,year_label")
+      .eq("kind", kind)
       .eq("is_published", true)
       .eq("is_placeholder", false)
       .order("sort_order", { ascending: true })
-      .limit(8)
-      .returns<HeritageRowWithKind[]>(),
+      .limit(HOMEPAGE_SECTION_LIMIT)
+      .returns<HeritageRow[]>();
+
+  // Head-count of ALL published records per kind (not capped) so the homepage
+  // can show "View all — N honourees" next to each curated carousel.
+  const countQuery = (kind: "achiever" | "evangelist") =>
     supabase
-      .from("events")
-      .select("id,title,description,event_date,location")
-      .gte("event_date", today)
-      .order("event_date", { ascending: true })
-      .limit(3)
-      .returns<EventRow[]>(),
-  ]);
+      .from("heritage_records")
+      .select("id", { count: "exact", head: true })
+      .eq("kind", kind)
+      .eq("is_published", true)
+      .eq("is_placeholder", false);
 
-  if (heritageResult.error) {
-    console.error(
-      "[Homepage] Error loading heritage records:",
-      heritageResult.error.message || heritageResult.error,
-      "code:",
-      heritageResult.error.code,
-      "details:",
-      heritageResult.error.details
-    );
+  const [achieverRows, evangelistRows, achieverCount, evangelistCount, eventsResult] =
+    await Promise.all([
+      sectionQuery("achiever"),
+      sectionQuery("evangelist"),
+      countQuery("achiever"),
+      countQuery("evangelist"),
+      supabase
+        .from("events")
+        .select("id,title,description,event_date,location")
+        .gte("event_date", today)
+        .order("event_date", { ascending: true })
+        .limit(3)
+        .returns<EventRow[]>(),
+    ]);
+
+  for (const result of [achieverRows, evangelistRows, eventsResult]) {
+    if (result.error) {
+      console.error(
+        "[Homepage] Error loading data:",
+        result.error.message || result.error,
+        "code:",
+        result.error.code
+      );
+    }
   }
-  if (eventsResult.error) {
-    console.error(
-      "[Homepage] Error loading events:",
-      eventsResult.error.message || eventsResult.error,
-      "code:",
-      eventsResult.error.code,
-      "details:",
-      eventsResult.error.details
-    );
-  }
-
-  const allHeritage = heritageResult.data ?? [];
-
-  // Split the combined result into the two homepage sections.
-  // Apply a per-kind cap of 4 so the carousel has enough items to overflow
-  // on desktop (3 cards fill the grid exactly; a 4th creates the scroll).
-  const achievers: HeritageRow[] = allHeritage
-    .filter((r) => r.kind === "achiever")
-    .slice(0, 4);
-  const evangelists: HeritageRow[] = allHeritage
-    .filter((r) => r.kind === "evangelist")
-    .slice(0, 4);
 
   return (
     <HomeClient
-      achievers={achievers}
-      evangelists={evangelists}
+      achievers={achieverRows.data ?? []}
+      evangelists={evangelistRows.data ?? []}
+      achieverTotal={achieverCount.count ?? achieverRows.data?.length ?? 0}
+      evangelistTotal={evangelistCount.count ?? evangelistRows.data?.length ?? 0}
       upcomingEvents={eventsResult.data ?? []}
     />
   );

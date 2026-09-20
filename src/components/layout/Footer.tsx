@@ -6,7 +6,7 @@ const FOOTER_LINKS = [
     { label: "Registry Directory", href: "/members" },
     { label: "Photo Vault", href: "/gallery" },
     { label: "Milestones", href: "/events" },
-    { label: "Management", href: "/admin" },
+    { label: "Achievers", href: "/achievers" },
 ];
 
 export default function Footer() {

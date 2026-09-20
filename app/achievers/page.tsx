@@ -1,147 +1,92 @@
-"use client";
+import { createClient } from "@/utils/supabase/server";
+import type { Database } from "@/types/supabase";
+import AchieversClient from "./_AchieversClient";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Award, Users, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import LightboxImage from "@/components/ui/LightboxImage";
-import { createClient } from "@/utils/supabase/client";
+export const metadata = {
+  title: "Heritage Registry — Achievers & Evangelists | Pullazhiyil Kudumbayogam",
+  description:
+    "The Pullazhiyil Heritage Registry: honoring family achievers and evangelists across the Pullazhiyil, Thykurinjiyil, Thanuvelil, and Poovathumparambil branches.",
+};
 
-const NORELL_EASE = [0.16, 1, 0.3, 1] as const;
-
-const ACHIEVEMENTS = [
-  {
-    id: "ac1",
-    name: "Lt. Cdr Kuriakose Mathew (Aniyan)",
-    branch: "Thanuvelil",
-    year: "1971",
-    title: "First Commissioned Officer of Indian Navy",
-    description:
-      "First Commissioned Officer of Indian Navy from Thanuvelil family. Participated in 1971 Indo-Pak war on board Aircraft Carrier INS VIKRANT.",
-    image: "/achv/Lt. Cdr Kuriakose Mathew(Aniyan). .jpeg",
-  },
-  {
-    id: "ac-tc-thomas",
-    name: "TC Thomas Thykurinjiyil-Thoppil",
-    branch: "Thykurinjiyil",
-    year: "Honored",
-    title: "Trustee - Knanaya Samudayam",
-    description:
-      "Served as the Trustee of the Knanaya Samudayam, bringing distinction and honor to the Thykurinjiyil-Thoppil branch.",
-    image: "/achv/TC Thomas.jpeg",
-  },
-  {
-    id: "ac2",
-    name: "Siby Mathew Thanuvelil",
-    branch: "Thanuvelil",
-    year: "Present",
-    title: "Director at AbbVie & IIM Alumnus",
-    description:
-      "An IIM Alumni. Now Director of a USA based MNC Abbvie. S/o Lt. Cdr. Kuriakose Mathew.",
-    image: "/achv/Siby Mathew Thanuvelil. An IIM Alumni.jpeg",
-  },
-  {
-    id: "ac-susan-thomas",
-    name: "Dr. Susan Thomas, Thyparampil",
-    branch: "Thyparampil",
-    year: "Honored",
-    title: "Ph.D. in Photonics",
-    description: "Awarded a Ph.D. in Photonics from the Indian Institute of Technology (IIT) Madras.",
-    image: "/achv/Dr.Susan Thomas,Thyparampil.jpeg",
-  },
-  {
-    id: "ac3",
-    name: "Submit an Achievement",
-    branch: "All Branches",
-    year: "Ongoing",
-    title: "Recognize Excellence",
-    description:
-      "Have you or a family member achieved a milestone, received an award, or made a notable contribution? Let the Kudumbayogam know so we can celebrate and register it here.",
-    image: "",
-  },
-];
-
-const EVANGELISTS = [
-  {
-    id: "ac-kurian-molikutty",
-    name: "T. K. Kurian & Molikutty Kurian",
-    branch: "Knanaya Samudhayam",
-    year: "Ordained",
-    title: "Evangelists of the Knanaya Samudhayam",
-    description: "Ordained as Evangelists of the Knanaya Samudhayam, in recognition of their life of faith and service.",
-    image: "/achv/T. K. Kurian and Molikutty Kurian.jpeg",
-  },
-  {
-    id: "ev-tt-thomas",
-    name: "T. T. Thomas Thanuvelil",
-    branch: "Thanuvelil",
-    year: "Present",
-    title: "Centre Pastor, IPC Pampakuda Centre",
-    description: "Serving as Centre Pastor at IPC Pampakuda Centre.",
-    image: "/Evangilist/TT Thomas Thanuvelil.jpeg",
-  },
-  {
-    id: "ev1",
-    name: "Fr. Thomas Pullazhiyil",
-    branch: "Pullazhiyil",
-    year: "1965",
-    title: "Pioneer Missionary Priest",
-    description:
-      "Dedicated decades of priestly service across Kerala and abroad, establishing missions and spreading the Gospel rooted in the Knanaya tradition.",
-    image: "",
-  },
-  {
-    id: "ev2",
-    name: "Sr. Mary Thykurinjiyil",
-    branch: "Thykurinjiyil",
-    year: "1978",
-    title: "Religious Sister & Educator",
-    description:
-      "Founded a charitable school for underprivileged children in rural Kerala, serving as principal for over 30 years and inspiring generations of students.",
-    image: "",
-  },
-  {
-    id: "ev3",
-    name: "Deacon Jose Thanuvelil",
-    branch: "Thanuvelil",
-    year: "2005",
-    title: "Ordained Deacon & Community Servant",
-    description:
-      "Faithfully served the parish community as an ordained deacon, leading family prayer movements and charitable outreach across the diocese.",
-    image: "",
-  },
-  {
-    id: "ev4",
-    name: "Submit an Evangelist",
-    branch: "All Branches",
-    year: "Ongoing",
-    title: "Honour Their Faith",
-    description:
-      "Know a family member who has dedicated their life to faith and service? Submit their story to be celebrated and remembered in the Pullazhiyil Heritage Registry.",
-    image: "",
-  },
-];
+type HeritageRow = Pick<
+  Database["public"]["Tables"]["heritage_records"]["Row"],
+  "id" | "name" | "branch" | "title" | "description" | "image_url" | "year_label"
+>;
 
 type Tab = "achievers" | "evangelists";
 
-function AchieversContent() {
-  const searchParams = useSearchParams();
-  const initialTab = (searchParams.get("tab") as Tab) || "achievers";
-  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
-  const [records, setRecords] = useState({ achievers: ACHIEVEMENTS, evangelists: EVANGELISTS });
-  useEffect(() => {
-    createClient().from("heritage_records").select("id,kind,name,branch,title,description,image_url,year_label").in("kind", ["achiever", "evangelist"]).eq("is_published", true).eq("is_placeholder", false).order("sort_order").then(({ data }) => {
-      if (!data) return;
-      const map = (kind: "achiever" | "evangelist") => data.filter((row) => row.kind === kind).map((row) => ({ id: row.id, name: row.name, branch: row.branch, title: row.title || "", description: row.description || "", image: row.image_url || "", year: row.year_label || "" }));
-      setRecords({ achievers: map("achiever"), evangelists: map("evangelist") });
-    });
-  }, []);
+const SELECT_COLUMNS =
+  "id,name,branch,title,description,image_url,year_label";
 
-  const items = activeTab === "achievers" ? records.achievers : records.evangelists;
+async function fetchKind(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  kind: "achiever" | "evangelist"
+) {
+  const result = await supabase
+    .from("heritage_records")
+    .select(SELECT_COLUMNS)
+    .eq("kind", kind)
+    .eq("is_published", true)
+    .eq("is_placeholder", false)
+    .order("sort_order", { ascending: true })
+    .returns<HeritageRow[]>();
+  if (result.error) {
+    console.error(
+      `[Achievers] Error loading ${kind} records:`,
+      result.error.message || result.error,
+      "code:",
+      result.error.code
+    );
+  }
+  return result.data ?? [];
+}
+
+export default async function AchieversPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const supabase = await createClient();
+  const params = await searchParams;
+  const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+  const initialTab: Tab = tabParam === "evangelists" ? "evangelists" : "achievers";
+
+  const [achievers, evangelists] = await Promise.all([
+    fetchKind(supabase, "achiever"),
+    fetchKind(supabase, "evangelist"),
+  ]);
+
+  // schema.org structured data — server-rendered so the real registry records,
+  // not a client-side placeholder, are what search engines index.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Pullazhiyil Heritage Registry",
+    itemListElement: [...achievers, ...evangelists].map((record, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Person",
+        name: record.name,
+        ...(record.description ? { description: record.description } : {}),
+        ...(record.title ? { jobTitle: record.title } : {}),
+        ...(record.image_url ? { image: record.image_url } : {}),
+        ...(record.branch
+          ? {
+              additionalName: `${record.branch} branch, Pullazhiyil Kudumbayogam`,
+            }
+          : {}),
+      },
+    })),
+  };
 
   return (
     <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen selection:bg-[#1b3622] selection:text-[#fbf9f4]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Ambient glows */}
       <div className="fixed top-[10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-[#d4af37]/5 blur-[120px] pointer-events-none z-0" />
       <div className="fixed bottom-[10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#1b3622]/4 blur-[140px] pointer-events-none z-0" />
@@ -157,167 +102,34 @@ function AchieversContent() {
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto">
-          <Link
+          <a
             href="/"
             className="inline-flex items-center gap-2 text-[#d4af37]/90 hover:text-[#d4af37] text-xs uppercase tracking-[0.18em] font-mono font-bold transition-colors duration-200 mb-8 group"
           >
-            <ArrowRight className="h-3 w-3 rotate-180 group-hover:-translate-x-1 transition-transform duration-200" />
+            <span aria-hidden className="inline-block rotate-180 group-hover:-translate-x-1 transition-transform duration-200">→</span>
             Back to Home
-          </Link>
+          </a>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: NORELL_EASE }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             <span className="text-xs uppercase tracking-[0.22em] font-mono text-[#d4af37] block">
               Pullazhiyil Heritage Registry
             </span>
             <h1 className="text-4xl md:text-6xl font-serif font-light leading-tight">
-              {activeTab === "achievers" ? "Family Achievers" : "Family Evangelists"}
+              Achievers &amp; Evangelists
             </h1>
             <p className="text-[#fbf9f4]/85 font-normal text-base md:text-lg max-w-xl leading-relaxed">
-              {activeTab === "achievers"
-                ? "Honoring the remarkable accomplishments of the Pullazhiyil Kudumbayogam across generations."
-                : "Celebrating those who have dedicated their lives to faith, service, and the Gospel across generations."}
+              Honoring the accomplishments and faith-filled service of the
+              Pullazhiyil Kudumbayogam across generations and branches.
             </p>
-          </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* ── Tab Switcher + Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-12">
-        <div className="flex gap-0 border border-[#1b3622]/15 w-fit">
-          {(["achievers", "evangelists"] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              id={`tab-${tab}`}
-              onClick={() => setActiveTab(tab)}
-              aria-pressed={activeTab === tab}
-              className={`relative px-6 py-3 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-colors duration-300 cursor-pointer ${activeTab === tab
-                  ? "text-[#fbf9f4]"
-                  : "text-[#1b3622]/60 hover:text-[#1b3622]"
-                }`}
-            >
-              {activeTab === tab && (
-                <motion.span
-                  layoutId="achieverTabIndicator"
-                  className="absolute inset-0 bg-[#1b3622]"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                />
-              )}
-              <span className="relative flex items-center gap-2">
-                {tab === "achievers" ? (
-                  <Award className="h-3 w-3" />
-                ) : (
-                  <Users className="h-3 w-3" />
-                )}
-                {tab === "achievers" ? "Achievers" : "Evangelists"}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <div className="w-full h-px bg-[#1b3622]/10 mt-8 mb-12" />
-
-        {/* ── Grid ── */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5, ease: NORELL_EASE }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-32"
-          >
-            {items.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: index * 0.09,
-                  ease: NORELL_EASE,
-                }}
-                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
-              >
-                {/* Photo frame */}
-                <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
-                  {item.image ? (
-                    <LightboxImage
-                      src={item.image}
-                      alt={item.name}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                  ) : (
-                    <div className="p-6 flex flex-col items-center justify-center text-center">
-                      {activeTab === "achievers" ? (
-                        <Award className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
-                      ) : (
-                        <Users className="h-10 w-10 text-[#d4af37] stroke-[1] mb-3 opacity-60 group-hover:scale-110 transition-transform duration-500" />
-                      )}
-                      <span className="text-xs uppercase tracking-[0.12em] font-mono text-[#1b3622]/70 font-bold block mb-1">
-                        Photo Placeholder
-                      </span>
-                      <span className="text-xs text-[#1b3622]/60 font-normal block">
-                        Awaiting portrait or recognition image
-                      </span>
-                    </div>
-                  )}
-                  {/* Corner decorations */}
-                  <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/20" />
-                  <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/20" />
-                  <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/20" />
-                  <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/20" />
-                </div>
-
-                {/* Info */}
-                <div className="space-y-3 flex-grow flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10">
-                        {item.branch} Branch
-                      </span>
-                      <span className="text-gray-500 font-mono text-xs tracking-wide">
-                        {item.year}
-                      </span>
-                    </div>
-                    <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
-                      {item.title}
-                    </p>
-                    <p className="text-sm text-gray-600 font-normal leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
-                  <div className="text-[10px] font-mono text-gray-500 pt-3 border-t border-gray-100">
-                    Pulazhiyil Excellence Registry
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <AchieversClient
+        achievers={achievers}
+        evangelists={evangelists}
+        initialTab={initialTab}
+      />
     </div>
-  );
-}
-
-export default function AchieversPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#fbf9f4] flex flex-col items-center justify-center gap-4">
-        <div className="h-8 w-8 rounded-full border-2 border-[#1b3622]/15 border-t-[#d4af37] animate-spin" aria-hidden />
-        <div className="text-[#1b3622]/60 font-mono text-xs uppercase tracking-[0.25em]">
-          Opening the Registry
-        </div>
-      </div>
-    }>
-      <AchieversContent />
-    </Suspense>
   );
 }
