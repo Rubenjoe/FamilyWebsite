@@ -17,6 +17,7 @@ export interface GalleryItemView {
   description?: string;
   year?: string;
   branch?: string;
+  sort_order?: number;
 }
 
 interface GalleryClientProps {
@@ -49,14 +50,21 @@ export default function GalleryClient({ items }: GalleryClientProps) {
     }
 
     for (const list of groups.values()) {
-      list.sort((a, b) => a.title.localeCompare(b.title));
+      list.sort((a, b) => {
+        const orderA = a.sort_order ?? 0;
+        const orderB = b.sort_order ?? 0;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        return a.title.localeCompare(b.title);
+      });
     }
 
     return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [items, selectedBranch]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-16 space-y-12 relative z-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-10 sm:space-y-12 relative z-10">
       <div className="space-y-2 border-b border-gray-100 pb-6 animate-fade-up">
         <span className="text-xs uppercase tracking-[0.28em] text-[#a57f12] font-semibold block">
           The Media Vault
@@ -78,7 +86,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                 key={branch}
                 onClick={() => setSelectedBranch(branch)}
                 aria-pressed={selectedBranch === branch}
-                className={`min-h-[40px] px-3.5 py-2 text-xs uppercase tracking-[0.1em] font-medium transition-all duration-300 cursor-pointer ${
+                className={`min-h-[44px] px-4 py-2 text-xs uppercase tracking-[0.1em] font-medium transition-all duration-300 cursor-pointer flex items-center justify-center ${
                   selectedBranch === branch
                     ? "bg-[#1b3622] text-[#fbf9f4] font-semibold shadow-sm"
                     : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30 hover:text-[#1b3622]"
@@ -116,7 +124,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                     {groupItems.length} photo{groupItems.length === 1 ? "" : "s"}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                   {groupItems.map((item, index) => (
                     <motion.div
                       key={item.id}
@@ -126,7 +134,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                       transition={{ duration: 0.7, delay: Math.min(index, 4) * 0.08, ease: NORELL_EASE }}
                       className="bg-white border border-[#1b3622]/10 shadow-sm rounded-sm overflow-hidden flex flex-col md:flex-row group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 transition-all duration-500 ease-premium"
                     >
-                      <div className="md:w-1/2 aspect-video md:aspect-square relative overflow-hidden bg-gray-50">
+                      <div className="w-full md:w-1/2 aspect-video md:aspect-square relative overflow-hidden bg-gray-50 shrink-0">
                         <LightboxImage
                           src={item.imageUrl}
                           fullSrc={item.fullImageUrl}
@@ -135,7 +143,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                         />
                       </div>
 
-                      <div className="md:w-1/2 p-6 flex flex-col justify-between space-y-4">
+                      <div className="w-full md:w-1/2 p-5 sm:p-6 flex flex-col justify-between space-y-4">
                         <div className="space-y-2">
                           <div className="flex flex-wrap items-center gap-2">
                             {item.album && (
@@ -150,9 +158,9 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-lg text-[#2d312e] font-serif font-medium leading-snug">{item.title}</h3>
+                          <h3 className="text-lg text-[#2d312e] font-serif font-medium leading-snug break-words">{item.title}</h3>
                           {item.description && (
-                            <p className="text-sm text-gray-600 font-light leading-relaxed">
+                            <p className="text-sm text-gray-600 font-light leading-relaxed break-words">
                               {item.description}
                             </p>
                           )}

@@ -10,17 +10,27 @@ export const metadata = {
 
 type GalleryRow = Pick<
   Database["public"]["Tables"]["gallery_records"]["Row"],
-  "id" | "title" | "description" | "album" | "branch" | "year_label" | "image_path" | "cloudinary_public_id" | "cloudinary_secure_url"
+  | "id"
+  | "title"
+  | "description"
+  | "album"
+  | "branch"
+  | "year_label"
+  | "image_path"
+  | "cloudinary_public_id"
+  | "cloudinary_secure_url"
+  | "sort_order"
 >;
 
 export default async function GalleryPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("gallery_records")
-    .select("id,title,description,album,branch,year_label,image_path,cloudinary_public_id,cloudinary_secure_url")
+    .select("id,title,description,album,branch,year_label,image_path,cloudinary_public_id,cloudinary_secure_url,sort_order")
     .eq("is_published", true)
     .order("branch")
     .order("sort_order", { ascending: true })
+    .order("title", { ascending: true })
     .returns<GalleryRow[]>();
 
   if (error) {
@@ -47,6 +57,7 @@ export default async function GalleryPage() {
       description: row.description ?? undefined,
       year: row.year_label ?? undefined,
       branch: row.branch ?? undefined,
+      sort_order: row.sort_order ?? 0,
     };
   });
 

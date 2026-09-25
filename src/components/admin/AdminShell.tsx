@@ -93,25 +93,31 @@ export default function AdminShell({
   return (
     <div className="min-h-screen bg-[#fbf9f4] bg-parchment flex flex-col lg:flex-row">
       {/* Mobile header */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#1b3622] text-[#fbf9f4] border-b border-[#d4af37]/10">
+      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#1b3622] text-[#fbf9f4] border-b border-[#d4af37]/10 shrink-0">
         <div className="flex items-center gap-2.5">
-          <ShieldCheck className="h-5 w-5 text-[#d4af37]" />
-          <span className="text-xs font-bold uppercase tracking-widest">Staff Archive Desk</span>
+          <ShieldCheck className="h-5 w-5 text-[#d4af37] shrink-0" />
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-bold uppercase tracking-widest">Staff Archive Desk</span>
+            <span className="text-[10px] text-[#d4af37]/90 font-mono uppercase tracking-[0.12em] hidden sm:inline">
+              ({roleLabel(session.role)})
+            </span>
+          </div>
         </div>
         <button
           type="button"
           onClick={() => setIsMobileOpen((open) => !open)}
           aria-label={isMobileOpen ? "Close navigation" : "Open navigation"}
           aria-expanded={isMobileOpen}
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2 text-[#fbf9f4] hover:text-[#d4af37] transition-colors"
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Sidebar */}
-      <aside className="w-full lg:w-64 bg-[#1b3622] text-[#fbf9f4]/80 px-6 py-8 flex flex-col justify-between shrink-0 border-r border-[#d4af37]/10">
+      {/* Sidebar — visible only on desktop */}
+      <aside className="hidden lg:flex lg:w-64 bg-[#1b3622] text-[#fbf9f4]/80 px-6 py-8 flex-col justify-between shrink-0 border-r border-[#d4af37]/10">
         <div className="space-y-8">
-          <div className="hidden lg:flex items-center gap-2.5 border-b border-[#fbf9f4]/10 pb-5">
+          <div className="flex items-center gap-2.5 border-b border-[#fbf9f4]/10 pb-5">
             <ShieldCheck className="h-5 w-5 text-[#d4af37]" />
             <div>
               <span className="block text-xs font-bold uppercase tracking-widest text-[#fbf9f4]">
@@ -123,12 +129,12 @@ export default function AdminShell({
             </div>
           </div>
 
-          <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 text-xs uppercase font-semibold lg:border-t border-[#fbf9f4]/10 lg:pt-4">
+          <nav className="flex flex-col gap-1 text-xs uppercase font-semibold border-t border-[#fbf9f4]/10 pt-4">
             {renderNavItems()}
           </nav>
         </div>
 
-        <div className="hidden lg:block pt-6 border-t border-[#fbf9f4]/5 text-[10px] text-[#fbf9f4]/50 leading-normal font-light">
+        <div className="pt-6 border-t border-[#fbf9f4]/5 text-[10px] text-[#fbf9f4]/50 leading-normal font-light">
           Signed in as {session.user.email || "unknown"}.<br />
           Secured session. All actions are logged.
         </div>
@@ -142,9 +148,9 @@ export default function AdminShell({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:hidden bg-[#1b3622] border-t border-[#d4af37]/10 px-4 pb-4"
+            className="lg:hidden bg-[#1b3622] border-t border-[#d4af37]/10 px-4 pb-4 max-h-[calc(100dvh-3.5rem)] overflow-y-auto"
           >
-            <nav className="flex flex-col gap-1 text-xs uppercase font-semibold">
+            <nav className="flex flex-col gap-1 text-xs uppercase font-semibold pt-2">
               {visibleNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 const Icon = item.icon;
@@ -153,7 +159,7 @@ export default function AdminShell({
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-colors min-h-[44px] ${
                       isActive
                         ? "bg-[#d4af37] text-[#1b3622]"
                         : "text-[#fbf9f4]/80 hover:bg-white/5"
@@ -165,11 +171,15 @@ export default function AdminShell({
                 );
               })}
             </nav>
+            <div className="pt-3 mt-3 border-t border-[#fbf9f4]/10 text-[10px] text-[#fbf9f4]/50 leading-normal font-light">
+              Signed in as {session.user.email || "unknown"} ({roleLabel(session.role)}).<br />
+              Secured session. All actions are logged.
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <main className="flex-grow p-6 md:p-10 max-w-6xl mx-auto w-full relative">
+      <main className="flex-grow p-4 sm:p-6 md:p-10 max-w-6xl mx-auto w-full relative min-w-0">
         {children}
       </main>
     </div>

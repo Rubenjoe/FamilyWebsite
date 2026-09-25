@@ -105,14 +105,16 @@ export default function EventManager({ initialEvents }: EventManagerProps) {
         subtitle="Announce and manage upcoming and past family events."
       />
 
-      <button
-        type="button"
-        onClick={() => setIsCreating(true)}
-        className="flex items-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-        Add Event
-      </button>
+      <div className="flex justify-start sm:justify-start">
+        <button
+          type="button"
+          onClick={() => setIsCreating(true)}
+          className="flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px] w-full sm:w-auto"
+        >
+          <Plus className="h-4 w-4" />
+          Add Event
+        </button>
+      </div>
 
       <div className="space-y-6">
         <EventSection
@@ -134,9 +136,9 @@ export default function EventManager({ initialEvents }: EventManagerProps) {
       </div>
 
       {(isCreating || editingEvent) && (
-        <div className="admin-modal-overlay fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="admin-modal-panel bg-white w-full max-w-lg shadow-2xl border border-[#1b3622]/10">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#1b3622]/60 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+          <div className="admin-modal-panel bg-white w-full max-w-lg max-h-[calc(100dvh-2rem)] flex flex-col my-auto shadow-2xl border border-[#1b3622]/10 overflow-hidden">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 shrink-0">
               <h2 className="text-lg font-serif text-[#1b3622]">
                 {isCreating ? "Add New Event" : "Edit Event"}
               </h2>
@@ -146,7 +148,7 @@ export default function EventManager({ initialEvents }: EventManagerProps) {
                   setEditingEvent(null);
                   setIsCreating(false);
                 }}
-                className="p-1 text-gray-400 hover:text-[#1b3622]"
+                className="min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center text-gray-400 hover:text-[#1b3622]"
                 aria-label="Close form"
               >
                 <X className="h-5 w-5" />

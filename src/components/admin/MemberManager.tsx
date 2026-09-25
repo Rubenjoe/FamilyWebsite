@@ -139,7 +139,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
         subtitle="Search, add, edit, and delete family members."
       />
 
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
@@ -147,13 +147,13 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
             placeholder="Search members..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#1b3622]"
+            className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#1b3622] min-h-[44px]"
           />
         </div>
         <button
           type="button"
           onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors"
+          className="flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px] w-full sm:w-auto shrink-0"
         >
           <Plus className="h-4 w-4" />
           Add Member
@@ -198,7 +198,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-medium text-[#2d312e]">{member.name || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-[#2d312e] break-words">{member.name || "—"}</td>
                     <td className="px-4 py-3 text-gray-500">{formatDate(member.birth_date)}</td>
                     <td className="px-4 py-3 text-gray-500">{formatDate(member.death_date)}</td>
                     <td className="px-4 py-3 text-gray-500">
@@ -212,7 +212,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                         <button
                           type="button"
                           onClick={() => setEditingMember(member)}
-                          className="p-1.5 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors rounded-sm"
+                          className="p-1.5 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors rounded-sm min-h-[36px] min-w-[36px] flex items-center justify-center"
                           aria-label="Edit member"
                         >
                           <Pencil className="h-4 w-4" />
@@ -220,7 +220,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                         <button
                           type="button"
                           onClick={() => handleDelete(member.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 transition-colors rounded-sm"
+                          className="p-1.5 text-red-600 hover:bg-red-50 transition-colors rounded-sm min-h-[36px] min-w-[36px] flex items-center justify-center"
                           aria-label="Delete member"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -236,9 +236,9 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
       </div>
 
       {(isCreating || editingMember) && (
-        <div className="admin-modal-overlay fixed inset-0 z-50 grid place-items-center bg-[#1b3622]/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="admin-modal-panel bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[#1b3622]/10">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#1b3622]/60 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+          <div className="admin-modal-panel bg-white w-full max-w-2xl max-h-[calc(100dvh-2rem)] flex flex-col my-auto shadow-2xl border border-[#1b3622]/10 overflow-hidden">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 shrink-0">
               <h2 className="text-lg font-serif text-[#1b3622]">
                 {isCreating ? "Add New Member" : "Edit Member"}
               </h2>
@@ -248,7 +248,7 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
                   setEditingMember(null);
                   setIsCreating(false);
                 }}
-                className="p-1 text-gray-400 hover:text-[#1b3622]"
+                className="min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center text-gray-400 hover:text-[#1b3622]"
                 aria-label="Close form"
               >
                 <X className="h-5 w-5" />

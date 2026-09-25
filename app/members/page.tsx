@@ -61,7 +61,7 @@ export default function CommitteePage() {
   const years = ["All Years", ...availableYears.map(String)];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-10 sm:space-y-12">
       {/* Header Block Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-[#1b3622]/10">
         <div className="space-y-2 animate-fade-up">
@@ -83,7 +83,7 @@ export default function CommitteePage() {
               placeholder="Search committee members..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-sm tracking-wide focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37]/40 text-[#2d312e] transition-colors"
+              className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-sm tracking-wide focus:outline-none focus:border-[#1b3622] focus-visible:ring-2 focus-visible:ring-[#d4af37]/40 text-[#2d312e] transition-colors min-h-[44px]"
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function CommitteePage() {
               key={year}
               onClick={() => setSelectedYear(year)}
               aria-pressed={selectedYear === year}
-              className={`px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all duration-300 cursor-pointer ${
+              className={`min-h-[44px] px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all duration-300 cursor-pointer flex items-center justify-center ${
                 selectedYear === year
                   ? "bg-[#1b3622] text-[#fbf9f4] font-semibold shadow-sm"
                   : "bg-white border border-gray-200 text-gray-600 hover:border-[#1b3622]/30 hover:text-[#1b3622]"
@@ -117,7 +117,7 @@ export default function CommitteePage() {
 
       {/* Grid Matrix Layout Pipeline */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" aria-label="Loading committee members">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8" aria-label="Loading committee members">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden">
               <div className="aspect-square bg-gray-100 animate-pulse" />
@@ -130,11 +130,11 @@ export default function CommitteePage() {
           ))}
         </div>
       ) : filteredMembers.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {filteredMembers.map((member, index) => (
             <div
               key={member.id}
-              className="animate-fade-up bg-white border border-[#1b3622]/10 group shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium flex flex-col h-full"
+              className="animate-fade-up bg-white border border-[#1b3622]/10 group shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium flex flex-col h-full rounded-sm overflow-hidden"
               style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
             >
               {/* Profile Image View Box */}
@@ -163,7 +163,7 @@ export default function CommitteePage() {
                   <span className="text-[11px] font-bold text-[#a57f12] tracking-[0.12em] uppercase block">
                     {member.branch || "Unspecified Branch"}
                   </span>
-                  <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug">
+                  <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug break-words">
                     {member.name}
                   </h3>
                 </div>
@@ -177,7 +177,7 @@ export default function CommitteePage() {
                   </div>
                   {/* Location secondary under Role */}
                   {member.location && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600 font-normal">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 font-normal break-words">
                       <MapPin className="h-4 w-4 text-[#d4af37] shrink-0" />
                       <span>{member.location}</span>
                     </div>

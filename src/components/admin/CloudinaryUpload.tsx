@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Upload, X, RefreshCw, ImageIcon } from "lucide-react";
-import { CldUploadWidget, type CloudinaryUploadWidgetError } from "next-cloudinary";
+import {
+  CldUploadWidget,
+  type CloudinaryUploadWidgetError,
+  type CloudinaryUploadWidgetInfo,
+  type CloudinaryUploadWidgetResults,
+} from "next-cloudinary";
 
 interface CloudinaryUploadProps {
   existingUrl: string | null;
@@ -10,16 +15,6 @@ interface CloudinaryUploadProps {
   onError: (message: string) => void;
   disabled?: boolean;
   year?: string;
-}
-
-interface CloudinaryUploadInfo {
-  public_id: string;
-  secure_url: string;
-}
-
-interface CloudinaryUploadResult {
-  event?: string;
-  info?: CloudinaryUploadInfo;
 }
 
 export default function CloudinaryUpload({
@@ -36,18 +31,22 @@ export default function CloudinaryUpload({
     setPreview(existingUrl);
   }, [existingUrl]);
 
-  const handleUpload = (result: unknown) => {
-    const uploadResult = result as CloudinaryUploadResult;
-    if (uploadResult.event === "success" && uploadResult.info) {
-      onUploaded(uploadResult.info.public_id, uploadResult.info.secure_url);
-      setPreview(uploadResult.info.secure_url);
+  const handleUpload = (result: CloudinaryUploadWidgetResults) => {
+    if (
+      result.event === "success" &&
+      typeof result.info !== "string" &&
+      result.info
+    ) {
+      const info: CloudinaryUploadWidgetInfo = result.info;
+      onUploaded(info.public_id, info.secure_url);
+      setPreview(info.secure_url);
       setIsUploading(false);
-    } else if (uploadResult.event === "close") {
+    } else if (result.event === "close") {
       setIsUploading(false);
     }
   };
 
-  const handleUploadStart = () => {
+  const handleUploadAdded = () => {
     setIsUploading(true);
   };
 
@@ -74,6 +73,7 @@ export default function CloudinaryUpload({
           // cause the Cloudinary widget to fail to load when that preset is not
           // available for the cloud account.
           signatureEndpoint="/api/sign-cloudinary-params"
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
           options={{
             maxFiles: 1,
             maxFileSize: 5000000, // 5MB
@@ -85,7 +85,9 @@ export default function CloudinaryUpload({
           }}
           onSuccess={handleUpload}
           onError={handleUploadError}
-          onOpen={handleUploadStart}
+          onUploadAdded={handleUploadAdded}
+          onQueuesStart={handleUploadAdded}
+          onClose={() => setIsUploading(false)}
         >
           {({ open }) => (
             <button

@@ -48,12 +48,26 @@ export default function LightboxImage({
         role="dialog"
         aria-modal="true"
         aria-label={`Full size photo of ${alt}`}
-        className="lightbox-overlay fixed inset-0 z-[100] grid place-items-center bg-[#102517]/90 p-5 backdrop-blur-sm"
+        className="lightbox-overlay fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-[#102517]/90 backdrop-blur-sm select-none"
         onClick={() => setIsOpen(false)}
       >
-        <div className="lightbox-content relative max-h-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
-          <img src={largeSrc} alt={alt} className="max-h-[85vh] max-w-full object-contain shadow-2xl" />
-          <button type="button" onClick={() => setIsOpen(false)} className="absolute -right-2 -top-2 grid h-11 w-11 place-items-center rounded-full bg-white text-[#1b3622] shadow-lg transition-transform duration-200 hover:scale-105" aria-label="Close photo viewer"><X className="h-5 w-5" /></button>
+        <div
+          className="lightbox-content relative max-h-[88dvh] max-w-[95vw] sm:max-w-5xl flex items-center justify-center"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <img
+            src={largeSrc}
+            alt={alt}
+            className="max-h-[82dvh] sm:max-h-[85vh] max-w-full w-auto h-auto object-contain shadow-2xl rounded-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="fixed sm:absolute top-3 right-3 sm:-top-3 sm:-right-3 z-[101] grid h-11 w-11 place-items-center rounded-full bg-white text-[#1b3622] shadow-xl transition-all duration-200 hover:scale-105 hover:bg-[#d4af37] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37] cursor-pointer"
+            aria-label="Close photo viewer"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
       </div>
     )}

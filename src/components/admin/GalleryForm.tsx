@@ -108,7 +108,7 @@ export default function GalleryForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto flex-1">
       <div className="bg-[#fbf9f4] border border-gray-100 p-4 space-y-2">
         <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
           Photo <span className="text-red-500">*</span>
@@ -226,7 +226,7 @@ export default function GalleryForm({
             className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
           />
         </div>
-        <label className="flex items-center gap-2 text-xs text-[#2d312e]">
+        <label className="flex items-center gap-2 text-xs text-[#2d312e] min-h-[44px]">
           <input
             type="checkbox"
             checked={form.is_published}
@@ -237,19 +237,19 @@ export default function GalleryForm({
         </label>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="px-5 py-2.5 text-xs uppercase tracking-widest font-semibold border border-gray-200 text-[#2d312e] hover:bg-[#fbf9f4] transition-colors disabled:opacity-50"
+          className="px-5 py-3 text-xs uppercase tracking-widest font-semibold border border-gray-200 text-[#2d312e] hover:bg-[#fbf9f4] transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          className="px-5 py-2.5 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {isSaving && (
             <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
