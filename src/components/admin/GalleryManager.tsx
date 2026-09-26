@@ -15,6 +15,8 @@ interface GalleryManagerProps {
   initialRecords: GalleryRecordRow[];
 }
 
+const DEFAULT_CATEGORY_ORDER = ["Historic", "Event", "Outing", "Archive"];
+
 export default function GalleryManager({ initialRecords }: GalleryManagerProps) {
   const [records, setRecords] = useState<GalleryRecordRow[]>(initialRecords);
   const [query, setQuery] = useState("");
@@ -64,7 +66,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
 
     const groups = new Map<string, GalleryRecordRow[]>();
     for (const r of filtered) {
-      const key = r.branch || "Unspecified Branch";
+      const key = r.album?.trim() || "Archive";
       const list = groups.get(key) || [];
       list.push(r);
       groups.set(key, list);
@@ -74,7 +76,14 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
       list.sort((a, b) => a.sort_order - b.sort_order || a.title.localeCompare(b.title));
     }
 
-    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return Array.from(groups.entries()).sort(([a], [b]) => {
+      const rankA = DEFAULT_CATEGORY_ORDER.indexOf(a);
+      const rankB = DEFAULT_CATEGORY_ORDER.indexOf(b);
+      if (rankA !== -1 && rankB !== -1) return rankA - rankB;
+      if (rankA !== -1) return -1;
+      if (rankB !== -1) return 1;
+      return a.localeCompare(b);
+    });
   }, [records, query, branchFilter]);
 
   const handleSave = useCallback(
@@ -156,7 +165,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
       <Toast messages={toasts} onClose={closeToast} />
       <AdminPageHeader
         title="Gallery Photos"
-        subtitle="Upload and organize family photographs by branch." />
+        subtitle="Upload and organize family photographs by category and branch." />
 
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -197,10 +206,10 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
           No gallery photos match your filters.
         </div>
       ) : (
-        groupedRecords.map(([branch, items]) => (
-          <div key={branch} className="space-y-4">
+        groupedRecords.map(([album, items]) => (
+          <div key={album} className="space-y-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-serif text-[#1b3622] font-medium">{branch}</h2>
+              <h2 className="text-sm font-serif text-[#1b3622] font-medium">{album}</h2>
               <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
                 {items.length} photo{items.length === 1 ? "" : "s"}
               </span>
@@ -241,6 +250,9 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
                     </div>
                     <div className="p-4 space-y-1">
                       <h3 className="text-xs font-medium text-[#2d312e] break-words">{record.title}</h3>
+                      <p className="text-[10px] text-[#a57f12] truncate">
+                        {record.branch || "—"}
+                      </p>
                       <p className="text-[10px] text-gray-400 truncate">
                         {record.is_published ? "Published" : "Draft"}
                         {record.year_label ? ` · ${record.year_label}` : ""}
@@ -297,6 +309,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
             </div>
             <GalleryForm
               record={editingRecord}
+              records={records}
               onSubmit={handleSave}
               onCancel={() => {
                 setEditingRecord(null);

@@ -112,16 +112,18 @@ export default function Navbar() {
               id="navbar-more-dropdown"
               onClick={() => setIsMoreOpen((prev) => !prev)}
               onMouseEnter={() => setIsMoreOpen(true)}
-              className={`relative flex items-center gap-1.5 px-3.5 py-3 font-serif text-base italic tracking-[0.04em] transition-colors duration-200 ${isMoreActive ? "text-[#1b3622]" : "text-[#1b3622]/80 hover:text-[#1b3622]"
+              className={`relative flex items-center gap-1.5 px-3.5 py-3 font-serif text-[15px] italic tracking-[0.04em] transition-colors duration-200 ${isMoreActive ? "text-[#1b3622]" : "text-[#1b3622]/80 hover:text-[#1b3622]"
                 }`}
               aria-haspopup="true"
               aria-expanded={isMoreOpen}
+              aria-label="More navigation options"
             >
+              <span>More</span>
               <motion.span
                 animate={{ rotate: isMoreOpen ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
               </motion.span>
               {isMoreActive && (
                 <motion.span

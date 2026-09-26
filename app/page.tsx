@@ -8,6 +8,24 @@ export const metadata = {
     "The official digital home of the Pullazhiyil Kudumbayogam. Explore four branches of Knanaya heritage: Pullazhiyil, Thykurinjiyil, Thanuvelil, and Poovathumparambil.",
 };
 
+// ─── Retry helper for PGRST303 clock-skew errors ──────────────────────────────
+// Supabase may reject a freshly-issued JWT if its server clock is slightly behind
+// the local machine. Wait a short moment and retry once; by then the token's
+// "issued at" time is in the past relative to Supabase.
+async function withSupabaseRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    const code = (err as { code?: string }).code;
+    if (code === "PGRST303" || message.includes("JWT issued at future")) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      return await fn();
+    }
+    throw err;
+  }
+}
+
 // ─── Derived row types used as props ─────────────────────────────────────────
 
 type HeritageRow = Pick<
@@ -52,19 +70,40 @@ export default async function HomePage() {
       .eq("is_published", true)
       .eq("is_placeholder", false);
 
-  const [achieverRows, evangelistRows, achieverCount, evangelistCount, eventsResult] =
-    await Promise.all([
-      sectionQuery("achiever"),
-      sectionQuery("evangelist"),
-      countQuery("achiever"),
-      countQuery("evangelist"),
-      supabase
+  const runSection = async (kind: "achiever" | "evangelist") => {
+    return withSupabaseRetry(async () => {
+      const r = await sectionQuery(kind);
+      return { data: r.data, error: r.error };
+    });
+  };
+
+  const runCount = async (kind: "achiever" | "evangelist") => {
+    return withSupabaseRetry(async () => {
+      const r = await countQuery(kind);
+      return { data: r.data, error: r.error, count: r.count };
+    });
+  };
+
+  const runEvents = async () => {
+    return withSupabaseRetry(async () => {
+      const r = await supabase
         .from("events")
         .select("id,title,description,event_date,location")
         .gte("event_date", today)
         .order("event_date", { ascending: true })
         .limit(3)
-        .returns<EventRow[]>(),
+        .returns<EventRow[]>();
+      return { data: r.data, error: r.error };
+    });
+  };
+
+  const [achieverRows, evangelistRows, achieverCount, evangelistCount, eventsResult] =
+    await Promise.all([
+      runSection("achiever"),
+      runSection("evangelist"),
+      runCount("achiever"),
+      runCount("evangelist"),
+      runEvents(),
     ]);
 
   for (const result of [achieverRows, evangelistRows, eventsResult]) {

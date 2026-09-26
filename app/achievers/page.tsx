@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import type { Database } from "@/types/supabase";
 import AchieversClient from "./_AchieversClient";
@@ -102,13 +103,13 @@ export default async function AchieversPage({
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto">
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 text-[#d4af37]/90 hover:text-[#d4af37] text-xs uppercase tracking-[0.18em] font-mono font-bold transition-colors duration-200 mb-8 group"
           >
             <span aria-hidden className="inline-block rotate-180 group-hover:-translate-x-1 transition-transform duration-200">→</span>
             Back to Home
-          </a>
+          </Link>
 
           <div className="space-y-4">
             <span className="text-xs uppercase tracking-[0.22em] font-mono text-[#d4af37] block">

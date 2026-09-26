@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import type { Database } from "@/types/supabase";
 import CloudinaryUpload from "./CloudinaryUpload";
 import { Calendar } from "lucide-react";
@@ -23,6 +23,7 @@ export interface GalleryFormData {
 
 interface GalleryFormProps {
   record?: GalleryRow | null;
+  records?: GalleryRow[];
   onSubmit: (data: GalleryFormData) => void;
   onCancel: () => void;
   isSaving: boolean;
@@ -39,6 +40,10 @@ const BRANCHES = [
   "Other",
 ];
 
+const DEFAULT_CATEGORIES = ["Historic", "Event", "Outing"];
+const CREATE_NEW_VALUE = "__create_new__";
+const UNCATEGORIZED_VALUE = "";
+
 const EMPTY: GalleryFormData = {
   title: "",
   album: "",
@@ -54,23 +59,40 @@ const EMPTY: GalleryFormData = {
 
 export default function GalleryForm({
   record,
+  records = [],
   onSubmit,
   onCancel,
   isSaving,
   onError,
 }: GalleryFormProps) {
   const [form, setForm] = useState<GalleryFormData>(EMPTY);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [selectValue, setSelectValue] = useState<string>(UNCATEGORIZED_VALUE);
+  const selectId = useId();
+  const newCategoryId = useId();
+
+  const knownCategories = useMemo(() => {
+    const set = new Set<string>(DEFAULT_CATEGORIES);
+    for (const r of records) {
+      const album = r.album?.trim();
+      if (album) set.add(album);
+    }
+    return Array.from(set);
+  }, [records]);
 
   useEffect(() => {
     if (!record) {
       setForm(EMPTY);
+      setSelectValue(UNCATEGORIZED_VALUE);
+      setNewCategoryName("");
       return;
     }
     const isOther = !BRANCHES.includes(record.branch || "") || record.branch === "Other";
+    const album = record.album || "";
     setForm({
       id: record.id,
       title: record.title,
-      album: record.album || "",
+      album,
       branch: isOther ? "Other" : record.branch || "Pullazhiyil",
       otherBranch: isOther ? record.branch || "" : "",
       year_label: record.year_label || "",
@@ -80,7 +102,9 @@ export default function GalleryForm({
       is_published: record.is_published,
       sort_order: record.sort_order,
     });
-  }, [record]);
+    setSelectValue(knownCategories.includes(album) ? album : album ? CREATE_NEW_VALUE : UNCATEGORIZED_VALUE);
+    setNewCategoryName(knownCategories.includes(album) ? "" : album);
+  }, [record, knownCategories]);
 
   const setField = <K extends keyof GalleryFormData>(key: K, value: GalleryFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -88,8 +112,25 @@ export default function GalleryForm({
 
   const isOtherBranch = form.branch === "Other";
 
+  const handleCategorySelect = (value: string) => {
+    setSelectValue(value);
+    if (value !== CREATE_NEW_VALUE) {
+      setNewCategoryName("");
+      setField("album", value === UNCATEGORIZED_VALUE ? "" : value);
+    }
+  };
+
+  const handleNewCategoryChange = (value: string) => {
+    setNewCategoryName(value);
+    setField("album", value.trim());
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectValue === CREATE_NEW_VALUE && !newCategoryName.trim()) {
+      onError("Please enter a new category name.");
+      return;
+    }
     if (!form.title.trim()) {
       onError("Title is required.");
       return;
@@ -99,7 +140,8 @@ export default function GalleryForm({
       return;
     }
     const finalBranch = isOtherBranch ? form.otherBranch?.trim() || "Other" : form.branch;
-    onSubmit({ ...form, branch: finalBranch });
+    const finalAlbum = selectValue === CREATE_NEW_VALUE ? newCategoryName.trim() : form.album.trim();
+    onSubmit({ ...form, branch: finalBranch, album: finalAlbum });
   };
 
   const handleCloudinaryUpload = (publicId: string, secureUrl: string) => {
@@ -138,16 +180,39 @@ export default function GalleryForm({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+          <label htmlFor={selectId} className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
             Album / Category <span className="text-gray-300 font-normal">(optional)</span>
           </label>
-          <input
-            type="text"
-            value={form.album}
-            onChange={(e) => setField("album", e.target.value)}
-            placeholder="e.g. Historical"
-            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
-          />
+          <select
+            id={selectId}
+            value={selectValue}
+            onChange={(e) => handleCategorySelect(e.target.value)}
+            className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622] min-h-[44px]"
+          >
+            <option value={UNCATEGORIZED_VALUE}>— Select category —</option>
+            {knownCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+            <option value={CREATE_NEW_VALUE}>+ Create new category</option>
+          </select>
+
+          {selectValue === CREATE_NEW_VALUE && (
+            <div className="pt-2 space-y-1">
+              <label htmlFor={newCategoryId} className="text-[10px] uppercase tracking-wider text-gray-400 block font-semibold">
+                New category name
+              </label>
+              <input
+                id={newCategoryId}
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => handleNewCategoryChange(e.target.value)}
+                placeholder="e.g. Wedding"
+                className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
+              />
+            </div>
+          )}
         </div>
       </div>
 
