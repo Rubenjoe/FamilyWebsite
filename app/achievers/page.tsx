@@ -39,7 +39,7 @@ async function fetchKind(
       result.error.code
     );
   }
-  return result.data ?? [];
+  return { records: result.data ?? [], error: result.error?.message ?? null };
 }
 
 export default async function AchieversPage({
@@ -52,10 +52,12 @@ export default async function AchieversPage({
   const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
   const initialTab: Tab = tabParam === "evangelists" ? "evangelists" : "achievers";
 
-  const [achievers, evangelists] = await Promise.all([
+  const [achieverResult, evangelistResult] = await Promise.all([
     fetchKind(supabase, "achiever"),
     fetchKind(supabase, "evangelist"),
   ]);
+  const { records: achievers, error: achieversError } = achieverResult;
+  const { records: evangelists, error: evangelistsError } = evangelistResult;
 
   // schema.org structured data — server-rendered so the real registry records,
   // not a client-side placeholder, are what search engines index.
@@ -130,6 +132,7 @@ export default async function AchieversPage({
         achievers={achievers}
         evangelists={evangelists}
         initialTab={initialTab}
+        loadError={achieversError || evangelistsError}
       />
     </div>
   );

@@ -12,6 +12,7 @@ import {
 interface CloudinaryUploadProps {
   existingUrl: string | null;
   onUploaded: (publicId: string, secureUrl: string) => void;
+  onUploadingChange?: (isUploading: boolean) => void;
   onError: (message: string) => void;
   disabled?: boolean;
   year?: string;
@@ -20,6 +21,7 @@ interface CloudinaryUploadProps {
 export default function CloudinaryUpload({
   existingUrl,
   onUploaded,
+  onUploadingChange,
   onError,
   disabled,
   year,
@@ -41,17 +43,21 @@ export default function CloudinaryUpload({
       onUploaded(info.public_id, info.secure_url);
       setPreview(info.secure_url);
       setIsUploading(false);
+      onUploadingChange?.(false);
     } else if (result.event === "close") {
       setIsUploading(false);
+      onUploadingChange?.(false);
     }
   };
 
   const handleUploadAdded = () => {
     setIsUploading(true);
+    onUploadingChange?.(true);
   };
 
   const handleUploadError = (error: CloudinaryUploadWidgetError) => {
     setIsUploading(false);
+    onUploadingChange?.(false);
     const message =
       error && typeof error === "object" && "message" in error
         ? String(error.message)
@@ -87,7 +93,10 @@ export default function CloudinaryUpload({
           onError={handleUploadError}
           onUploadAdded={handleUploadAdded}
           onQueuesStart={handleUploadAdded}
-          onClose={() => setIsUploading(false)}
+          onClose={() => {
+            setIsUploading(false);
+            onUploadingChange?.(false);
+          }}
         >
           {({ open }) => (
             <button

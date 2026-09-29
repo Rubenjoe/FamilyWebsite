@@ -52,7 +52,7 @@ export default async function HomePage() {
   const sectionQuery = (kind: "achiever" | "evangelist") =>
     supabase
       .from("heritage_records")
-      .select("id,name,branch,title,description,image_url,year_label")
+      .select("id,name,branch,title,description,image_url,year_label", { count: "exact" })
       .eq("kind", kind)
       .eq("is_published", true)
       .eq("is_placeholder", false)
@@ -60,26 +60,9 @@ export default async function HomePage() {
       .limit(HOMEPAGE_SECTION_LIMIT)
       .returns<HeritageRow[]>();
 
-  // Head-count of ALL published records per kind (not capped) so the homepage
-  // can show "View all — N honourees" next to each curated carousel.
-  const countQuery = (kind: "achiever" | "evangelist") =>
-    supabase
-      .from("heritage_records")
-      .select("id", { count: "exact", head: true })
-      .eq("kind", kind)
-      .eq("is_published", true)
-      .eq("is_placeholder", false);
-
   const runSection = async (kind: "achiever" | "evangelist") => {
     return withSupabaseRetry(async () => {
       const r = await sectionQuery(kind);
-      return { data: r.data, error: r.error };
-    });
-  };
-
-  const runCount = async (kind: "achiever" | "evangelist") => {
-    return withSupabaseRetry(async () => {
-      const r = await countQuery(kind);
       return { data: r.data, error: r.error, count: r.count };
     });
   };
@@ -97,14 +80,11 @@ export default async function HomePage() {
     });
   };
 
-  const [achieverRows, evangelistRows, achieverCount, evangelistCount, eventsResult] =
-    await Promise.all([
-      runSection("achiever"),
-      runSection("evangelist"),
-      runCount("achiever"),
-      runCount("evangelist"),
-      runEvents(),
-    ]);
+  const [achieverRows, evangelistRows, eventsResult] = await Promise.all([
+    runSection("achiever"),
+    runSection("evangelist"),
+    runEvents(),
+  ]);
 
   for (const result of [achieverRows, evangelistRows, eventsResult]) {
     if (result.error) {
@@ -121,8 +101,8 @@ export default async function HomePage() {
     <HomeClient
       achievers={achieverRows.data ?? []}
       evangelists={evangelistRows.data ?? []}
-      achieverTotal={achieverCount.count ?? achieverRows.data?.length ?? 0}
-      evangelistTotal={evangelistCount.count ?? evangelistRows.data?.length ?? 0}
+      achieverTotal={achieverRows.count ?? achieverRows.data?.length ?? 0}
+      evangelistTotal={evangelistRows.count ?? evangelistRows.data?.length ?? 0}
       upcomingEvents={eventsResult.data ?? []}
     />
   );

@@ -55,10 +55,12 @@ export default function AchieversClient({
   achievers,
   evangelists,
   initialTab,
+  loadError,
 }: {
   achievers: HeritageRow[];
   evangelists: HeritageRow[];
   initialTab: Tab;
+  loadError: string | null;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
@@ -214,7 +216,12 @@ export default function AchieversClient({
       </div>
 
       {/* ── Grid ── */}
-      <div
+      {loadError ? (
+      <div role="alert" className="my-10 border border-red-200 bg-white px-6 py-10 text-center text-red-800">
+        <p className="font-serif text-xl">The heritage registry could not be loaded.</p>
+        <p className="mt-2 text-sm">Please refresh the page or try again later.</p>
+      </div>
+      ) : <div
         role="tabpanel"
         id={`panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
@@ -333,7 +340,7 @@ export default function AchieversClient({
             </p>
           </motion.div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

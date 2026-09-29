@@ -12,6 +12,7 @@ interface ImageUploadProps {
   folder?: string;
   existingUrl: string | null;
   onUploaded: (url: string | null) => void;
+  onUploadingChange?: (isUploading: boolean) => void;
   onError?: (message: string) => void;
   disabled?: boolean;
   /** When true, onUploaded receives the storage object path instead of a public URL. */
@@ -25,6 +26,7 @@ export default function ImageUpload({
   folder = "",
   existingUrl,
   onUploaded,
+  onUploadingChange,
   onError,
   disabled,
   returnPath = false,
@@ -52,6 +54,7 @@ export default function ImageUpload({
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     setIsUploading(true);
+    onUploadingChange?.(true);
 
     try {
       const { createClient } = await import("@/utils/supabase/client");
@@ -79,6 +82,7 @@ export default function ImageUpload({
       setPreview(existingUrl);
     } finally {
       setIsUploading(false);
+      onUploadingChange?.(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   };

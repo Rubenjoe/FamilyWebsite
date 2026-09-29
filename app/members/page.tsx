@@ -1,47 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { MapPin, Search, Users } from "lucide-react";
 import LightboxImage from "@/components/ui/LightboxImage";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/types/supabase";
+import { HERITAGE_BUCKET, resolveStorageUrl } from "@/utils/storage";
 
-type CommitteeRow = Database["public"]["Tables"]["committee_members"]["Row"];
+type CommitteeRow = Pick<
+  Database["public"]["Tables"]["committee_members"]["Row"],
+  "id" | "committee_year" | "name" | "role" | "branch" | "location" | "image_url" | "sort_order"
+>;
 
 export default function CommitteePage() {
+  const pathname = usePathname();
   const [selectedYear, setSelectedYear] = useState<string>("All Years");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [committeeMembers, setCommitteeMembers] = useState<CommitteeRow[]>([]);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
+    let isCurrent = true;
     const fetchData = async () => {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("committee_members")
-        .select("*")
-        .eq("is_published", true)
-        .order("committee_year", { ascending: false })
-        .order("sort_order");
+      setIsLoading(true);
+      setLoadError(false);
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("committee_members")
+          .select("id,committee_year,name,role,branch,location,image_url,sort_order")
+          .eq("is_published", true)
+          .order("committee_year", { ascending: false })
+          .order("sort_order");
 
-      if (error) {
-        console.error("[Committee] Error loading committee members:", error);
-      }
-
-      if (data) {
-        setCommitteeMembers(data);
-        const years = Array.from(new Set(data.map((m) => m.committee_year))).sort((a, b) => b - a);
-        setAvailableYears(years);
-        if (years.length > 0) {
-          setSelectedYear(years[0].toString());
+        if (!isCurrent) return;
+        if (error) {
+          console.error("[Committee] Error loading committee members:", error);
+          setLoadError(true);
+          return;
         }
+
+        const members = data ?? [];
+        setCommitteeMembers(members);
+        const years = Array.from(new Set(members.map((member) => member.committee_year))).sort((a, b) => b - a);
+        setAvailableYears(years);
+        setSelectedYear(years[0]?.toString() ?? "All Years");
+      } catch (error: unknown) {
+        if (isCurrent) {
+          console.error("[Committee] Request failed while loading committee members:", error);
+          setLoadError(true);
+        }
+      } finally {
+        if (isCurrent) setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    fetchData();
-  }, []);
+    void fetchData();
+    return () => {
+      isCurrent = false;
+    };
+  }, [pathname]);
 
   const filteredMembers = committeeMembers.filter((member) => {
     const matchesYear = selectedYear === "All Years" || member.committee_year.toString() === selectedYear;
@@ -129,6 +150,11 @@ export default function CommitteePage() {
             </div>
           ))}
         </div>
+      ) : loadError ? (
+        <div role="alert" className="border border-red-200 bg-white px-6 py-12 text-center text-red-800">
+          <p className="font-serif text-lg">Committee records could not be loaded.</p>
+          <p className="mt-2 text-sm">Please refresh the page or try again later.</p>
+        </div>
       ) : filteredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {filteredMembers.map((member, index) => (
@@ -141,7 +167,7 @@ export default function CommitteePage() {
               <div className="aspect-square bg-[#fbf9f4] relative overflow-hidden shrink-0 border-b border-gray-50">
                 {member.image_url ? (
                   <LightboxImage
-                    src={member.image_url}
+                    src={resolveStorageUrl(HERITAGE_BUCKET, member.image_url)}
                     alt={`${member.name} profile`}
                     className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                   />

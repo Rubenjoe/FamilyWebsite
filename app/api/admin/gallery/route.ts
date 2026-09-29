@@ -95,7 +95,11 @@ export async function POST(request: NextRequest) {
   };
 
   if (!body.id) {
-    const { error } = await supabase.from("gallery_records").insert(payload);
+    const { error } = await supabase
+      .from("gallery_records")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) {
       try {
         await deleteCloudinaryImage(body.cloudinary_public_id);
@@ -128,7 +132,9 @@ export async function POST(request: NextRequest) {
   const { error: updateError } = await supabase
     .from("gallery_records")
     .update(update)
-    .eq("id", body.id);
+    .eq("id", body.id)
+    .select("id")
+    .single();
 
   if (updateError) {
     if (body.cloudinary_public_id !== oldPublicId) {
@@ -225,7 +231,9 @@ export async function DELETE(request: NextRequest) {
   const { error: deleteError } = await supabase
     .from("gallery_records")
     .delete()
-    .eq("id", body.id);
+    .eq("id", body.id)
+    .select("id")
+    .single();
 
   if (deleteError) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });

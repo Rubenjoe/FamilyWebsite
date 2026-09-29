@@ -66,6 +66,7 @@ export default function GalleryForm({
   onError,
 }: GalleryFormProps) {
   const [form, setForm] = useState<GalleryFormData>(EMPTY);
+  const [isPhotoUploading, setIsPhotoUploading] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectValue, setSelectValue] = useState<string>(UNCATEGORIZED_VALUE);
   const selectId = useId();
@@ -127,6 +128,7 @@ export default function GalleryForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPhotoUploading) return;
     if (selectValue === CREATE_NEW_VALUE && !newCategoryName.trim()) {
       onError("Please enter a new category name.");
       return;
@@ -158,8 +160,9 @@ export default function GalleryForm({
         <CloudinaryUpload
           existingUrl={form.cloudinary_secure_url}
           onUploaded={handleCloudinaryUpload}
+          onUploadingChange={setIsPhotoUploading}
           onError={onError}
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           year={form.year_label}
         />
       </div>
@@ -306,14 +309,14 @@ export default function GalleryForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold border border-gray-200 text-[#2d312e] hover:bg-[#fbf9f4] transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {isSaving && (

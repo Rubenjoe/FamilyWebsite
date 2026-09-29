@@ -1,252 +1,41 @@
-"use client";
+import { createClient } from "@/utils/supabase/server";
+import type { Database } from "@/types/supabase";
+import ObituaryClient from "./ObituaryClient";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Heart, User, Bookmark } from "lucide-react";
-import LightboxImage from "@/components/ui/LightboxImage";
-import { createClient } from "@/utils/supabase/client";
+type ObituaryRow = Pick<
+  Database["public"]["Tables"]["heritage_records"]["Row"],
+  "id" | "name" | "branch" | "image_url" | "birth_year" | "death_year" |
+  "description" | "tribute" | "is_placeholder"
+>;
 
-interface ObituaryEntry {
-    id: string;
-    name: string;
-    branch: string;
-    photoUrl?: string;
-    birthYear?: string;
-    deathYear?: string;
-    bio: string;
-    tribute: string;
-    isPlaceholder?: boolean;
-}
+export default async function ObituaryPage() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("heritage_records")
+    .select("id,name,branch,image_url,birth_year,death_year,description,tribute,is_placeholder")
+    .eq("kind", "obituary")
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true })
+    .returns<ObituaryRow[]>();
 
-const OBITUARIES: ObituaryEntry[] = [
-    {
-        id: "ob-jacob",
-        name: "Jacob Kurian",
-        branch: "Pullazhiyil",
-        photoUrl: "/obituary/JacobKurian.jpeg",
-        birthYear: "1942",
-        deathYear: "2023",
-        bio: "A cherished patriarch of the Pullazhiyil branch. Known for his unwavering kindness, wisdom, and leadership within the Kudumbayogam.",
-        tribute: "You will always remain in our hearts and prayers. Rest in peace."
-    },
-    {
-        id: "ob-joseph",
-        name: "T. I. Joseph",
-        branch: "Thanuvelil",
-        photoUrl: "/obituary/T I Joseph.jpeg",
-        birthYear: "1939",
-        deathYear: "2022",
-        bio: "A respected elder of the Thanuvelil branch. Remembered for his steadfast faith, guidance, and contributions to our family legacy.",
-        tribute: "Your memory is a guiding light for all of us. Rest in peace."
-    },
-    {
-        id: "ob-kuriakose-thykurinjiyil",
-        name: "Kuriakose Thykurinjiyil",
-        branch: "Thykurinjiyil",
-        photoUrl: "/obituary/Kuriakose Thykurinjiyil.jpeg",
-        bio: "Remembered with love and gratitude by the Pullazhiyil Kudumbayogam family.",
-        tribute: "May his memory remain a blessing to all who knew him."
-    },
-    {
-        id: "ob-placeholder-thykurinjiyil",
-        name: "Remembrance Record",
-        branch: "Thykurinjiyil",
-        isPlaceholder: true,
-        bio: "Remembrance profile pending. Family members from this branch are encouraged to share photographs and biographical details.",
-        tribute: "Submit records to the Kudumbayogam committee."
-    },
-    {
-        id: "ob-placeholder-poovathumparambil",
-        name: "Remembrance Record",
-        branch: "Poovathumparambil",
-        isPlaceholder: true,
-        bio: "Remembrance profile pending. Family members from this branch are encouraged to share photographs and biographical details.",
-        tribute: "Submit records to the Kudumbayogam committee."
-    }
-];
+  if (error) {
+    console.error("[Obituary] Error loading records:", error.message, "code:", error.code);
+  }
 
-export default function ObituaryPage() {
-    const [selectedBranch, setSelectedBranch] = useState<string>("All");
-    const [obituaries, setObituaries] = useState<ObituaryEntry[]>(OBITUARIES);
-    useEffect(() => {
-        createClient().from("heritage_records").select("id,name,branch,image_url,birth_year,death_year,description,tribute,is_placeholder").eq("kind", "obituary").eq("is_published", true).order("sort_order").then(({ data }) => {
-            if (data) setObituaries(data.map((row) => ({ id: row.id, name: row.name, branch: row.branch, photoUrl: row.image_url || undefined, birthYear: row.birth_year || undefined, deathYear: row.death_year || undefined, bio: row.description || "", tribute: row.tribute || "", isPlaceholder: row.is_placeholder })));
-        });
-    }, []);
-
-    const filteredObituaries = obituaries.filter((item) =>
-        selectedBranch === "All" || item.branch === selectedBranch
-    );
-
-    const NORELL_EASE = [0.16, 1, 0.3, 1] as const;
-
-    return (
-        <div className="bg-[#fbf9f4] bg-parchment text-[#1b3622] min-h-screen pb-24 selection:bg-[#1b3622] selection:text-[#fbf9f4] relative overflow-x-hidden">
-            {/* Ambient Background Glows */}
-            <div className="absolute top-[10%] left-[-15%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
-            <div className="absolute top-[50%] right-[-15%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/3 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
-
-            {/* Dignified Header */}
-            <section className="relative z-10 py-20 px-6 border-b border-[#1b3622]/10 bg-white/40 backdrop-blur-[2px]">
-                <div className="max-w-4xl mx-auto text-center space-y-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.9, ease: NORELL_EASE }}
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-[#1b3622]/5 border border-[#1b3622]/10 rounded-full"
-                    >
-                        <Bookmark className="h-3.5 w-3.5 text-[#d4af37]" />
-                        <span className="text-xs uppercase tracking-[0.18em] text-[#1b3622] font-semibold font-mono">
-                            In Loving Remembrance
-                        </span>
-                    </motion.div>
-
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1.1, delay: 0.15, ease: NORELL_EASE }}
-                        className="text-4xl md:text-5xl font-light font-serif tracking-tight leading-tight text-[#1b3622]"
-                    >
-                        Family Obituary Directory
-                    </motion.h1>
-
-                    <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 1.4, delay: 0.3, ease: NORELL_EASE }}
-                        className="w-24 h-0.5 bg-[#d4af37] mx-auto"
-                    />
-
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1, delay: 0.45 }}
-                        className="text-gray-700 font-normal max-w-xl mx-auto text-base md:text-lg leading-relaxed"
-                    >
-                        Honoring and keeping alive the memories of our beloved family members who have departed from this world. May their souls rest in eternal peace.
-                    </motion.p>
-                </div>
-            </section>
-
-            <div className="max-w-7xl mx-auto px-6 mt-12 space-y-10 relative z-10">
-                {/* Branch Filters */}
-                <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-4">
-                    {["All", ...Array.from(new Set(obituaries.map((item) => item.branch)))].map((branch) => (
-                        <button
-                            key={branch}
-                            onClick={() => setSelectedBranch(branch)}
-                            className={`px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all cursor-pointer ${selectedBranch === branch
-                                ? "bg-[#1b3622] text-[#fbf9f4] font-semibold"
-                                : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30"
-                                }`}
-                        >
-                            {branch} {branch !== "All" ? "Branch" : "Remembrances"}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Obituary Grid */}
-                <motion.div
-                    layout
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                >
-                    <AnimatePresence mode="popLayout">
-                        {filteredObituaries.map((obituary) => (
-                            <motion.div
-                                layout
-                                key={obituary.id}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.5, ease: NORELL_EASE }}
-                                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-6 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm relative overflow-hidden"
-                            >
-                                {/* Top gold thin accent line */}
-                                <div className="absolute top-0 left-0 right-0 h-1 bg-[#d4af37]/60" />
-
-                                {/* Photo Frame with Portrait Style */}
-                                <div className="aspect-[3/4] w-full max-w-[220px] mx-auto bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/50 transition-colors duration-500 rounded-sm shadow-inner">
-                                    {obituary.photoUrl ? (
-                                        <LightboxImage
-                                            src={obituary.photoUrl}
-                                            alt={obituary.name}
-                                            className="object-cover w-full h-full grayscale group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out"
-                                        />
-                                    ) : (
-                                        <div className="p-4 flex flex-col items-center justify-center text-center">
-                                            <User className="h-12 w-12 text-[#d4af37] stroke-[0.75] mb-2 opacity-60" />
-                                            <span className="text-xs uppercase tracking-[0.12em] font-mono text-[#1b3622]/60 font-bold block">
-                                                Awaiting Photo
-                                            </span>
-                                            <span className="text-xs text-[#1b3622]/50 font-normal block mt-0.5">
-                                                Portrait
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* Decorative border corners */}
-                                    <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#1b3622]/25" />
-                                    <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1b3622]/25" />
-                                    <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#1b3622]/25" />
-                                    <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#1b3622]/25" />
-                                </div>
-
-                                {/* Content Details */}
-                                <div className="space-y-4 flex-grow">
-                                    {/* Title Header */}
-                                    <div className="text-center space-y-1">
-                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10 inline-block">
-                                            {obituary.branch} Branch
-                                        </span>
-                                        <h3 className="text-2xl text-[#1b3622] font-serif font-medium pt-2">
-                                            {obituary.name}
-                                        </h3>
-                                        <div className="flex items-center justify-center gap-2 text-sm text-gray-700 font-mono pt-1">
-                                            <Calendar className="h-3.5 w-3.5 text-[#d4af37]" />
-                                            {obituary.birthYear && obituary.deathYear ? (
-                                                <>
-                                                    <span>{obituary.birthYear}</span>
-                                                    <span className="text-gray-300">—</span>
-                                                    <span>{obituary.deathYear}</span>
-                                                </>
-                                            ) : (
-                                                <span>Remembrance Record</span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Biography */}
-                                    <div className="space-y-2 border-t border-gray-100 pt-3">
-                                        <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
-                                            Biography
-                                        </h4>
-                                        <p className="text-sm text-gray-600 font-normal leading-relaxed">
-                                            {obituary.bio}
-                                        </p>
-                                    </div>
-
-                                    {/* Tribute Message */}
-                                    <div className="space-y-2 border-t border-gray-100 pt-3">
-                                        <div className="flex items-center gap-1.5">
-                                            <Heart className="h-3.5 w-3.5 text-[#d4af37]" />
-                                            <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
-                                                Tribute & Remembrance
-                                            </h4>
-                                        </div>
-                                        <p className="text-sm text-gray-600 italic font-normal leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
-                                            {obituary.tribute}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="text-center text-[9px] font-mono text-gray-400 pt-2 border-t border-gray-100/60">
-                                    Pulazhiyil Heritage Registry
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </motion.div>
-            </div>
-        </div>
-    );
+  return (
+    <ObituaryClient
+      obituaries={(data ?? []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        branch: row.branch,
+        photoUrl: row.image_url ?? undefined,
+        birthYear: row.birth_year ?? undefined,
+        deathYear: row.death_year ?? undefined,
+        bio: row.description ?? "",
+        tribute: row.tribute ?? "",
+        isPlaceholder: row.is_placeholder,
+      }))}
+      loadError={error ? "Unable to load remembrance records." : null}
+    />
+  );
 }

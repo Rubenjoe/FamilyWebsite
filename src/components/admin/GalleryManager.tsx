@@ -8,6 +8,7 @@ import AdminPageHeader from "./AdminPageHeader";
 import GalleryForm, { type GalleryFormData } from "./GalleryForm";
 import Toast, { useToast } from "./Toast";
 import { resolveGalleryImageUrl } from "@/utils/storage";
+import { revalidatePublicPaths } from "@/utils/revalidate-public";
 
 type GalleryRecordRow = Database["public"]["Tables"]["gallery_records"]["Row"];
 
@@ -116,9 +117,10 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
         if (!response.ok) {
           throw new Error(result.error || "Save failed");
         }
+        const revalidated = await revalidatePublicPaths(["/gallery"]);
         showToast(
-          result.warning || result.message || "Gallery photo saved",
-          result.warning ? "error" : "success"
+          result.warning || (revalidated ? result.message || "Gallery photo saved" : "Gallery photo saved, but the public gallery may need a refresh"),
+          result.warning || !revalidated ? "error" : "success"
         );
 
         setEditingRecord(null);
@@ -148,9 +150,10 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
           warning?: string;
         };
         if (!response.ok) throw new Error(result.error || "Delete failed");
+        const revalidated = await revalidatePublicPaths(["/gallery"]);
         showToast(
-          result.warning || result.message || "Gallery photo deleted",
-          result.warning ? "error" : "success"
+          result.warning || (revalidated ? result.message || "Gallery photo deleted" : "Gallery photo deleted, but the public gallery may need a refresh"),
+          result.warning || !revalidated ? "error" : "success"
         );
         await refresh();
       } catch (err) {

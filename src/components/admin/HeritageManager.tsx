@@ -7,6 +7,7 @@ import type { Database } from "@/types/supabase";
 import AdminPageHeader from "./AdminPageHeader";
 import HeritageForm, { type HeritageFormData } from "./HeritageForm";
 import Toast, { useToast } from "./Toast";
+import { revalidatePublicPaths } from "@/utils/revalidate-public";
 
 type HeritageRecordRow = Database["public"]["Tables"]["heritage_records"]["Row"];
 type HeritageRecordKind = HeritageRecordRow["kind"];
@@ -104,18 +105,26 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
           const { error } = await supabase
             .from("heritage_records")
             .update(payload)
-            .eq("id", formData.id);
+            .eq("id", formData.id)
+            .select("id")
+            .single();
           if (error) throw error;
-          showToast("Heritage record updated");
         } else {
-          const { error } = await supabase.from("heritage_records").insert(payload);
+          const { error } = await supabase.from("heritage_records").insert(payload).select("id").single();
           if (error) throw error;
-          showToast("Heritage record created");
         }
+
+        const publicPaths = formData.kind === "obituary"
+          ? ["/obituary"]
+          : formData.kind === "achiever" || formData.kind === "evangelist"
+            ? ["/", "/achievers"]
+            : [];
+        const revalidated = publicPaths.length === 0 || await revalidatePublicPaths(publicPaths);
 
         setEditingRecord(null);
         setIsCreating(false);
         await refresh();
+        showToast(revalidated ? "Heritage record saved" : "Record saved, but public pages may need a refresh", revalidated ? "success" : "error");
       } catch (err) {
         showToast(err instanceof Error ? err.message : "Save failed", "error");
       } finally {
@@ -128,15 +137,18 @@ export default function HeritageManager({ initialRecords }: HeritageManagerProps
   const handleDelete = useCallback(
     async (id: string) => {
       if (!confirm("Delete this heritage record? This cannot be undone.")) return;
-      const { error } = await supabase.from("heritage_records").delete().eq("id", id);
+      const record = records.find((item) => item.id === id);
+      const { error } = await supabase.from("heritage_records").delete().eq("id", id).select("id").single();
       if (error) {
         showToast(error.message || "Delete failed", "error");
       } else {
-        showToast("Record deleted");
+        const publicPaths = record?.kind === "obituary" ? ["/obituary"] : record?.kind === "achiever" || record?.kind === "evangelist" ? ["/", "/achievers"] : [];
+        const revalidated = publicPaths.length === 0 || await revalidatePublicPaths(publicPaths);
         await refresh();
+        showToast(revalidated ? "Record deleted" : "Record deleted, but public pages may need a refresh", revalidated ? "success" : "error");
       }
     },
-    [supabase, showToast, refresh]
+    [supabase, showToast, refresh, records]
   );
 
   return (

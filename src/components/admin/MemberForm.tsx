@@ -165,6 +165,7 @@ export default function MemberForm({
   const [photoUrl, setPhotoUrl] = useState<string | null>(member?.photo_url || null);
   const [file, setFile] = useState<File | undefined>();
   const [errors, setErrors] = useState<string[]>([]);
+  const [isPhotoUploading, setIsPhotoUploading] = useState(false);
 
   const parentOptions = useMemberOptions(members, member?.id);
   const spouseOptions = useMemberOptions(members, member?.id);
@@ -225,6 +226,7 @@ export default function MemberForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPhotoUploading) return;
     if (!validate()) return;
     onSubmit(
       {
@@ -281,14 +283,15 @@ export default function MemberForm({
               handlePhotoUploaded(url);
               if (url) setFile(undefined);
             }}
+            onUploadingChange={setIsPhotoUploading}
             onError={onError}
-            disabled={isSaving}
+            disabled={isSaving || isPhotoUploading}
           />
           {photoUrl && (
             <button
               type="button"
               onClick={handleRemovePhoto}
-              disabled={isSaving}
+              disabled={isSaving || isPhotoUploading}
               className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold text-red-600 hover:text-red-700"
             >
               <X className="h-3 w-3" /> Remove photo
@@ -334,14 +337,14 @@ export default function MemberForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold border border-gray-200 text-[#2d312e] hover:bg-[#fbf9f4] transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {isSaving && (

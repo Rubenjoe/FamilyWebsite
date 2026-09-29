@@ -7,6 +7,8 @@ import type { Database } from "@/types/supabase";
 import AdminPageHeader from "./AdminPageHeader";
 import CommitteeForm, { type CommitteeFormData } from "./CommitteeForm";
 import Toast, { useToast } from "./Toast";
+import { revalidatePublicPaths } from "@/utils/revalidate-public";
+import { HERITAGE_BUCKET, resolveStorageUrl } from "@/utils/storage";
 
 type CommitteeRow = Database["public"]["Tables"]["committee_members"]["Row"];
 
@@ -103,18 +105,21 @@ export default function CommitteeManager({ initialRecords }: CommitteeManagerPro
           const { error } = await supabase
             .from("committee_members")
             .update(payload)
-            .eq("id", formData.id);
+            .eq("id", formData.id)
+            .select("id")
+            .single();
           if (error) throw error;
-          showToast("Committee member updated");
         } else {
-          const { error } = await supabase.from("committee_members").insert(payload);
+          const { error } = await supabase.from("committee_members").insert(payload).select("id").single();
           if (error) throw error;
-          showToast("Committee member added");
         }
+
+        const revalidated = await revalidatePublicPaths(["/members"]);
 
         setEditingRecord(null);
         setIsCreating(false);
         await refresh();
+        showToast(revalidated ? "Committee member saved" : "Member saved, but the public page may need a refresh", revalidated ? "success" : "error");
       } catch (err) {
         showToast(err instanceof Error ? err.message : "Save failed", "error");
       } finally {
@@ -127,12 +132,13 @@ export default function CommitteeManager({ initialRecords }: CommitteeManagerPro
   const handleDelete = useCallback(
     async (record: CommitteeRow) => {
       if (!confirm(`Delete "${record.name}" from ${record.committee_year}? This cannot be undone.`)) return;
-      const { error } = await supabase.from("committee_members").delete().eq("id", record.id);
+      const { error } = await supabase.from("committee_members").delete().eq("id", record.id).select("id").single();
       if (error) {
         showToast(error.message || "Delete failed", "error");
       } else {
-        showToast("Committee member deleted");
+        const revalidated = await revalidatePublicPaths(["/members"]);
         await refresh();
+        showToast(revalidated ? "Committee member deleted" : "Member deleted, but the public page may need a refresh", revalidated ? "success" : "error");
       }
     },
     [supabase, showToast, refresh]
@@ -218,7 +224,7 @@ export default function CommitteeManager({ initialRecords }: CommitteeManagerPro
                           {record.image_url ? (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
-                              src={record.image_url}
+                              src={resolveStorageUrl(HERITAGE_BUCKET, record.image_url)}
                               alt={record.name}
                               className="h-10 w-10 rounded-sm object-cover border border-[#1b3622]/10"
                             />

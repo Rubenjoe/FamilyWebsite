@@ -8,6 +8,7 @@ import MemberForm from "./MemberForm";
 import Toast, { useToast } from "./Toast";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/types/supabase";
+import { revalidatePublicPaths } from "@/utils/revalidate-public";
 
 type MemberInsert = Database["public"]["Tables"]["members"]["Insert"];
 type MemberUpdate = Database["public"]["Tables"]["members"]["Update"];
@@ -82,9 +83,10 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
         const { error } = await supabase
           .from("members")
           .update(updatePayload)
-          .eq("id", member.id);
+          .eq("id", member.id)
+          .select("id")
+          .single();
         if (error) throw error;
-        showToast("Member updated successfully");
       } else {
         const insertPayload: MemberInsert = {
           name: member.name ?? null,
@@ -96,14 +98,16 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
           spouse_id: member.spouse_id ?? null,
           photo_url: photoUrl,
         };
-        const { error } = await supabase.from("members").insert(insertPayload);
+        const { error } = await supabase.from("members").insert(insertPayload).select("id").single();
         if (error) throw error;
-        showToast("Member created successfully");
       }
+
+      const revalidated = await revalidatePublicPaths(["/tree"]);
 
       setEditingMember(null);
       setIsCreating(false);
       await refresh();
+      showToast(revalidated ? "Member saved successfully" : "Member saved, but the public tree may need a refresh", revalidated ? "success" : "error");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
@@ -113,12 +117,13 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm("Are you sure you want to delete this member? This cannot be undone.")) return;
-    const { error } = await supabase.from("members").delete().eq("id", id);
+    const { error } = await supabase.from("members").delete().eq("id", id).select("id").single();
     if (error) {
       showToast(error.message || "Failed to delete member", "error");
     } else {
-      showToast("Member deleted successfully");
+      const revalidated = await revalidatePublicPaths(["/tree"]);
       await refresh();
+      showToast(revalidated ? "Member deleted successfully" : "Member deleted, but the public tree may need a refresh", revalidated ? "success" : "error");
     }
   }, [supabase, showToast, refresh]);
 

@@ -68,6 +68,7 @@ export default function CommitteeForm({
   onError,
 }: CommitteeFormProps) {
   const [form, setForm] = useState<CommitteeFormData>(EMPTY);
+  const [isPhotoUploading, setIsPhotoUploading] = useState(false);
 
   useEffect(() => {
     if (!record) {
@@ -97,6 +98,7 @@ export default function CommitteeForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPhotoUploading) return;
     if (!form.name.trim()) {
       onError("Name is required.");
       return;
@@ -220,8 +222,9 @@ export default function CommitteeForm({
           bucket={HERITAGE_BUCKET}
           existingUrl={previewUrl}
           onUploaded={(path) => setField("image_url", path)}
+          onUploadingChange={setIsPhotoUploading}
           onError={onError}
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           returnPath
         />
       </div>
@@ -254,14 +257,14 @@ export default function CommitteeForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold border border-gray-200 text-[#2d312e] hover:bg-[#fbf9f4] transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isPhotoUploading}
           className="px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {isSaving && (
