@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import FadeImage from "@/components/ui/FadeImage";
 import {
   Archive,
   Calendar,
@@ -511,12 +512,10 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                             aria-label={`View larger photo of ${item.title}`}
                             className="absolute inset-0 block h-full w-full cursor-zoom-in"
                           >
-                            <img
+                            <FadeImage
                               src={item.imageUrl}
                               alt={item.title}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-cover transition-transform duration-500 ease-premium group-hover:scale-110"
+                              className="h-full w-full object-cover group-hover:scale-110"
                             />
                           </button>
 
@@ -629,13 +628,28 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                 initial={{ opacity: 0, x: direction * 28, scale: 0.985 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{ duration: 0.45, ease: NORELL_EASE }}
-                className="flex max-h-full max-w-full items-center justify-center"
+                drag
+                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                dragElastic={0.22}
+                whileDrag={{ scale: 0.985 }}
+                onDragEnd={(_event, info) => {
+                  const { x, y } = info.offset;
+                  // Drag downwards (more vertical than horizontal) to dismiss;
+                  // sideways to move through the album.
+                  if (Math.abs(y) > 110 && Math.abs(y) > Math.abs(x)) {
+                    closeLightbox();
+                    return;
+                  }
+                  if (x <= -64) goTo(1);
+                  else if (x >= 64) goTo(-1);
+                }}
+                className="flex max-h-full max-w-full cursor-grab items-center justify-center active:cursor-grabbing"
                 onClick={(event) => event.stopPropagation()}
               >
-                <img
+                <FadeImage
                   src={currentItem.fullImageUrl || currentItem.imageUrl}
                   alt={currentItem.title}
-                  decoding="async"
+                  priority
                   className="max-h-[68dvh] w-auto max-w-full rounded-sm object-contain shadow-2xl sm:max-h-[72dvh]"
                 />
               </motion.div>

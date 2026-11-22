@@ -114,7 +114,7 @@ export default function AchieversClient({
       <div
         role="tablist"
         aria-label="Registry categories"
-        className="flex gap-0 border border-[#1b3622]/15 w-fit"
+        className="flex w-full sm:w-fit gap-0 border border-[#1b3622]/15"
       >
         {(["achievers", "evangelists"] as Tab[]).map((tab, index) => {
           const isActive = activeTab === tab;
@@ -131,7 +131,7 @@ export default function AchieversClient({
               tabIndex={isActive ? 0 : -1}
               onClick={() => switchTab(tab)}
               onKeyDown={(event) => handleTabKeyDown(event, index)}
-              className={`relative px-6 py-3 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-colors duration-300 cursor-pointer ${
+              className={`relative flex min-w-0 flex-1 items-center justify-center whitespace-nowrap px-2 py-3 font-mono text-[10px] uppercase tracking-[0.08em] font-bold transition-colors duration-300 cursor-pointer sm:flex-none sm:px-6 sm:text-xs sm:tracking-[0.15em] ${
                 isActive
                   ? "text-[#fbf9f4]"
                   : "text-[#1b3622]/60 hover:text-[#1b3622]"

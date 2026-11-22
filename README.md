@@ -1180,3 +1180,23 @@ Developed with:
 ---
 
 > **Rooted in Heritage • United in Faith • Forever Bound by Family**
+
+## Contact form email delivery
+
+`POST /api/contact` (used by `app/contact/page.tsx`) sends enquiries through
+[Resend](https://resend.com). Nothing is stored in the database; the message is
+emailed to the archive desk and the sender's address is set as `reply_to`.
+
+Add these to `.env.local` for development and to the Vercel project settings for
+production:
+
+| Variable | What it is | Where to get it |
+| --- | --- | --- |
+| `RESEND_API_KEY` | Resend API key (starts with `re_`) | https://resend.com/api-keys |
+| `CONTACT_TO_EMAIL` | Inbox that receives enquiries, e.g. `yogam@pulazhiyil.org` | Your mail provider |
+| `CONTACT_FROM_EMAIL` | Verified sender, e.g. `Archive Desk <desk@pulazhiyil.org>` | Resend → Domains (verify the domain first) |
+
+Until all three are set the endpoint returns `503` and the form shows a delivery
+error — it never reports a success that did not happen. A hidden honeypot field
+absorbs basic bots; there is no rate limiting, so add a WAF/rate-limit rule if
+the form ever gets targeted.

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import FadeImage from "./FadeImage";
 
 type LightboxImageProps = {
   src: string;
@@ -35,11 +36,10 @@ export default function LightboxImage({
 
   return <>
     <button type="button" onClick={() => setIsOpen(true)} className={`block cursor-zoom-in ${buttonClassName}`} aria-label={`View larger photo of ${alt}`}>
-      <img
+      <FadeImage
         src={src}
         alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
+        priority={priority}
         className={className}
       />
     </button>

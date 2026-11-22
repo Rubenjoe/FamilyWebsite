@@ -4,6 +4,9 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MotionProvider from "@/components/MotionProvider";
+import AppPreloader from "@/components/ui/AppPreloader";
+import RouteProgress from "@/components/ui/RouteProgress";
+import BackToTop from "@/components/ui/BackToTop";
 
 /* Self-hosted via next/font — no render-blocking external font requests,
    no layout shift, and automatic font-display handling. */
@@ -56,12 +59,15 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
+        <AppPreloader />
+        <RouteProgress />
         <MotionProvider>
           <Navbar />
           <main id="main-content" className="flex-grow">
             {children}
           </main>
           <Footer />
+          <BackToTop />
         </MotionProvider>
       </body>
     </html>

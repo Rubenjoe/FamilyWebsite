@@ -26,6 +26,7 @@ import {
 import type { Database } from "@/types/supabase";
 import { withCloudinaryTransform } from "@/utils/storage";
 import InitialsMonogram from "@/components/ui/InitialsMonogram";
+import FadeImage from "@/components/ui/FadeImage";
 
 // ─── Derived view-model types from Supabase schema ───────────────────────────
 
@@ -170,6 +171,14 @@ function AchieverCarousel({
   const [isPaused, setIsPaused] = useState(false);
   const autoScrollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const rafRef = useRef<number | null>(null);
+  // Desktop drag-to-scroll. Touch devices already scroll natively, so the
+  // handlers below only engage for mouse pointers.
+  const dragRef = useRef<{
+    startX: number;
+    startScroll: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -216,6 +225,41 @@ function AchieverCarousel({
     const newIndex = (activeIndex + 1) % items.length;
     scrollToIndex(newIndex);
   }, [activeIndex, items.length, scrollToIndex]);
+
+  const handleTrackPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.pointerType !== "mouse" || !trackRef.current) return;
+      dragRef.current = {
+        startX: event.clientX,
+        startScroll: trackRef.current.scrollLeft,
+        moved: false,
+      };
+    },
+    []
+  );
+
+  const handleTrackPointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      const track = trackRef.current;
+      if (!drag || !track) return;
+      const delta = event.clientX - drag.startX;
+      if (Math.abs(delta) > 4) drag.moved = true;
+      if (drag.moved) track.scrollLeft = drag.startScroll - delta;
+    },
+    []
+  );
+
+  const endTrackDrag = useCallback(() => {
+    if (dragRef.current?.moved) {
+      // Swallow the click that follows a drag so a card never opens by accident.
+      suppressClickRef.current = true;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+    }
+    dragRef.current = null;
+  }, []);
 
   // Auto-scroll on mobile only, only while the carousel is visible, and never
   // while paused (toggle button / hover / keyboard focus).
@@ -274,7 +318,7 @@ function AchieverCarousel({
         <div className="flex justify-start">
           <Link
             href={viewAllHref}
-            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+            className="press group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
           >
             <Users className="h-3 w-3" />
             <span>{viewAllLabel}</span>
@@ -298,7 +342,12 @@ function AchieverCarousel({
       <div
         ref={trackRef}
         onScroll={handleScroll}
-        className="achv-track flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+        onPointerDown={handleTrackPointerDown}
+        onPointerMove={handleTrackPointerMove}
+        onPointerUp={endTrackDrag}
+        onPointerLeave={endTrackDrag}
+        onPointerCancel={endTrackDrag}
+        className="achv-track flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -319,17 +368,18 @@ function AchieverCarousel({
           >
             <Link
               href={viewAllHref}
+              onClick={(event) => {
+                if (suppressClickRef.current) event.preventDefault();
+              }}
               className="group flex h-full flex-col justify-between space-y-5 bg-white border border-[#1b3622]/10 p-6 shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
             >
               {/* Photo Frame */}
               <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
                 {achievement.image ? (
-                  <img
+                  <FadeImage
                     src={withCloudinaryTransform(achievement.image, 600)}
                     alt={achievement.name}
-                    loading="lazy"
-                    decoding="async"
-                    className="transform-gpu object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="transform-gpu object-cover w-full h-full group-hover:scale-105"
                   />
                 ) : (
                   <InitialsMonogram name={achievement.name} />
@@ -379,14 +429,14 @@ function AchieverCarousel({
           <button
             onClick={handlePrev}
             aria-label="Previous achiever"
-            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+            className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
           >
             <ChevronLeft className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           </button>
           <button
             onClick={handleNext}
             aria-label="Next achiever"
-            className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+            className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
           >
             <ChevronRight className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           </button>
@@ -397,7 +447,7 @@ function AchieverCarousel({
               onClick={() => setIsPaused((prev) => !prev)}
               aria-label={isPaused ? "Resume auto-scroll" : "Pause auto-scroll"}
               aria-pressed={isPaused}
-              className="group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+              className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
             >
               {isPaused ? (
                 <Play className="h-3.5 w-3.5" />
@@ -437,7 +487,7 @@ function AchieverCarousel({
           )}
           <Link
             href={viewAllHref}
-            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+            className="press group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
           >
             <Users className="h-3 w-3" />
             <span>{viewAllLabel}</span>
@@ -564,7 +614,7 @@ export default function HomeClient({
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
+    <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-20 md:pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
       {/* Hint the browser to start fetching the first hero frame immediately —
           it is the LCP element on this page. React hoists this into <head>. */}
       <link rel="preload" as="image" href={HERO_IMAGES[0]} />
@@ -594,7 +644,7 @@ export default function HomeClient({
       {/* ── 1. HERO ──────────────────────────────────────────────────────────── */}
       <div
         ref={heroRef}
-        className="relative h-[95vh] flex flex-col justify-center px-6 md:px-12 lg:px-20 border-b border-[#1b3622]/10 text-[#fbf9f4]"
+        className="relative flex h-[90svh] min-h-[560px] flex-col justify-center px-6 md:h-[95vh] md:px-12 lg:px-20 border-b border-[#1b3622]/10 text-[#fbf9f4]"
         style={{ overflow: "hidden" }}
       >
         {/* Background Slideshow — the active frame receives a slow Ken Burns
@@ -644,7 +694,7 @@ export default function HomeClient({
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
-          className="max-w-6xl w-full mx-auto space-y-12 relative z-10"
+          className="max-w-6xl w-full mx-auto space-y-9 md:space-y-12 relative z-10"
         >
           {/* Eyebrow / Tagline */}
           <div className="flex items-center">
@@ -699,7 +749,7 @@ export default function HomeClient({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.55, ease: NORELL_EASE }}
             >
-              <p className="text-base md:text-lg lg:text-xl tracking-[0.15em] uppercase text-[#fbf9f4]/85 font-mono">
+              <p className="text-[11px] leading-relaxed tracking-[0.12em] uppercase text-[#fbf9f4]/85 font-mono sm:text-base sm:tracking-[0.15em] md:text-lg lg:text-xl">
                 Pullazhiyil &bull; Thykurinjiyil &bull; Thanuvelil &bull;
                 Poovathumparambil
               </p>
@@ -713,7 +763,7 @@ export default function HomeClient({
             >
               <Link
                 href="/tree"
-                className="group inline-flex items-center gap-3 bg-[#d4af37] text-[#1b3622] text-sm uppercase tracking-[0.18em] font-bold px-8 py-4 hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
+                className="group press flex w-full items-center justify-center gap-3 bg-[#d4af37] px-6 py-3.5 text-[11px] sm:w-auto sm:justify-start sm:px-8 sm:py-4 sm:text-sm uppercase tracking-[0.14em] sm:tracking-[0.18em] font-bold text-[#1b3622] hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
               >
                 <span>Explore Our Family Tree</span>
                 <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -723,27 +773,32 @@ export default function HomeClient({
         </motion.div>
 
         {/* Scroll cue at bottom */}
-        <motion.div
+        <motion.button
+          type="button"
+          onClick={() =>
+            infoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+          aria-label="Scroll to the heritage introduction"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <span className="text-xs uppercase tracking-[0.25em] font-mono text-[#fbf9f4]/50">
+          <span className="text-xs uppercase tracking-[0.25em] font-mono text-[#fbf9f4]/50 transition-colors duration-300 group-hover:text-[#d4af37]">
             Scroll
           </span>
-          <motion.div
+          <motion.span
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-            className="w-px h-8 bg-gradient-to-b from-[#d4af37]/50 to-transparent"
+            className="block w-px h-8 bg-gradient-to-b from-[#d4af37]/50 to-transparent transition-colors duration-300 group-hover:from-[#d4af37]"
           />
-        </motion.div>
+        </motion.button>
       </div>
 
       {/* ── 2. IDENTITY PANEL ────────────────────────────────────────────────── */}
       <section
         ref={infoRef}
-        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-10"
+        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-20 md:mt-32 space-y-10"
       >
         <motion.div
           style={{ scaleX: infoLineScale }}
@@ -785,7 +840,7 @@ export default function HomeClient({
       </section>
 
       {/* ── A.D. 345 METRICS STRIP ── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-16 md:mt-24">
         <div className="w-full h-px bg-[#1b3622]/10" />
         <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#1b3622]/10 py-12">
           {[
@@ -817,7 +872,7 @@ export default function HomeClient({
       {/* ── 4. FOUR PILLARS ──────────────────────────────────────────────────── */}
       <section
         ref={pillarsRef}
-        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-16"
+        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24 md:mt-40 space-y-12 md:space-y-16"
       >
         <motion.div
           style={{ opacity: pillarsHeadingOpacity, y: pillarsHeadingY }}
@@ -900,7 +955,7 @@ export default function HomeClient({
       </section>
 
       {/* ── Heritage Quote Banner ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24 md:mt-40">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -936,7 +991,7 @@ export default function HomeClient({
       </section>
 
       {/* ── Family Achievements ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 space-y-12">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24 md:mt-40 space-y-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -963,7 +1018,7 @@ export default function HomeClient({
       </section>
 
       {/* ── Family Evangelists ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-32 space-y-12">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-20 md:mt-32 space-y-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -990,7 +1045,7 @@ export default function HomeClient({
       </section>
 
       {/* ── 6. FINALE: ORIGINS + EVENTS ──────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-24 md:mt-40 grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 items-start">
 
         {/* Left: origin story */}
         <motion.div

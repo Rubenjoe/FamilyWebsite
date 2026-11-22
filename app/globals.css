@@ -70,12 +70,28 @@ body {
   outline-offset: 3px;
 }
 
-/* Preserve the editorial feel while keeping smaller UI copy comfortably legible. */
-button,
-input,
-select,
-textarea {
-  font: inherit;
+/* Preserve the editorial feel while keeping smaller UI copy comfortably legible.
+   These live in @layer base on purpose: an unlayered `font: inherit` shorthand
+   outranked every Tailwind font utility, which silently reset the navbar's
+   `font-serif italic` items (the "More" trigger) back to the body sans face. */
+@layer base {
+  button {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }
 
 /* Accessible skip link — visually hidden until focused. */
@@ -221,6 +237,135 @@ textarea {
 
 .admin-modal-panel {
   animation: modal-panel-in 0.35s var(--ease-premium) both;
+}
+
+/* ── Navigation transitions ─────────────────────────────────────────────── */
+
+/* Route entrance used by app/template.tsx. Opacity only — an ancestor
+   transform would re-anchor every `fixed` overlay (gallery viewer, lightbox)
+   to this wrapper instead of the viewport. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.45s var(--ease-soft) both;
+}
+
+/* Hairline progress bar along the top edge while a route is resolving. */
+.route-progress {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 60;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-soft);
+}
+
+.route-progress[data-phase="loading"],
+.route-progress[data-phase="complete"] {
+  opacity: 1;
+}
+
+.route-progress__bar {
+  display: block;
+  height: 100%;
+  width: 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.15),
+    #d4af37 60%,
+    #e8cf7a
+  );
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
+  transition: width 0.3s var(--ease-soft);
+}
+
+.route-progress[data-phase="loading"] .route-progress__bar {
+  width: 78%;
+  transition: width 1.8s cubic-bezier(0.1, 0.65, 0.25, 1);
+}
+
+.route-progress[data-phase="complete"] .route-progress__bar {
+  width: 100%;
+  transition: width 0.25s ease-out;
+}
+
+/* ── Loading surfaces ───────────────────────────────────────────────────── */
+
+/* Shimmer sweep shared by every skeleton placeholder. */
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(27, 54, 34, 0.07);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  animation: skeleton-shimmer 1.7s var(--ease-soft) infinite;
+}
+
+/* Brand curtain shown once per session on first paint. */
+@keyframes preloader-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.app-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background-color: var(--color-cream);
+  transition: opacity 0.5s var(--ease-soft), visibility 0.5s;
+}
+
+.app-preloader.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.app-preloader__line {
+  transform-origin: left center;
+  animation: preloader-line 0.9s var(--ease-premium) both;
+}
+
+/* ── Micro-interaction helpers ──────────────────────────────────────────── */
+
+/* Tactile press feedback for links-as-buttons and icon controls. */
+.press {
+  transition: transform 0.18s var(--ease-premium);
+}
+
+.press:active {
+  transform: scale(0.975);
 }
 
 /* Respect users who prefer reduced motion: collapse CSS-driven animation to

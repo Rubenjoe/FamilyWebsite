@@ -2,7 +2,91 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, MapPin, Phone, Clock, Send, CheckCircle2 } from "lucide-react";
+import { Mail, MapPin, Phone, Clock, Send, CheckCircle2, Copy, Check, AlertCircle } from "lucide-react";
+
+/** Copies text, falling back to a hidden textarea when the Clipboard API is
+ *  unavailable (older browsers, non-secure origins, denied permission). */
+async function writeToClipboard(text: string): Promise<boolean> {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {
+        // Fall through to the legacy path below.
+    }
+
+    try {
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.top = "-9999px";
+        document.body.appendChild(field);
+        field.select();
+        const succeeded = document.execCommand("copy");
+        document.body.removeChild(field);
+        return succeeded;
+    } catch {
+        return false;
+    }
+}
+
+/** Detail that can be copied in one tap, with inline success/failure feedback. */
+function CopyValue({ value, label }: { value: string; label: string }) {
+    const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
+
+    const copy = async () => {
+        // Guard against a clipboard promise that never settles (unfocused
+        // documents can hang instead of rejecting) so the control always
+        // answers, success or failure.
+        const timeout = new Promise<"timeout">((resolve) =>
+            window.setTimeout(() => resolve("timeout"), 1200)
+        );
+        const outcome = await Promise.race([writeToClipboard(value), timeout]);
+        setState(outcome === true ? "copied" : "failed");
+        window.setTimeout(() => setState("idle"), 1800);
+    };
+
+    return (
+        <button
+            type="button"
+            onClick={copy}
+            aria-label={`Copy ${label}: ${value}`}
+            className="group inline-flex items-center gap-1.5 font-mono font-medium text-[#1b3622] transition-colors duration-300 hover:text-[#a57f12]"
+        >
+            <span className="border-b border-transparent pb-px transition-colors duration-300 group-hover:border-[#d4af37]/60">
+                {value}
+            </span>
+            <span className="grid h-4 w-4 place-items-center text-[#a57f12]">
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                        key={state}
+                        initial={{ opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.6 }}
+                        transition={{ duration: 0.16 }}
+                    >
+                        {state === "copied" ? (
+                            <Check className="h-3 w-3 text-[#1b3622]" />
+                        ) : state === "failed" ? (
+                            <AlertCircle className="h-3 w-3 text-red-600" />
+                        ) : (
+                            <Copy className="h-3 w-3" />
+                        )}
+                    </motion.span>
+                </AnimatePresence>
+            </span>
+            <span className="sr-only" role="status">
+                {state === "copied"
+                    ? "Copied to clipboard"
+                    : state === "failed"
+                        ? `Copy failed. The ${label} is ${value}.`
+                        : ""}
+            </span>
+        </button>
+    );
+}
 
 export default function ContactPage() {
     const [name, setName] = useState("");
@@ -12,22 +96,46 @@ export default function ContactPage() {
     const [message, setMessage] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    // Honeypot — real visitors never see or fill this field.
+    const [website, setWebsite] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !email || !message) return;
-        
-        setIsLoading(true);
-        // Simulate premium network request stream latency
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setIsLoading(false);
-        setIsSubmitted(true);
+        setError(null);
 
-        // Reset values
-        setName("");
-        setEmail("");
-        setSubject("");
-        setMessage("");
+        if (!name.trim() || !email.trim() || !message.trim()) {
+            setError("Please complete your name, email address and message.");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, branch, subject, message, website }),
+            });
+            const data = (await response.json().catch(() => null)) as { error?: string } | null;
+
+            if (!response.ok) {
+                setError(data?.error ?? "Your message could not be sent. Please try again.");
+                return;
+            }
+
+            setIsSubmitted(true);
+            setName("");
+            setEmail("");
+            setSubject("");
+            setMessage("");
+            // Clear the honeypot too: a browser autofilling that hidden field
+            // would otherwise silently swallow every later message.
+            setWebsite("");
+        } catch {
+            setError("Your message could not be sent. Check your connection and try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -87,10 +195,16 @@ export default function ContactPage() {
                             </div>
                             <div className="space-y-1">
                                 <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Digital Correspondence</h3>
-                                <p className="text-sm text-gray-700 font-normal leading-relaxed">
-                                    General Desk: <span className="font-mono font-medium text-[#1b3622]">yogam@pulazhiyil.org</span> <br />
-                                    Registry & Tree: <span className="font-mono font-medium text-[#1b3622]">archive@pulazhiyil.org</span>
-                                </p>
+                                <div className="space-y-1 text-sm text-gray-700 font-normal leading-relaxed">
+                                    <p className="flex flex-wrap items-center gap-x-1.5">
+                                        General Desk:
+                                        <CopyValue value="yogam@pulazhiyil.org" label="general desk email" />
+                                    </p>
+                                    <p className="flex flex-wrap items-center gap-x-1.5">
+                                        Registry &amp; Tree:
+                                        <CopyValue value="archive@pulazhiyil.org" label="registry email" />
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -101,10 +215,10 @@ export default function ContactPage() {
                             </div>
                             <div className="space-y-1">
                                 <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Direct Telephony</h3>
-                                <p className="text-sm text-gray-700 font-normal leading-relaxed font-mono">
-                                    +91 487 2384 928 <br />
-                                    +91 944 7289 104
-                                </p>
+                                <div className="space-y-1 text-sm text-gray-700 font-normal leading-relaxed">
+                                    <p><CopyValue value="+91 487 2384 928" label="phone number" /></p>
+                                    <p><CopyValue value="+91 944 7289 104" label="phone number" /></p>
+                                </div>
                             </div>
                         </div>
 
@@ -132,7 +246,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* ── Right column: Interactive Correspondence Form ── */}
-                <div className="lg:col-span-7 bg-white border border-[#1b3622]/10 p-8 shadow-sm relative">
+                                    <div className="lg:col-span-7 bg-white border border-[#1b3622]/10 p-5 sm:p-8 shadow-sm relative">
                     <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
                     
                     <h2 className="text-sm uppercase tracking-[0.15em] text-[#1b3622] font-bold border-b border-gray-100 pb-3 mb-6 flex items-center gap-2">
@@ -156,7 +270,10 @@ export default function ContactPage() {
                                     Your message has been safely logged in our correspondence system. A committee liaison will review your query and get back to you shortly.
                                 </p>
                                 <button
-                                    onClick={() => setIsSubmitted(false)}
+                                    onClick={() => {
+                                        setIsSubmitted(false);
+                                        setError(null);
+                                    }}
                                     className="inline-flex items-center gap-2 border border-gray-200 text-gray-700 text-sm font-semibold uppercase tracking-[0.08em] px-6 py-2.5 hover:border-[#1b3622]/30 transition-colors mt-4"
                                 >
                                     Submit Another Query
@@ -170,6 +287,19 @@ export default function ContactPage() {
                                 onSubmit={handleSubmit}
                                 className="space-y-5"
                             >
+                                {/* Honeypot — off-screen, hidden from assistive tech and visitors */}
+                                <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                                    <label htmlFor="contact-website">Website</label>
+                                    <input
+                                        id="contact-website"
+                                        type="text"
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        value={website}
+                                        onChange={(e) => setWebsite(e.target.value)}
+                                    />
+                                </div>
+
                                 {/* Name Input */}
                                 <div className="space-y-1">
                                     <label className="text-xs uppercase tracking-[0.08em] text-gray-500 block font-semibold">
@@ -181,7 +311,7 @@ export default function ContactPage() {
                                         placeholder="e.g. Anand Pulazhiyil"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
+                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] focus:bg-white focus:ring-2 focus:ring-[#d4af37]/20 transition-all text-[#2d312e]"
                                     />
                                 </div>
 
@@ -194,7 +324,7 @@ export default function ContactPage() {
                                         <select
                                             value={branch}
                                             onChange={(e) => setBranch(e.target.value)}
-                                            className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e] h-[42px]"
+                                            className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] focus:bg-white focus:ring-2 focus:ring-[#d4af37]/20 transition-all text-[#2d312e] h-[42px]"
                                         >
                                             <option value="Pullazhiyil">Pullazhiyil Branch</option>
                                             <option value="Thykurinjiyil">Thykurinjiyil Branch</option>
@@ -215,7 +345,7 @@ export default function ContactPage() {
                                             placeholder="e.g. anand@domain.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
+                                            className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] focus:bg-white focus:ring-2 focus:ring-[#d4af37]/20 transition-all text-[#2d312e]"
                                         />
                                     </div>
                                 </div>
@@ -230,7 +360,7 @@ export default function ContactPage() {
                                         placeholder="e.g. Corrections in Family Tree Record"
                                         value={subject}
                                         onChange={(e) => setSubject(e.target.value)}
-                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e]"
+                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] focus:bg-white focus:ring-2 focus:ring-[#d4af37]/20 transition-all text-[#2d312e]"
                                     />
                                 </div>
 
@@ -245,9 +375,26 @@ export default function ContactPage() {
                                         placeholder="Describe your inquiry or directory correction details..."
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
-                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] text-[#2d312e] resize-none"
+                                        className="w-full bg-[#fbf9f4] border border-gray-200 text-sm p-3 focus:outline-none focus:border-[#1b3622] focus:bg-white focus:ring-2 focus:ring-[#d4af37]/20 transition-all text-[#2d312e] resize-none"
                                     />
                                 </div>
+
+                                {/* Delivery failure */}
+                                <AnimatePresence>
+                                    {error && (
+                                        <motion.p
+                                            role="alert"
+                                            aria-live="polite"
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                            className="overflow-hidden border-l-2 border-red-400 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800"
+                                        >
+                                            {error}
+                                        </motion.p>
+                                    )}
+                                </AnimatePresence>
 
                                 {/* Submit Button */}
                                 <motion.button

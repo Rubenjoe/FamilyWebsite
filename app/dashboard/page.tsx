@@ -11,6 +11,7 @@ export default function DashboardSignInPage() {
     const [memberId, setMemberId] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showRecoveryHint, setShowRecoveryHint] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -134,12 +135,28 @@ export default function DashboardSignInPage() {
                             </label>
                             <button
                                 type="button"
-                                onClick={() => alert("Administrative access keys can be recovered from the primary parish registrar.")}
+                                onClick={() => setShowRecoveryHint((open) => !open)}
+                                aria-expanded={showRecoveryHint}
+                                aria-controls="signin-recovery-hint"
                                 className="text-[10px] uppercase tracking-[0.12em] font-mono text-[#a57f12] hover:text-[#1b3622] transition-colors"
                             >
                                 Forgotten?
                             </button>
                         </div>
+                        <AnimatePresence>
+                            {showRecoveryHint && (
+                                <motion.p
+                                    id="signin-recovery-hint"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                    className="overflow-hidden text-[11px] leading-relaxed text-gray-500 font-light"
+                                >
+                                    Administrative access keys can be recovered from the primary parish registrar.
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <Lock className="h-4 w-4 stroke-[1.5]" />
