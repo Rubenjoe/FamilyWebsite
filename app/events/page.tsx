@@ -119,7 +119,8 @@ function EventSection({
                 </div>
               )}
               {highlight && (
-                <span className="inline-flex items-center bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.15em] font-bold px-2 py-1">
+                <span className="inline-flex items-center gap-1.5 bg-[#1b3622] text-[#fbf9f4] text-[10px] uppercase tracking-[0.15em] font-bold px-2.5 py-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37] animate-pulse" />
                   Upcoming
                 </span>
               )}

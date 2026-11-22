@@ -860,9 +860,9 @@ export default function HomeClient({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: idx * 0.1, ease: NORELL_EASE }}
-              className="pl-6 first:pl-0 space-y-1"
+              className="group pl-6 first:pl-0 space-y-1 cursor-default transition-transform duration-300 hover:-translate-y-0.5"
             >
-              <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622]">
+              <span className="block text-3xl md:text-5xl font-serif font-light text-[#1b3622] transition-colors duration-300 group-hover:text-[#8a6a0f]">
                 {stat.value}
               </span>
               <span className="text-xs uppercase tracking-[0.12em] text-gray-500 block font-mono">

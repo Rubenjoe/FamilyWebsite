@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   --color-gray-400: #5c635d;
@@ -275,16 +276,32 @@ body {
     var(--orb-mid) 50%,
     transparent 73%
   );
+  animation: ambient-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(15px, -18px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-12px, 12px) scale(0.97);
+    opacity: 0.88;
+  }
 }
 
 .ambient-orb--gold {
-  --orb-core: rgba(212, 175, 55, 0.1);
-  --orb-mid: rgba(212, 175, 55, 0.035);
+  --orb-core: rgba(212, 175, 55, 0.12);
+  --orb-mid: rgba(212, 175, 55, 0.04);
 }
 
 .ambient-orb--forest {
-  --orb-core: rgba(27, 54, 34, 0.1);
-  --orb-mid: rgba(27, 54, 34, 0.03);
+  --orb-core: rgba(27, 54, 34, 0.11);
+  --orb-mid: rgba(27, 54, 34, 0.035);
 }
 
 /* Hairline progress bar along the top edge while a route is resolving. */
@@ -424,7 +441,7 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: rgba(27, 54, 34, 0.07);
+  background-color: rgba(27, 54, 34, 0.06);
 }
 
 .skeleton::after {
@@ -435,10 +452,12 @@ body {
   background-image: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.65),
+    rgba(212, 175, 55, 0.05),
+    rgba(255, 255, 255, 0.7),
+    rgba(212, 175, 55, 0.05),
     transparent
   );
-  animation: skeleton-shimmer 1.7s var(--ease-soft) infinite;
+  animation: skeleton-shimmer 1.8s var(--ease-soft) infinite;
 }
 
 /* Brand curtain shown once per session on first paint. */
@@ -522,6 +541,65 @@ body {
 .card-interactive:hover {
   transform: translateY(-3px);
   box-shadow: 0 20px 50px rgba(27, 54, 34, 0.1);
+}
+
+/* Leaflet heritage atlas: quiet parchment controls with large, legible targets. */
+.heritage-map-canvas {
+  z-index: 0;
+  background: #eee8da;
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+.heritage-map-canvas .leaflet-control-zoom a {
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  color: #1b3622;
+  background: #fbf9f4;
+  border-color: rgb(27 54 34 / 16%);
+  font-size: 22px;
+}
+
+.heritage-map-canvas .leaflet-control-attribution {
+  background: rgb(251 249 244 / 92%);
+  color: #353b36;
+  font-size: 10px;
+}
+
+.heritage-map-marker-wrap {
+  background: transparent;
+  border: 0;
+}
+
+.heritage-map-marker {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #fbf9f4;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 2px 8px rgb(18 35 23 / 38%);
+  transform: rotate(-45deg);
+  transition: width 160ms ease, height 160ms ease, box-shadow 160ms ease;
+}
+
+.heritage-map-marker--arrival { background: #b8912e; }
+.heritage-map-marker--migration { background: #1b3622; }
+.heritage-map-marker--branches { background: #766047; }
+
+.heritage-map-marker.is-selected {
+  width: 28px;
+  height: 28px;
+  box-shadow: 0 0 0 5px rgb(212 175 55 / 38%), 0 3px 10px rgb(18 35 23 / 42%);
+}
+
+.leaflet-marker-icon:focus-visible,
+.leaflet-control a:focus-visible {
+  outline: 3px solid #8a6a0f;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heritage-map-marker { transition: none; }
 }
 
 /* Respect users who prefer reduced motion: collapse CSS-driven animation to

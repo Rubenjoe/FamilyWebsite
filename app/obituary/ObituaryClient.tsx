@@ -85,8 +85,10 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                     {["All", ...Array.from(new Set(obituaries.map((item) => item.branch)))].map((branch) => (
                         <button
                             key={branch}
+                            type="button"
                             onClick={() => setSelectedBranch(branch)}
-                            className={`px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all cursor-pointer ${selectedBranch === branch
+                            aria-pressed={selectedBranch === branch}
+                            className={`min-h-11 px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622] ${selectedBranch === branch
                                 ? "bg-[#1b3622] text-[#fbf9f4] font-semibold"
                                 : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30"
                                 }`}

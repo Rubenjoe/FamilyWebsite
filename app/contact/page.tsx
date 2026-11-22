@@ -174,12 +174,12 @@ export default function ContactPage() {
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
                         
                         {/* Address */}
-                        <div className="flex gap-4 items-start">
-                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
+                        <div className="group flex gap-4 items-start p-2.5 -mx-2.5 rounded-sm transition-all duration-300 hover:bg-[#1b3622]/[0.03]">
+                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20 transition-all duration-300 group-hover:scale-105 group-hover:border-[#d4af37]/50 group-hover:bg-[#1b3622]/10">
                                 <MapPin className="h-4 w-4 text-[#1b3622]" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Ancestral Tharavadu</h3>
+                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e] transition-colors duration-300 group-hover:text-[#1b3622]">Ancestral Tharavadu</h3>
                                 <p className="text-sm text-gray-700 font-normal leading-relaxed">
                                     Pulazhiyil Heritage House <br />
                                     Kudumbayogam Road, Thrissur <br />
@@ -189,12 +189,12 @@ export default function ContactPage() {
                         </div>
 
                         {/* Email */}
-                        <div className="flex gap-4 items-start">
-                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
+                        <div className="group flex gap-4 items-start p-2.5 -mx-2.5 rounded-sm transition-all duration-300 hover:bg-[#1b3622]/[0.03]">
+                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20 transition-all duration-300 group-hover:scale-105 group-hover:border-[#d4af37]/50 group-hover:bg-[#1b3622]/10">
                                 <Mail className="h-4 w-4 text-[#1b3622]" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Digital Correspondence</h3>
+                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e] transition-colors duration-300 group-hover:text-[#1b3622]">Digital Correspondence</h3>
                                 <div className="space-y-1 text-sm text-gray-700 font-normal leading-relaxed">
                                     <p className="flex flex-wrap items-center gap-x-1.5">
                                         General Desk:
@@ -209,12 +209,12 @@ export default function ContactPage() {
                         </div>
 
                         {/* Phone */}
-                        <div className="flex gap-4 items-start">
-                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
+                        <div className="group flex gap-4 items-start p-2.5 -mx-2.5 rounded-sm transition-all duration-300 hover:bg-[#1b3622]/[0.03]">
+                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20 transition-all duration-300 group-hover:scale-105 group-hover:border-[#d4af37]/50 group-hover:bg-[#1b3622]/10">
                                 <Phone className="h-4 w-4 text-[#1b3622]" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Direct Telephony</h3>
+                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e] transition-colors duration-300 group-hover:text-[#1b3622]">Direct Telephony</h3>
                                 <div className="space-y-1 text-sm text-gray-700 font-normal leading-relaxed">
                                     <p><CopyValue value="+91 487 2384 928" label="phone number" /></p>
                                     <p><CopyValue value="+91 944 7289 104" label="phone number" /></p>
@@ -223,12 +223,12 @@ export default function ContactPage() {
                         </div>
 
                         {/* Timing */}
-                        <div className="flex gap-4 items-start">
-                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
+                        <div className="group flex gap-4 items-start p-2.5 -mx-2.5 rounded-sm transition-all duration-300 hover:bg-[#1b3622]/[0.03]">
+                            <div className="h-9 w-9 rounded-full bg-[#1b3622]/5 flex items-center justify-center shrink-0 border border-[#d4af37]/20 transition-all duration-300 group-hover:scale-105 group-hover:border-[#d4af37]/50 group-hover:bg-[#1b3622]/10">
                                 <Clock className="h-4 w-4 text-[#1b3622]" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e]">Archive Hours</h3>
+                                <h3 className="text-sm uppercase tracking-[0.08em] font-semibold text-[#2d312e] transition-colors duration-300 group-hover:text-[#1b3622]">Archive Hours</h3>
                                 <p className="text-sm text-gray-700 font-normal leading-relaxed">
                                     Saturdays & Sundays <br />
                                     10:00 AM — 04:00 PM IST

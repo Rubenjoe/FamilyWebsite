@@ -52,19 +52,29 @@ export default function AppPreloader() {
       role="status"
       aria-label="Loading the Pullazhiyil heritage archive"
     >
-      <div className="flex flex-col items-center gap-5 px-8 text-center">
-        <img
-          src="/images/logo.png"
-          alt=""
-          aria-hidden
-          className="h-16 w-auto object-contain sm:h-20"
-        />
-        <span className="Malayalam-font text-base text-[#1b3622] sm:text-lg">
+      {/* Soft warm ambient center glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute h-72 w-72 rounded-full bg-[#d4af37]/10 blur-3xl sm:h-96 sm:w-96"
+      />
+
+      <div className="relative z-10 flex flex-col items-center gap-5 px-8 text-center">
+        <div className="relative">
+          <img
+            src="/images/logo.png"
+            alt=""
+            aria-hidden
+            className="h-16 w-auto object-contain transition-transform duration-700 ease-out sm:h-20"
+          />
+        </div>
+        <span className="Malayalam-font text-base font-semibold tracking-wide text-[#1b3622] sm:text-xl">
           പുല്ലാഴിയിൽ കുടുംബയോഗം
         </span>
-        <span className="app-preloader__line h-px w-40 bg-[#d4af37]/70 sm:w-56" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#1b3622]/45">
-          Heritage Archive
+        <div className="relative flex items-center justify-center">
+          <span className="app-preloader__line h-[1.5px] w-44 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent sm:w-60" />
+        </div>
+        <span className="font-mono text-[10px] uppercase tracking-[0.32em] text-[#8a6a0f] font-medium">
+          Heritage Archive &amp; Genealogy
         </span>
       </div>
     </div>

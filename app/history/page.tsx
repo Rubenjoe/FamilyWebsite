@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import MigrationJourneyMap from "./MigrationJourneyMap";
 import {
   Anchor,
   Compass,
@@ -203,6 +204,19 @@ export default function HistoryPage() {
         </div>
       </section>
 
+      <nav aria-label="History chapters" className="relative z-10 mx-auto mt-6 max-w-7xl px-5 sm:px-8 lg:px-16">
+        <ol className="flex gap-2 overflow-x-auto border-b border-[#1b3622]/10 pb-3" aria-label="Jump to a chapter">
+          {HISTORY_SECTIONS.map((section, index) => (
+            <li key={section.id} className="shrink-0">
+              <a href={`#${section.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-[#1b3622]/10 bg-white/70 px-3 text-sm text-[#1b3622] transition-colors hover:border-[#b8912e]/50 hover:bg-[#b8912e]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622]">
+                <span className="font-mono text-xs text-[#8a6a0f]">{String(index + 1).padStart(2, "0")}</span>
+                {section.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
       {/* Main Historical Timeline Sections */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 mt-20 space-y-24 md:space-y-36">
         {HISTORY_SECTIONS.map((section, index) => {
@@ -215,7 +229,10 @@ export default function HistoryPage() {
           const showFeatureImage = index === 3;
 
           return (
-            <div key={section.id} className="space-y-24 md:space-y-36">
+            <div id={section.id} key={section.id} className="scroll-mt-24 space-y-24 md:space-y-36">
+
+              {/* The interactive atlas follows the migration chapter, before branch formation. */}
+              {index === 2 && <MigrationJourneyMap />}
 
               {/* Conditional full-width Feature Image before section 4 */}
               {showFeatureImage && (
@@ -289,6 +306,7 @@ export default function HistoryPage() {
                   <AnimatePresence initial={false}>
                     {isExpanded && (
                       <motion.div
+                        id={`history-details-${section.id}`}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -308,8 +326,11 @@ export default function HistoryPage() {
 
                   {/* Accordion Trigger Button */}
                   <button
+                    type="button"
                     onClick={() => toggleSection(section.id)}
-                    className="group inline-flex items-center gap-2 text-xs sm:text-[13px] tracking-[0.18em] uppercase font-bold text-[#d4af37] hover:text-[#1b3622] transition-all duration-300 pt-2 cursor-pointer select-none"
+                    aria-expanded={isExpanded}
+                    aria-controls={isExpanded ? `history-details-${section.id}` : undefined}
+                    className="group inline-flex min-h-11 items-center gap-2 text-xs sm:text-[13px] tracking-[0.18em] uppercase font-bold text-[#8a6a0f] hover:text-[#1b3622] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1b3622] transition-all duration-300 pt-2 cursor-pointer select-none"
                   >
                     <span className="border-b border-transparent group-hover:border-[#1b3622]/30 pb-px transition-colors duration-300">{isExpanded ? "Read Less" : "Read More"}</span>
                     {isExpanded ? (
