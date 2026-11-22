@@ -15,7 +15,7 @@ export default async function AdminPage() {
 
   const supabase = await createClient();
 
-  const [membersResult, eventsResult] = await Promise.all([
+  const [membersResult, eventsResult, galleryResult] = await Promise.all([
     supabase
       .from("members")
       .select("id,name,photo_url,birth_date,death_date,bio,father_id,mother_id,spouse_id")
@@ -26,16 +26,22 @@ export default async function AdminPage() {
       .select("id,title,event_date")
       .returns<EventRow[]>()
       .limit(1000),
+    // Head-only count: the dashboard needs the number, not the rows.
+    supabase
+      .from("gallery_records")
+      .select("id", { count: "exact", head: true }),
   ]);
 
   return (
     <AdminDashboardClient
       memberCount={membersResult.data?.length || 0}
       eventCount={eventsResult.data?.length || 0}
+      galleryCount={galleryResult.count ?? 0}
       role={session.role}
       canEditMembers={session.canEditMembers}
       canEditEvents={session.canEditEvents}
       canViewDues={session.canViewDues}
+      canViewAudit={session.canViewAudit}
     />
   );
 }

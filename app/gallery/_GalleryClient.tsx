@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import FadeImage from "@/components/ui/FadeImage";
 import {
@@ -198,12 +198,26 @@ export default function GalleryClient({ items }: GalleryClientProps) {
     setLightboxIndex(null);
   }, [selectedBranch, selectedCategory]);
 
-  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+  /* Focus bookkeeping for the viewer: remember the tile that opened it so
+     keyboard users land back where they were instead of at the top of the page. */
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isViewerOpen = lightboxIndex !== null;
+
+  const closeLightbox = useCallback(() => {
+    setLightboxIndex(null);
+    returnFocusRef.current?.focus?.();
+  }, []);
 
   const openLightbox = useCallback((index: number) => {
+    returnFocusRef.current = document.activeElement as HTMLElement | null;
     setDirection(0);
     setLightboxIndex(index);
   }, []);
+
+  useEffect(() => {
+    if (isViewerOpen) closeButtonRef.current?.focus();
+  }, [isViewerOpen]);
 
   const goTo = useCallback(
     (offset: 1 | -1) => {
@@ -452,13 +466,15 @@ export default function GalleryClient({ items }: GalleryClientProps) {
             </p>
           </div>
         ) : groupedItems.length > 0 ? (
-          <AnimatePresence mode="wait">
+          // No `mode="wait"` here: waiting for the old grid to fade out before
+          // the new one fades in made every filter feel like a page change.
+          <AnimatePresence initial={false}>
             <motion.div
               key={`${selectedBranch}-${selectedCategory}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, ease: NORELL_EASE }}
+              transition={{ duration: 0.25, ease: NORELL_EASE }}
               className="space-y-10 sm:space-y-14"
             >
               {groupedItems.map(([album, groupItems], albumIndex) => (
@@ -503,7 +519,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                             delay: Math.min(index, 12) * 0.03,
                             ease: NORELL_EASE,
                           }}
-                          className="group relative aspect-square overflow-hidden rounded-md bg-[#1b3622]/5 ring-1 ring-inset ring-transparent transition-all duration-500 group-hover:ring-[#d4af37]/50"
+                          className="group relative aspect-square cursor-pointer overflow-hidden rounded-md bg-[#1b3622]/5 ring-1 ring-inset ring-transparent transition-all duration-300 group-hover:ring-[#d4af37]/50 active:scale-[0.97]"
                         >
                           {/* Image */}
                           <button
@@ -611,7 +627,14 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                 {String(lightboxIndex + 1).padStart(2, "0")} /{" "}
                 {String(flatVisible.length).padStart(2, "0")}
               </span>
+              <span
+                aria-hidden
+                className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-[#fbf9f4]/35 sm:block"
+              >
+                ← → browse · esc close
+              </span>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={closeLightbox}
                 aria-label="Close photo viewer"
