@@ -79,7 +79,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "With changing times and expanding opportunities in education, employment, and business, members of the family gradually moved beyond Kerala to other parts of India and, eventually, across the world. Today, members of the Pullazhiyil family live in the United States, Australia, various European countries, and many other parts of the world, making meaningful contributions in diverse fields.",
       "Although geographical distances have grown, the bonds between our hearts have never diminished. Wherever we may live, we remain united by our common ancestry, Knanaya heritage, faith, and family bonds. These enduring ties continue to be the greatest strength that holds our family together across generations."
     ],
-    image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800",
+    image: "images/growthandexpansion.jpeg",
     alt: "Nostalgic family gathering illustrating growth and global expansion"
   },
   {
@@ -155,7 +155,7 @@ export default function HistoryPage() {
 
   return (
     <div className="bg-[#fbf9f4] bg-parchment text-[#1b3622] min-h-screen pb-24 selection:bg-[#1b3622] selection:text-[#fbf9f4] relative overflow-x-hidden">
-      
+
       {/* Elegant Ambient Background Glows */}
       <div className="ambient-orb ambient-orb--gold absolute left-[-15%] top-[10%] z-0 h-[300px] w-[300px] md:h-[600px] md:w-[600px]" />
       <div className="ambient-orb ambient-orb--forest absolute right-[-15%] top-[50%] z-0 h-[350px] w-[350px] md:h-[700px] md:w-[700px]" />
@@ -164,7 +164,7 @@ export default function HistoryPage() {
       {/* Editorial Header */}
       <section className="relative z-10 py-24 px-6 border-b border-[#1b3622]/10 bg-white/40 backdrop-blur-[2px]">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: NORELL_EASE }}
@@ -175,8 +175,8 @@ export default function HistoryPage() {
               The Family Chronicles
             </span>
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, delay: 0.15, ease: NORELL_EASE }}
@@ -185,18 +185,18 @@ export default function HistoryPage() {
             A Proud Legacy of Heritage
           </motion.h1>
 
-          <motion.div 
+          <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 1.4, delay: 0.3, ease: NORELL_EASE }}
             className="w-24 h-0.5 bg-[#d4af37] mx-auto"
           />
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.45 }}
-            className="text-[#2d312e] font-normal max-w-xl mx-auto text-base md:text-lg leading-relaxed"
+            className="text-[#2d312e] font-normal max-w-xl mx-auto text-[15px] md:text-lg leading-relaxed"
           >
             Trace the centuries-old narrative, migration routes, and institutional growth that bind the branches of the Pullazhiyil family together.
           </motion.p>
@@ -216,32 +216,32 @@ export default function HistoryPage() {
 
           return (
             <div key={section.id} className="space-y-24 md:space-y-36">
-              
+
               {/* Conditional full-width Feature Image before section 4 */}
               {showFeatureImage && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 1.2, ease: NORELL_EASE }}
                   className="w-full space-y-4"
                 >
                   <div className="relative h-[300px] sm:h-[450px] md:h-[550px] w-full overflow-hidden shadow-2xl rounded-sm group border border-[#1b3622]/15">
                     {/* Background tint overlay */}
-                    <div className="absolute inset-0 bg-[#1b3622]/10 z-10 transition-opacity duration-500 group-hover:opacity-0" />
+                    <div className="absolute inset-0 bg-[#1b3622]/10 z-10 transition-opacity duration-700 group-hover:opacity-0" />
 
                     <motion.img
-                      whileHover={{ scale: 1.025 }}
-                      transition={{ duration: 0.8 }}
-                      src="https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&q=80&w=1200"
-                      alt="Traditional Kerala landscape and river channels"
+                      whileHover={{ scale: 1.03 }}
+                      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                      src="/images/emergence.jpeg"
+                      alt="Traditional Kerala landscape representing ancestral heritage"
                       loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="text-center max-w-xl mx-auto">
-                    <p className="text-sm italic font-serif text-[#1b3622] leading-relaxed">
+                    <p className="text-[14px] italic font-serif text-[#1b3622] leading-relaxed">
                       The serene waterways of Central Kerala, symbolizing the natural pathways that guided our ancestors through generation-defining migrations.
                     </p>
                     <div className="w-12 h-px bg-[#d4af37]/35 mx-auto mt-2" />
@@ -251,16 +251,15 @@ export default function HistoryPage() {
 
               {/* Standard Section Block */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-                
+
                 {/* Text Block */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: isEven ? 25 : -25 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 1, delay: 0.1, ease: NORELL_EASE }}
-                  className={`lg:col-span-7 space-y-6 ${
-                    isEven ? "order-2 lg:order-2" : "order-2 lg:order-1"
-                  }`}
+                  className={`lg:col-span-7 space-y-6 ${isEven ? "order-2 lg:order-2" : "order-2 lg:order-1"
+                    }`}
                 >
                   {/* Section Label */}
                   <div className="flex items-center gap-3 text-[#d4af37]">
@@ -281,8 +280,8 @@ export default function HistoryPage() {
                   <div className="w-16 h-0.5 bg-[#d4af37]/40" />
 
                   {/* Intro Text */}
-                  <p 
-                    className="text-gray-700 font-normal text-base sm:text-lg leading-relaxed dropcap"
+                  <p
+                    className="text-gray-700 font-normal text-[15px] sm:text-[17px] leading-[1.85] dropcap"
                     dangerouslySetInnerHTML={{ __html: section.intro }}
                   />
 
@@ -294,11 +293,11 @@ export default function HistoryPage() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.6, ease: NORELL_EASE }}
-                        className="overflow-hidden space-y-4 text-gray-700 font-normal text-base leading-relaxed border-t border-gray-100/60 pt-4"
+                        className="overflow-hidden space-y-4 text-gray-700 font-normal text-[15px] leading-[1.85] border-t border-gray-100/60 pt-4"
                       >
                         {section.fullText.map((paragraph, pIdx) => (
-                          <p 
-                            key={pIdx} 
+                          <p
+                            key={pIdx}
                             dangerouslySetInnerHTML={{ __html: paragraph }}
                             className="transition-colors hover:text-gray-900"
                           />
@@ -310,9 +309,9 @@ export default function HistoryPage() {
                   {/* Accordion Trigger Button */}
                   <button
                     onClick={() => toggleSection(section.id)}
-                    className="group inline-flex items-center gap-2 text-xs sm:text-[13px] tracking-[0.18em] uppercase font-bold text-[#d4af37] hover:text-[#1b3622] transition-colors duration-300 pt-2 cursor-pointer select-none"
+                    className="group inline-flex items-center gap-2 text-xs sm:text-[13px] tracking-[0.18em] uppercase font-bold text-[#d4af37] hover:text-[#1b3622] transition-all duration-300 pt-2 cursor-pointer select-none"
                   >
-                    <span>{isExpanded ? "Read Less" : "Read More"}</span>
+                    <span className="border-b border-transparent group-hover:border-[#1b3622]/30 pb-px transition-colors duration-300">{isExpanded ? "Read Less" : "Read More"}</span>
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4 transform transition-transform duration-300 group-hover:-translate-y-0.5" />
                     ) : (
@@ -323,21 +322,20 @@ export default function HistoryPage() {
                 </motion.div>
 
                 {/* Image Block */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: isEven ? -30 : 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 1, delay: 0.15, ease: NORELL_EASE }}
-                  className={`lg:col-span-5 w-full ${
-                    isEven ? "order-1 lg:order-1" : "order-1 lg:order-2"
-                  }`}
+                  className={`lg:col-span-5 w-full ${isEven ? "order-1 lg:order-1" : "order-1 lg:order-2"
+                    }`}
                 >
-                  <div className="relative overflow-hidden rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-500 border border-[#1b3622]/10 group aspect-[4/3] w-full">
+                  <div className="relative overflow-hidden rounded-sm shadow-xl hover:shadow-2xl transition-all duration-500 border border-[#1b3622]/10 group aspect-[4/3] w-full">
                     {/* Ambient image vignette */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-60" />
                     <motion.img
                       whileHover={{ scale: 1.04 }}
-                      transition={{ duration: 0.6 }}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                       src={section.image}
                       alt={section.alt}
                       loading="lazy"
@@ -355,10 +353,10 @@ export default function HistoryPage() {
 
       {/* Poetic & Epilogue Section */}
       <section className="relative z-10 max-w-4xl mx-auto px-6 mt-32 md:mt-48 text-center space-y-16">
-        
+
         <div className="w-32 h-px bg-[#d4af37]/35 mx-auto" />
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -374,21 +372,20 @@ export default function HistoryPage() {
               // Highlight tagline or bold lines
               const isTagline = verse.includes("Rooted in Heritage");
               const isEmphasized = verse.includes("Our roots are one") || verse.includes("will endure");
-              
+
               return (
                 <motion.p
                   key={vIdx}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: vIdx * 0.08 }}
-                  className={`text-[#1b3622] leading-relaxed ${
-                    isTagline 
-                      ? "text-base sm:text-lg md:text-xl font-bold font-serif tracking-[0.05em] border-t border-b border-[#d4af37]/30 py-4 max-w-lg mx-auto text-[#1b3622]" 
-                      : isEmphasized
-                        ? "text-sm sm:text-base font-medium font-serif italic"
-                        : "text-sm sm:text-base font-normal"
-                  }`}
+                  transition={{ duration: 0.75, delay: vIdx * 0.06, ease: NORELL_EASE }}
+                  className={`text-[#1b3622] leading-relaxed ${isTagline
+                    ? "text-[15px] sm:text-lg md:text-xl font-bold font-serif tracking-[0.05em] border-t border-b border-[#d4af37]/30 py-4 max-w-lg mx-auto text-[#1b3622]"
+                    : isEmphasized
+                      ? "text-[14px] sm:text-[15px] font-semibold font-serif italic"
+                      : "text-[14px] sm:text-[15px] font-medium"
+                    }`}
                 >
                   {verse}
                 </motion.p>

@@ -67,7 +67,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.45 }}
-                        className="text-gray-700 font-normal max-w-xl mx-auto text-base md:text-lg leading-relaxed"
+                        className="text-gray-700 font-normal max-w-xl mx-auto text-[15px] md:text-lg leading-relaxed"
                     >
                         Honoring and keeping alive the memories of our beloved family members who have departed from this world. May their souls rest in eternal peace.
                     </motion.p>
@@ -110,7 +110,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.5, ease: NORELL_EASE }}
-                                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-6 shadow-sm group hover:shadow-md transition-all duration-500 rounded-sm relative overflow-hidden"
+                                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-6 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 rounded-sm relative overflow-hidden"
                             >
                                 {/* Top gold thin accent line */}
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#d4af37]/60" />
@@ -171,7 +171,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                         <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
                                             Biography
                                         </h4>
-                                        <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                                        <p className="text-[14px] text-gray-600 font-normal leading-relaxed">
                                             {obituary.bio}
                                         </p>
                                     </div>
@@ -184,7 +184,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                                 Tribute & Remembrance
                                             </h4>
                                         </div>
-                                        <p className="text-sm text-gray-600 italic font-normal leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
+                                        <p className="text-[14px] text-gray-600 italic font-normal leading-relaxed bg-[#fbf9f4] p-3 border-l-2 border-[#d4af37] rounded-r-sm">
                                             {obituary.tribute}
                                         </p>
                                     </div>

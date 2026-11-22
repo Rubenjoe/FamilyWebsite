@@ -81,7 +81,7 @@ export default function DashboardSignInPage() {
                         <h1 className="text-2xl font-serif text-[#1b3622] font-normal tracking-wide">
                             Archive Console Access
                         </h1>
-                        <p className="text-[11px] text-gray-400 font-light leading-normal max-w-xs mx-auto">
+                        <p className="text-xs text-gray-500 font-normal leading-relaxed max-w-xs mx-auto">
                             Identify yourself with yogam administrative credentials to manage lineage records, timeline epochs, and events.
                         </p>
                     </div>

@@ -149,7 +149,7 @@ export default function ContactPage() {
                     <h1 className="text-3xl md:text-5xl font-serif text-[#1b3622] font-normal leading-tight">
                         Connect with Kudumbayogam
                     </h1>
-                    <p className="text-gray-600 font-normal max-w-xl mx-auto text-base leading-relaxed pt-2">
+                    <p className="text-gray-600 font-normal max-w-xl mx-auto text-[15px] leading-relaxed pt-2">
                         Get in touch with our committee representatives regarding genealogical records, directory updates, archives, or event registrations.
                     </p>
                 </div>
@@ -164,7 +164,7 @@ export default function ContactPage() {
                         <h2 className="text-sm uppercase tracking-[0.15em] text-[#1b3622] font-bold border-b border-gray-100 pb-2">
                             Liaison Channels
                         </h2>
-                        <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                        <p className="text-[14px] text-gray-600 font-normal leading-relaxed">
                             For urgent matters or archival access requests, feel free to visit or contact us directly.
                         </p>
                     </div>
@@ -239,7 +239,7 @@ export default function ContactPage() {
 
                     <div className="bg-white/50 border border-dashed border-gray-200 p-6 rounded-sm space-y-2">
                         <h4 className="text-sm uppercase tracking-[0.08em] font-bold text-[#1b3622]">Response Window</h4>
-                        <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                        <p className="text-[14px] text-gray-600 font-normal leading-relaxed">
                             Since the registry office is managed voluntarily by family committee members, email responses and member validation queues may take up to 48–72 hours. We appreciate your patience.
                         </p>
                     </div>
@@ -266,7 +266,7 @@ export default function ContactPage() {
                                     <CheckCircle2 className="h-6 w-6 text-[#1b3622]" />
                                 </div>
                                 <h3 className="text-lg font-serif text-[#1b3622] font-semibold">Message Successfully Lodged</h3>
-                                <p className="text-sm text-gray-600 font-normal max-w-sm mx-auto leading-relaxed">
+                                <p className="text-[14px] text-gray-700 font-normal leading-relaxed">
                                     Your message has been safely logged in our correspondence system. A committee liaison will review your query and get back to you shortly.
                                 </p>
                                 <button
@@ -398,10 +398,10 @@ export default function ContactPage() {
 
                                 {/* Submit Button */}
                                 <motion.button
-                                    whileTap={{ scale: 0.98 }}
+                                    whileTap={{ scale: 0.975 }}
                                     disabled={isLoading}
                                     type="submit"
-                                    className="w-full bg-[#1b3622] text-[#fbf9f4] py-3.5 text-sm uppercase tracking-[0.1em] font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                    className="w-full bg-[#1b3622] text-[#fbf9f4] py-3.5 text-sm uppercase tracking-[0.1em] font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm hover:shadow-md"
                                 >
                                     {isLoading ? (
                                         <div className="h-4 w-4 border-2 border-[#fbf9f4] border-t-transparent rounded-full animate-spin" />

@@ -44,7 +44,7 @@ export default async function EventsPage() {
             Events &amp; Announcements
           </h1>
           <div className="w-16 h-0.5 bg-[#d4af37]" aria-hidden />
-          <p className="text-gray-600 font-normal text-base md:text-lg pt-2 max-w-lg leading-relaxed">
+          <p className="text-gray-600 font-normal text-[15px] md:text-lg pt-2 max-w-lg leading-relaxed">
             Upcoming assemblies and a record of past Pullazhiyil Kudumbayogam gatherings.
           </p>
         </div>
@@ -95,7 +95,7 @@ function EventSection({
           {events.map((event, index) => (
             <article
               key={event.id}
-              className="animate-fade-up bg-white border border-[#1b3622]/10 shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-0.5 transition-all duration-500 ease-premium p-6 md:p-7 space-y-4"
+              className="animate-fade-up bg-white border border-[#1b3622]/10 shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium p-6 md:p-7 space-y-4"
               style={{ animationDelay: `${Math.min(index, 6) * 70}ms` }}
             >
               {/* Prominent date block — dates carry the editorial weight here */}
@@ -108,7 +108,7 @@ function EventSection({
                 {event.title}
               </h3>
               {event.description && (
-                <p className="text-base text-gray-600 font-light leading-relaxed">
+                <p className="text-[15px] text-gray-600 font-normal leading-relaxed">
                   {event.description}
                 </p>
               )}

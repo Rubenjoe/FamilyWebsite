@@ -738,7 +738,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                 </div>
               )}
               {currentItem.description && (
-                <p className="mt-2.5 line-clamp-2 text-[13px] font-light leading-relaxed text-gray-500">
+                <p className="mt-2.5 line-clamp-2 text-[14px] font-normal leading-relaxed text-gray-500">
                   {currentItem.description}
                 </p>
               )}

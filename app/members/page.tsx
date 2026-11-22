@@ -160,7 +160,7 @@ export default function CommitteePage() {
           {filteredMembers.map((member, index) => (
             <div
               key={member.id}
-              className="animate-fade-up bg-white border border-[#1b3622]/10 group shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium flex flex-col h-full rounded-sm overflow-hidden"
+              className="animate-fade-up bg-white border border-[#1b3622]/10 group shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 transition-all duration-500 ease-premium flex flex-col h-full rounded-sm overflow-hidden"
               style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
             >
               {/* Profile Image View Box */}

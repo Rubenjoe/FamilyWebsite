@@ -62,11 +62,11 @@ export default function BackToTop() {
           type="button"
           onClick={scrollToTop}
           aria-label="Back to top"
-          initial={{ opacity: 0, y: 14, scale: 0.9 }}
+          initial={{ opacity: 0, y: 14, scale: 0.92 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 14, scale: 0.9 }}
-          transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-          className="press group fixed bottom-5 right-4 z-40 grid h-11 w-11 place-items-center rounded-full border border-[#1b3622]/12 bg-[#fbf9f4]/95 text-[#1b3622] shadow-[0_10px_30px_rgba(27,54,34,0.16)] backdrop-blur transition-colors duration-300 hover:bg-[#1b3622] hover:text-[#fbf9f4] sm:bottom-7 sm:right-6"
+          exit={{ opacity: 0, y: 14, scale: 0.92 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="press group fixed bottom-5 right-4 z-40 grid h-11 w-11 place-items-center rounded-full border border-[#1b3622]/12 bg-[#fbf9f4]/95 text-[#1b3622] shadow-[0_10px_30px_rgba(27,54,34,0.18)] backdrop-blur-sm transition-all duration-300 hover:bg-[#1b3622] hover:text-[#fbf9f4] hover:shadow-[0_14px_40px_rgba(27,54,34,0.22)] sm:bottom-7 sm:right-6"
         >
           <svg
             className="pointer-events-none absolute inset-0 -rotate-90"

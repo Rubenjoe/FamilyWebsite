@@ -21,7 +21,7 @@ export default function Footer() {
                         പുല്ലാഴിയിൽ കുടുംബയോഗം
                     </span>
                     <div className="w-10 h-px bg-[#d4af37]/50" aria-hidden />
-                    <p className="font-sans text-sm font-normal leading-relaxed max-w-sm">
+                    <p className="font-sans text-[14px] font-normal leading-[1.8] max-w-sm">
                         A timeless archive dedicated to tracing, conserving, and celebrating the generational lineage, historical milestones, and shared values of the Pulazhiyil family.
                     </p>
                 </div>
@@ -60,7 +60,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-[#fbf9f4]/10 text-center md:text-left text-sm font-normal tracking-wide">
+            <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-[#fbf9f4]/10 text-center md:text-left text-[14px] font-normal tracking-wide text-[#fbf9f4]/60">
                 Handcrafted to stand immutable across generations. Optimized for long-term historical retention.
             </div>
         </footer>

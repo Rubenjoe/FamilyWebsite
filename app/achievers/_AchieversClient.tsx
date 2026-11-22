@@ -245,7 +245,7 @@ export default function AchieversClient({
                   delay: Math.min(index, 7) * 0.09,
                   ease: NORELL_EASE,
                 }}
-                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
+                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 transition-all duration-500 ease-premium rounded-sm"
               >
                 {/* Photo frame */}
                 <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
@@ -282,7 +282,7 @@ export default function AchieversClient({
                     <p className="text-sm uppercase tracking-[0.1em] text-[#8a6a0f] font-semibold font-mono">
                       {item.title}
                     </p>
-                    <p className="text-sm text-gray-600 font-normal leading-relaxed">
+                    <p className="text-[14px] text-gray-600 font-normal leading-relaxed">
                       {item.description}
                     </p>
                   </div>

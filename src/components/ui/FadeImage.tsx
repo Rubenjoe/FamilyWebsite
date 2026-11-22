@@ -38,7 +38,7 @@ export default function FadeImage({
       loading={priority ? "eager" : "lazy"}
       decoding="async"
       onLoad={() => setIsLoaded(true)}
-      className={`${className} transition-[opacity,transform] duration-700 ease-out ${isLoaded ? "opacity-100" : "opacity-0"}`}
+      className={`${className} transition-[opacity,transform] duration-[850ms] ease-out ${isLoaded ? "opacity-100" : "opacity-0 scale-[1.01]"}`}
     />
   );
 }

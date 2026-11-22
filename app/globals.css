@@ -56,10 +56,10 @@ h6 {
 
 body {
   font-family: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
-  font-size: 1.15625rem;
-  line-height: 1.75;
-  letter-spacing: 0.01em;
-  font-weight: 400;
+  font-size: 1.1875rem;
+  line-height: 1.78;
+  letter-spacing: 0.012em;
+  font-weight: 420;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -139,10 +139,10 @@ body {
 .dropcap::first-letter {
   font-family: var(--font-playfair), Georgia, serif;
   float: left;
-  font-size: 3.5rem;
-  line-height: 2.8rem;
+  font-size: 3.75rem;
+  line-height: 3rem;
   padding-top: 4px;
-  padding-right: 8px;
+  padding-right: 10px;
   padding-left: 3px;
   color: #1b3622;
   font-weight: bold;
@@ -249,7 +249,7 @@ body {
 @keyframes page-enter {
   from {
     opacity: 0;
-    translate: 0 12px;
+    translate: 0 10px;
   }
   to {
     opacity: 1;
@@ -258,7 +258,7 @@ body {
 }
 
 .page-enter {
-  animation: page-enter 0.5s var(--ease-premium);
+  animation: page-enter 0.55s var(--ease-premium);
 }
 
 /* ── Ambient glows ──────────────────────────────────────────────────────── */
@@ -490,6 +490,38 @@ body {
 
 .press:active {
   transform: scale(0.975);
+}
+
+/* ── Refined hover lift for cards and interactive surfaces ─────────── */
+
+/* Smooth section-entry reveal for in-view triggers. Composable with
+   Framer Motion; this is the CSS fallback for server-rendered sections. */
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-reveal {
+  animation: section-reveal 0.8s var(--ease-premium) both;
+}
+
+/* Polished focus ring for interactive cards */
+.card-interactive {
+  transition:
+    transform 0.5s var(--ease-premium),
+    box-shadow 0.5s var(--ease-premium),
+    border-color 0.5s var(--ease-premium);
+}
+
+.card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px rgba(27, 54, 34, 0.1);
 }
 
 /* Respect users who prefer reduced motion: collapse CSS-driven animation to

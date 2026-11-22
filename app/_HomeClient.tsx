@@ -371,7 +371,7 @@ function AchieverCarousel({
               onClick={(event) => {
                 if (suppressClickRef.current) event.preventDefault();
               }}
-              className="group flex h-full flex-col justify-between space-y-5 bg-white border border-[#1b3622]/10 p-6 shadow-sm hover:shadow-[0_16px_40px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium rounded-sm"
+              className="group flex h-full flex-col justify-between space-y-5 bg-white border border-[#1b3622]/10 p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 transition-all duration-500 ease-premium rounded-sm"
             >
               {/* Photo Frame */}
               <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
@@ -408,7 +408,7 @@ function AchieverCarousel({
                   <p className="text-xs uppercase tracking-[0.1em] text-[#8a6a0f] font-semibold font-mono">
                     {achievement.title}
                   </p>
-                  <p className="text-sm text-gray-500 font-light leading-relaxed">
+                  <p className="text-[13px] text-gray-500 font-normal leading-relaxed">
                     {achievement.description}
                   </p>
                 </div>
@@ -697,17 +697,17 @@ export default function HomeClient({
           }}
         />
 
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
-          className="max-w-6xl w-full mx-auto space-y-9 md:space-y-12 relative z-10"
-        >
-          {/* Eyebrow / Tagline */}
-          <div className="flex items-center">
-            <motion.span
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: NORELL_EASE }}
-              className="text-xs sm:text-sm md:text-[14px] uppercase tracking-[0.22em] md:tracking-[0.28em] text-[#d4af37] font-medium block leading-relaxed"
+          <motion.div
+            style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
+            className="max-w-6xl w-full mx-auto space-y-9 md:space-y-12 relative z-10"
+          >
+            {/* Eyebrow / Tagline */}
+            <div className="flex items-center">
+              <motion.span
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: NORELL_EASE }}
+                className="text-xs sm:text-sm md:text-[14px] uppercase tracking-[0.22em] md:tracking-[0.28em] text-[#d4af37] font-medium block leading-relaxed"
             >
               Rooted in Heritage &bull; United in Faith &bull; Forever Bound by
               Family
@@ -829,7 +829,7 @@ export default function HomeClient({
           <div className="md:col-span-7">
             <motion.p
               style={{ y: infoTextY, opacity: infoTextOpacity }}
-              className="text-gray-600 font-normal text-base md:text-lg leading-relaxed max-w-2xl"
+              className="text-gray-600 font-normal text-[15px] md:text-lg leading-relaxed max-w-2xl"
             >
               The Pullazhiyil Kudumbayogam is more than an assembly; it is a
               live institutional anchor for hundreds of families worldwide. We
@@ -947,9 +947,9 @@ export default function HomeClient({
                 </h3>
 
                 <motion.p
-                  animate={{ color: isHovered ? "#4b5563" : "#9ca3af" }}
+                  animate={{ color: isHovered ? "#374151" : "#6b7280" }}
                   transition={{ duration: 0.3 }}
-                  className="text-xs font-light leading-relaxed"
+                  className="text-[13px] font-normal leading-relaxed"
                 >
                   {pillar.desc}
                 </motion.p>
@@ -1066,7 +1066,7 @@ export default function HomeClient({
           <h2 className="text-4xl text-[#1b3622] font-light font-serif leading-tight">
             From Kodungalloor to the World
           </h2>
-          <p className="text-gray-600 leading-relaxed font-normal text-base">
+          <p className="text-gray-600 leading-relaxed font-normal text-[15px]">
             The Pullazhiyil family is one of the seventy-two Knanaya families
             who arrived at the historic port of Kodungalloor under the
             leadership of Knai Thoma. Our ancestors later settled along the
@@ -1143,8 +1143,8 @@ export default function HomeClient({
                   </div>
                   {event.description && (
                     <p className="text-sm text-gray-600 font-normal leading-relaxed">
-                      {event.description}
-                    </p>
+                    {event.description}
+                  </p>
                   )}
                   {event.location && (
                     <div className="flex items-center gap-2 pt-2 text-sm font-mono text-gray-600">

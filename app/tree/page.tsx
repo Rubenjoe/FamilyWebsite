@@ -68,7 +68,7 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
             <h1 className="font-serif text-3xl font-medium text-[#1b3622] sm:text-4xl md:text-[2.75rem] md:leading-tight">
               Ancestral Genealogy Tree
             </h1>
-            <p className="max-w-lg text-[15px] leading-relaxed text-[#1b3622]/55">
+            <p className="max-w-lg text-[15px] sm:text-base font-normal leading-relaxed text-[#1b3622]/70">
               Trace the descendants from the original founders across{" "}
               {generations || 4} mapped generations. Drag the canvas to
               explore the lineage, use search to locate members, and the
