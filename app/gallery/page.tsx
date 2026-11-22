@@ -65,9 +65,10 @@ export default async function GalleryPage() {
     return {
       id: row.id,
       album: row.album,
-      // Serve a right-sized, auto-formatted rendition in the grid; the untouched
-      // original (or a larger rendition) is only fetched when the lightbox opens.
-      imageUrl: withCloudinaryTransform(rawUrl, 900),
+      // Serve a right-sized, auto-formatted rendition in the grid (600px covers
+      // the ~300px tiles at 2× DPR); the larger rendition is only fetched when
+      // the lightbox opens.
+      imageUrl: withCloudinaryTransform(rawUrl, 600),
       fullImageUrl: withCloudinaryTransform(rawUrl, 1600),
       title: row.title,
       description: row.description ?? undefined,

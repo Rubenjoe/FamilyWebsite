@@ -26,7 +26,9 @@ export default function AppPreloader() {
       return;
     }
 
-    const startLeaving = setTimeout(() => setIsLeaving(true), 720);
+    // Keep the curtain short: it covers real content, so every extra
+    // millisecond reads as a slower site.
+    const startLeaving = setTimeout(() => setIsLeaving(true), 520);
     const unmount = setTimeout(() => {
       setIsMounted(false);
       try {
@@ -34,7 +36,7 @@ export default function AppPreloader() {
       } catch {
         // Ignore — the curtain simply appears again next load.
       }
-    }, 1180);
+    }, 900);
 
     return () => {
       clearTimeout(startLeaving);

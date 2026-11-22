@@ -113,8 +113,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-[#1b3622]/10 bg-white/95 backdrop-blur-md transition-[box-shadow,background-color] duration-500 ease-premium ${isScrolled ? "shadow-[0_1px_24px_rgba(27,54,34,0.08)] bg-white/90" : ""
-        }`}
+      className={`sticky top-0 z-50 w-full border-b border-[#1b3622]/10 bg-white transition-shadow duration-500 ease-premium ${isScrolled ? "shadow-[0_1px_24px_rgba(27,54,34,0.08)]" : ""}`}
     >
       <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
         {/* Logo */}

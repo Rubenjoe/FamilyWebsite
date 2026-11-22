@@ -91,8 +91,8 @@ export default async function AchieversPage({
       />
 
       {/* Ambient glows */}
-      <div className="fixed top-[10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-[#d4af37]/5 blur-[120px] pointer-events-none z-0" />
-      <div className="fixed bottom-[10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#1b3622]/4 blur-[140px] pointer-events-none z-0" />
+      <div className="ambient-orb ambient-orb--gold fixed left-[-10%] top-[10%] z-0 h-[400px] w-[400px]" />
+      <div className="ambient-orb ambient-orb--forest fixed bottom-[10%] right-[-10%] z-0 h-[500px] w-[500px]" />
 
       {/* ── Page Header ── */}
       <div className="relative bg-[#1b3622] text-[#fbf9f4] px-6 md:px-12 lg:px-20 pt-20 pb-16 overflow-hidden">

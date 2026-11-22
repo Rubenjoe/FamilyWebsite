@@ -634,12 +634,11 @@ export default function HomeClient({
         }}
       />
 
-      {/* Elegant Ambient Background Glows — promoted to their own GPU-composited
-          layer (transform-gpu + will-change-transform) so the expensive blur()
-          filters are computed once and just composited during scroll. */}
-      <div className="transform-gpu will-change-transform absolute top-[15%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/5 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
-      <div className="transform-gpu will-change-transform absolute top-[45%] right-[-10%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/5 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
-      <div className="transform-gpu will-change-transform absolute bottom-[20%] left-[-5%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[140px] pointer-events-none z-0" />
+      {/* Ambient colour wash. Radial gradients rather than 150px blur() filters:
+          the same soft look, painted once instead of re-rasterised per scroll. */}
+      <div className="ambient-orb ambient-orb--gold absolute left-[-10%] top-[15%] z-0 h-[300px] w-[300px] md:h-[600px] md:w-[600px]" />
+      <div className="ambient-orb ambient-orb--forest absolute right-[-10%] top-[45%] z-0 h-[350px] w-[350px] md:h-[700px] md:w-[700px]" />
+      <div className="ambient-orb ambient-orb--gold absolute bottom-[20%] left-[-5%] z-0 h-[300px] w-[300px] md:h-[600px] md:w-[600px]" />
 
       {/* ── 1. HERO ──────────────────────────────────────────────────────────── */}
       <div
@@ -651,6 +650,10 @@ export default function HomeClient({
             push-in (transform-only, GPU friendly) for a documentary feel. */}
         {HERO_IMAGES.map((img, index) => {
           const isActive = currentHeroImage === index;
+          // Only the visible frame and the one queued next carry a source. All
+          // three used to load during first paint and compete with the LCP.
+          const isNext =
+            index === (currentHeroImage + 1) % HERO_IMAGES.length;
           return (
             <motion.div
               key={img}
@@ -661,7 +664,9 @@ export default function HomeClient({
                 scale: { duration: 6.8, ease: "linear" },
               }}
               className="transform-gpu absolute inset-0 z-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${img})` }}
+              style={
+                isActive || isNext ? { backgroundImage: `url(${img})` } : undefined
+              }
             />
           );
         })}

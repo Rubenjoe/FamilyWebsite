@@ -48,7 +48,7 @@ export default function LightboxImage({
         role="dialog"
         aria-modal="true"
         aria-label={`Full size photo of ${alt}`}
-        className="lightbox-overlay fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-[#102517]/90 backdrop-blur-sm select-none"
+        className="lightbox-overlay fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-[#102517]/90 select-none"
         onClick={() => setIsOpen(false)}
       >
         <div

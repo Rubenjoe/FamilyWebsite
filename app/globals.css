@@ -241,20 +241,50 @@ body {
 
 /* ── Navigation transitions ─────────────────────────────────────────────── */
 
-/* Route entrance used by app/template.tsx. Opacity only — an ancestor
-   transform would re-anchor every `fixed` overlay (gallery viewer, lightbox)
-   to this wrapper instead of the viewport. */
+/* Route entrance used by app/template.tsx: the page settles in with a small
+   rise on top of the fade. Deliberately no `fill-mode` — once the animation
+   ends the inline translate is dropped, because a lingering transform on this
+   wrapper would re-anchor every `fixed` overlay (gallery viewer, lightbox) to
+   the wrapper instead of the viewport. */
 @keyframes page-enter {
   from {
     opacity: 0;
+    translate: 0 12px;
   }
   to {
     opacity: 1;
+    translate: 0 0;
   }
 }
 
 .page-enter {
-  animation: page-enter 0.45s var(--ease-soft) both;
+  animation: page-enter 0.5s var(--ease-premium);
+}
+
+/* ── Ambient glows ──────────────────────────────────────────────────────── */
+
+/* Soft colour wash used behind editorial sections. These are radial gradients
+   rather than `filter: blur()` orbs: same look, but the browser paints them
+   once instead of rasterising a 600–700px blur on every composite. */
+.ambient-orb {
+  border-radius: 9999px;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    var(--orb-core),
+    var(--orb-mid) 50%,
+    transparent 73%
+  );
+}
+
+.ambient-orb--gold {
+  --orb-core: rgba(212, 175, 55, 0.1);
+  --orb-mid: rgba(212, 175, 55, 0.035);
+}
+
+.ambient-orb--forest {
+  --orb-core: rgba(27, 54, 34, 0.1);
+  --orb-mid: rgba(27, 54, 34, 0.03);
 }
 
 /* Hairline progress bar along the top edge while a route is resolving. */
@@ -299,6 +329,90 @@ body {
 }
 
 /* ── Loading surfaces ───────────────────────────────────────────────────── */
+
+/* Skeleton tiles cascade in rather than appearing as one grey slab. Reuses
+   the shared fade-up keyframes; `backwards` holds the start state through
+   each tile's delay and is released afterwards. */
+.loader-stagger > * {
+  animation: fade-up 0.5s var(--ease-premium) backwards;
+}
+
+.loader-stagger > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.loader-stagger > *:nth-child(2) {
+  animation-delay: 0.07s;
+}
+.loader-stagger > *:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.loader-stagger > *:nth-child(4) {
+  animation-delay: 0.17s;
+}
+.loader-stagger > *:nth-child(5) {
+  animation-delay: 0.22s;
+}
+.loader-stagger > *:nth-child(6) {
+  animation-delay: 0.27s;
+}
+.loader-stagger > *:nth-child(n + 7) {
+  animation-delay: 0.32s;
+}
+
+/* Gold bead with an expanding halo, marking a route that is resolving. */
+@keyframes loader-halo {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.85;
+  }
+  70%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.loader-mark {
+  position: relative;
+  display: block;
+  height: 7px;
+  width: 7px;
+  flex: none;
+  border-radius: 9999px;
+  background-color: #d4af37;
+}
+
+.loader-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  animation: loader-halo 1.8s var(--ease-soft) infinite;
+}
+
+/* Light sweeping along the hairline next to the loader label. */
+@keyframes loader-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+
+.loader-rule__bar {
+  display: block;
+  height: 100%;
+  width: 40%;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.85),
+    transparent
+  );
+  animation: loader-sweep 1.6s var(--ease-soft) infinite;
+}
 
 /* Shimmer sweep shared by every skeleton placeholder. */
 @keyframes skeleton-shimmer {
@@ -351,6 +465,7 @@ body {
   opacity: 0;
   visibility: hidden;
 }
+
 
 .app-preloader__line {
   transform-origin: left center;

@@ -29,8 +29,8 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
     return (
         <div className="bg-[#fbf9f4] bg-parchment text-[#1b3622] min-h-screen pb-24 selection:bg-[#1b3622] selection:text-[#fbf9f4] relative overflow-x-hidden">
             {/* Ambient Background Glows */}
-            <div className="absolute top-[10%] left-[-15%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full bg-[#d4af37]/4 blur-[80px] md:blur-[150px] pointer-events-none z-0" />
-            <div className="absolute top-[50%] right-[-15%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] rounded-full bg-[#1b3622]/3 blur-[90px] md:blur-[180px] pointer-events-none z-0" />
+            <div className="ambient-orb ambient-orb--gold absolute left-[-15%] top-[10%] z-0 h-[300px] w-[300px] md:h-[600px] md:w-[600px]" />
+            <div className="ambient-orb ambient-orb--forest absolute right-[-15%] top-[50%] z-0 h-[350px] w-[350px] md:h-[700px] md:w-[700px]" />
 
             {/* Dignified Header */}
             <section className="relative z-10 py-20 px-6 border-b border-[#1b3622]/10 bg-white/40 backdrop-blur-[2px]">

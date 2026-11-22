@@ -302,7 +302,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
 
       {/* ── Sticky curator toolbar — filters sit BELOW the archive title ── */}
       {items.length > 0 && (
-        <div className="sticky top-[4.5rem] z-30 border-b border-[#1b3622]/10 bg-[#fbf9f4]/95 shadow-[0_1px_20px_rgba(27,54,34,0.04)] backdrop-blur-md">
+        <div className="sticky top-[4.5rem] z-30 border-b border-[#1b3622]/10 bg-[#fbf9f4] shadow-[0_1px_20px_rgba(27,54,34,0.04)]">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -599,7 +599,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-0 z-[100] flex select-none flex-col bg-[#102517]/95 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex select-none flex-col bg-[#102517]/95"
             onClick={closeLightbox}
           >
             {/* Top bar */}

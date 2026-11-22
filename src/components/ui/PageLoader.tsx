@@ -1,5 +1,3 @@
-import { Loader2 } from "lucide-react";
-
 type LoaderVariant = "list" | "grid" | "rows" | "tree";
 
 /**
@@ -21,25 +19,25 @@ export default function PageLoader({
       aria-live="polite"
     >
       <div className="mx-auto max-w-6xl space-y-10">
-        {/* Brand + gold rule */}
+        {/* Pulsing bead + label, with a sweep of gold running along the rule */}
         <div className="flex items-center gap-3">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#d4af37]" aria-hidden />
+          <span className="loader-mark" aria-hidden />
           <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#1b3622]/45">
             {label}
           </span>
           <span className="h-px flex-1 overflow-hidden bg-[#1b3622]/10">
-            <span className="app-preloader__line block h-px w-full bg-[#d4af37]/50" />
+            <span className="loader-rule__bar" />
           </span>
         </div>
 
         {variant === "grid" ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="loader-stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: 10 }, (_, index) => (
               <div key={index} className="skeleton aspect-square rounded-md" />
             ))}
           </div>
         ) : variant === "rows" ? (
-          <div className="space-y-4">
+          <div className="loader-stagger space-y-4">
             {Array.from({ length: 5 }, (_, index) => (
               <div
                 key={index}
@@ -54,7 +52,7 @@ export default function PageLoader({
             ))}
           </div>
         ) : variant === "tree" ? (
-          <div className="flex flex-col items-center gap-4 py-6">
+          <div className="loader-stagger flex flex-col items-center gap-4 py-6">
             <div className="skeleton h-16 w-48 rounded-lg sm:w-56" />
             <div className="h-8 w-px bg-[#1b3622]/10" />
             <div className="flex flex-wrap justify-center gap-3">
@@ -70,7 +68,7 @@ export default function PageLoader({
             </div>
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="loader-stagger space-y-10">
             <div className="space-y-3">
               <div className="skeleton h-3 w-32 rounded" />
               <div className="skeleton h-8 w-2/3 rounded sm:w-1/2" />
