@@ -279,7 +279,7 @@ export default function AchieversClient({
                     <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug">
                       {item.name}
                     </h3>
-                    <p className="text-sm uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
+                    <p className="text-sm uppercase tracking-[0.1em] text-[#8a6a0f] font-semibold font-mono">
                       {item.title}
                     </p>
                     <p className="text-sm text-gray-600 font-normal leading-relaxed">

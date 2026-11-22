@@ -73,9 +73,9 @@ export default function SearchBox({ initialQuery = "" }: SearchBoxProps) {
       role="search"
       className="group relative flex w-full items-center sm:w-80"
     >
-      <div className="pointer-events-none absolute left-3.5 flex items-center text-[#1b3622]/40 transition-colors duration-200 group-focus-within:text-[#b8912e]">
+      <div className="pointer-events-none absolute left-3.5 flex items-center text-[#1b3622]/40 transition-colors duration-200 group-focus-within:text-[#8a6a0f]">
         {isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin text-[#b8912e]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#8a6a0f]" />
         ) : (
           <Search className="h-4 w-4" />
         )}

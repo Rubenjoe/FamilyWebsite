@@ -37,7 +37,7 @@ export default async function EventsPage() {
     <div className="min-h-screen bg-[#fbf9f4] bg-parchment pb-24">
       <div className="bg-white border-b border-[#1b3622]/8 py-14 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto space-y-3 animate-fade-up">
-          <span className="text-xs uppercase tracking-[0.28em] text-[#a57f12] font-semibold block">
+          <span className="text-xs uppercase tracking-[0.28em] text-[#8a6a0f] font-semibold block">
             Family Gatherings
           </span>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#1b3622] font-light tracking-tight">
@@ -100,7 +100,7 @@ function EventSection({
             >
               {/* Prominent date block — dates carry the editorial weight here */}
               <div className="flex items-baseline gap-3 border-l-2 border-[#d4af37] pl-4">
-                <span className="font-serif text-lg md:text-xl text-[#a57f12] font-medium leading-snug">
+                <span className="font-serif text-lg md:text-xl text-[#8a6a0f] font-medium leading-snug">
                   {formatDate(event.event_date)}
                 </span>
               </div>

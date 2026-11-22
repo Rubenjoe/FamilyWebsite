@@ -165,7 +165,7 @@ export default function AdminDashboardClient({
                   </span>
                 </div>
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#d4af37]/25 bg-[#1b3622]/5 transition-colors duration-300 group-hover:bg-[#d4af37]/10">
-                  <Icon className="h-5 w-5 stroke-[1.5] text-[#a57f12]" />
+                  <Icon className="h-5 w-5 stroke-[1.5] text-[#8a6a0f]" />
                 </div>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function AdminDashboardClient({
                 aria-hidden
                 className="absolute left-0 top-0 h-full w-0.5 origin-top scale-y-0 bg-[#d4af37] transition-transform duration-400 ease-premium group-hover:scale-y-100"
               />
-              <div className="flex items-center gap-2.5 text-[#a57f12]">
+              <div className="flex items-center gap-2.5 text-[#8a6a0f]">
                 <Icon className="h-5 w-5 stroke-[1.5]" />
                 <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-[#2d312e]">
                   {link.title}
@@ -196,7 +196,7 @@ export default function AdminDashboardClient({
               <p className="text-sm font-light leading-relaxed text-gray-500">
                 {link.description}
               </p>
-              <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#1b3622] transition-colors duration-200 group-hover:text-[#a57f12]">
+              <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#1b3622] transition-colors duration-200 group-hover:text-[#8a6a0f]">
                 <span className="border-b border-[#1b3622]/20 pb-0.5 transition-colors group-hover:border-[#a57f12]">
                   {link.cta}
                 </span>
@@ -210,7 +210,7 @@ export default function AdminDashboardClient({
       <div className="relative overflow-hidden border border-[#1b3622]/10 bg-white p-6 shadow-sm">
         <span aria-hidden className="absolute left-0 right-0 top-0 h-0.5 bg-[#d4af37]/70" />
         <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-[#2d312e]">
-          <ShieldCheck className="h-4 w-4 text-[#a57f12]" />
+          <ShieldCheck className="h-4 w-4 text-[#8a6a0f]" />
           <span>Role-Based Access Active</span>
         </h3>
         <p className="mt-2 text-sm font-light leading-relaxed text-gray-500">

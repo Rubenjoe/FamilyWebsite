@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { consumeContactQuota } from "@/utils/contact-throttle";
 
 /**
  * Contact form delivery.
@@ -15,6 +16,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Overridable so delivery can be exercised against a local stub.
+const RESEND_ENDPOINT = `${(process.env.RESEND_BASE_URL || "https://api.resend.com").replace(/\/+$/, "")}/emails`;
+
 const LIMITS = {
   name: 120,
   email: 200,
@@ -27,25 +31,6 @@ function text(value: unknown, max: number): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-/**
- * Basic per-IP throttle so one visitor cannot flood the form.
- *
- * Deliberately in-memory: it needs no infrastructure and stops the realistic
- * case (a script hammering the endpoint). Serverless instances each keep their
- * own counter, so treat it as a speed bump rather than a hard quota — a
- * determined attacker spread across instances still gets through.
- */
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS = 5;
-
-type Bucket = { count: number; resetAt: number };
-
-// `globalThis` keeps the map alive across dev hot reloads.
-const buckets: Map<string, Bucket> =
-  (globalThis as { __contactThrottle?: Map<string, Bucket> }).__contactThrottle ??
-  new Map();
-(globalThis as { __contactThrottle?: Map<string, Bucket> }).__contactThrottle = buckets;
-
 function clientKey(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
   return (
@@ -55,33 +40,65 @@ function clientKey(request: NextRequest): string {
   );
 }
 
-/** Returns the seconds to wait when the caller is over the limit, else null. */
-function throttle(key: string): number | null {
-  const now = Date.now();
+/**
+ * Confirmation for the visitor. Best effort: if it fails the message has still
+ * been delivered to the committee, so the request must not fail with it.
+ */
+async function sendAcknowledgement({
+  apiKey,
+  from,
+  to,
+  name,
+  subjectLine,
+}: {
+  apiKey: string;
+  from: string;
+  to: string;
+  name: string;
+  subjectLine: string;
+}) {
+  try {
+    const response = await fetch(RESEND_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: "We received your message — Pulazhiyil Kudumbayogam",
+        text: [
+          `Dear ${name},`,
+          "",
+          `Your message has reached the Pulazhiyil Kudumbayogam archive desk` +
+            (subjectLine ? ` (${subjectLine})` : "") +
+            ".",
+          "",
+          "A committee liaison reviews the correspondence queue and usually replies",
+          "within 48–72 hours. If your matter is urgent, the archive desk can also be",
+          "reached by telephone: +91 487 2384 928 or +91 944 7289 104.",
+          "",
+          "— Pulazhiyil Kudumbayogam Heritage Archive",
+        ].join("\n"),
+      }),
+    });
 
-  // Keep the map from growing without bound under a distributed flood.
-  if (buckets.size > 500) {
-    for (const [entryKey, bucket] of buckets) {
-      if (bucket.resetAt <= now) buckets.delete(entryKey);
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.warn(
+        "[Contact] Acknowledgement email was rejected:",
+        response.status,
+        detail.slice(0, 300)
+      );
     }
+  } catch (error) {
+    console.warn("[Contact] Acknowledgement email failed:", error);
   }
-
-  const bucket = buckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return null;
-  }
-
-  if (bucket.count >= MAX_REQUESTS) {
-    return Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
-  }
-
-  bucket.count += 1;
-  return null;
 }
 
 export async function POST(request: NextRequest) {
-  const retryAfter = throttle(clientKey(request));
+  const retryAfter = await consumeContactQuota(clientKey(request));
   if (retryAfter !== null) {
     const wait =
       retryAfter > 60 ? `${Math.ceil(retryAfter / 60)} minutes` : `${retryAfter} seconds`;
@@ -172,7 +189,7 @@ export async function POST(request: NextRequest) {
   ].filter((line): line is string => line !== null);
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
+    const response = await fetch(RESEND_ENDPOINT, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -206,6 +223,15 @@ export async function POST(request: NextRequest) {
       { status: 502 }
     );
   }
+
+  // The enquiry is safely delivered; now tell the visitor it exists.
+  await sendAcknowledgement({
+    apiKey,
+    from,
+    to: email,
+    name,
+    subjectLine: subject,
+  });
 
   return NextResponse.json({ ok: true });
 }

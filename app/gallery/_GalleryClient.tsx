@@ -291,7 +291,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
       <div className="border-b border-[#1b3622]/10 bg-white">
         <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 sm:py-10">
           <div className="animate-fade-up space-y-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#a57f12]">
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a6a0f]">
               The Media Vault
             </span>
             <h1 className="font-serif text-2xl font-light tracking-tight text-[#1b3622] sm:text-3xl">
@@ -304,7 +304,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
               {isFiltering && (
                 <>
                   {" "}
-                  · <span className="text-[#a57f12]">
+                  · <span className="text-[#8a6a0f]">
                     {flatVisible.length} shown
                   </span>
                 </>
@@ -375,7 +375,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                       <span className="relative z-10 flex items-center gap-1.5">
                         <AlbumGlyph
                           album={category}
-                          className={`h-3 w-3 ${isActive ? "text-[#d4af37]" : "text-[#a57f12]/70"
+                          className={`h-3 w-3 ${isActive ? "text-[#d4af37]" : "text-[#8a6a0f]/70"
                             }`}
                         />
                         {category}
@@ -720,7 +720,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                 {currentItem.title}
               </h3>
               {currentMeta.length > 0 && (
-                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#a57f12]">
+                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8a6a0f]">
                   {currentMeta.map((part, index) => (
                     <span
                       key={`${part}-${index}`}

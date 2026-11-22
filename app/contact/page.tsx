@@ -53,12 +53,12 @@ function CopyValue({ value, label }: { value: string; label: string }) {
             type="button"
             onClick={copy}
             aria-label={`Copy ${label}: ${value}`}
-            className="group inline-flex items-center gap-1.5 font-mono font-medium text-[#1b3622] transition-colors duration-300 hover:text-[#a57f12]"
+            className="group inline-flex items-center gap-1.5 font-mono font-medium text-[#1b3622] transition-colors duration-300 hover:text-[#8a6a0f]"
         >
             <span className="border-b border-transparent pb-px transition-colors duration-300 group-hover:border-[#d4af37]/60">
                 {value}
             </span>
-            <span className="grid h-4 w-4 place-items-center text-[#a57f12]">
+            <span className="grid h-4 w-4 place-items-center text-[#8a6a0f]">
                 <AnimatePresence mode="wait" initial={false}>
                     <motion.span
                         key={state}
@@ -143,7 +143,7 @@ export default function ContactPage() {
             {/* Header section with refined typography */}
             <div className="bg-white border-b border-[#1b3622]/5 py-16 px-6">
                 <div className="max-w-7xl mx-auto space-y-3 text-center">
-                    <span className="text-xs uppercase tracking-[0.22em] text-[#d4af37] font-semibold block">
+                    <span className="text-xs uppercase tracking-[0.22em] text-[#8a6a0f] font-semibold block">
                         Family Liaison & Support
                     </span>
                     <h1 className="text-3xl md:text-5xl font-serif text-[#1b3622] font-normal leading-tight">

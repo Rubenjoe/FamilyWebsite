@@ -7,6 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "backup": "node scripts/backup.mjs",
+    "check:permissions": "node scripts/check-permissions.mjs",
     "copy-logo": "node -e \"const fs = require('fs'); fs.copyFileSync('public/images/logo.png', 'app/favicon.ico'); fs.copyFileSync('public/images/logo.png', 'app/icon.png'); fs.copyFileSync('public/images/logo.png', 'app/apple-icon.png'); fs.copyFileSync('public/images/logo.png', 'app/opengraph-image.png'); console.log('Logo copied successfully');\""
   },
   "dependencies": {

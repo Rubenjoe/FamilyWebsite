@@ -641,7 +641,7 @@ function TreeCanvas({
               style={{ left: 44, top: y + offsetY, zIndex: 5 }}
               title={`Generation ${gen}`}
             >
-              <span className="font-serif text-[10px] font-bold tracking-wide text-[#b8912e]">
+              <span className="font-serif text-[10px] font-bold tracking-wide text-[#8a6a0f]">
                 {romanNumeral(gen)}
               </span>
             </div>
@@ -757,7 +757,7 @@ function TreeCanvas({
 
         {/* stats */}
         <div className="absolute left-4 top-4 z-40 flex items-center gap-2 rounded-full border border-[#1b3622]/10 bg-white/85 px-3.5 py-1.5 shadow-[0_4px_14px_rgba(27,54,34,0.08)] backdrop-blur">
-          <Users className="h-3.5 w-3.5 text-[#b8912e]" />
+          <Users className="h-3.5 w-3.5 text-[#8a6a0f]" />
           <span className="text-[11px] font-semibold tracking-wide text-[#1b3622]/75">
             {stats.generations} {stats.generations === 1 ? "Generation" : "Generations"}
           </span>

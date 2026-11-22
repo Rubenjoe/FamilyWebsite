@@ -842,6 +842,27 @@ Avoid making essential information tiny simply to preserve an extremely minimal 
 
 A family archive should remain comfortable to read on a normal laptop or desktop display.
 
+### Gold text contrast
+
+The brand gold `#d4af37` only reaches **2.0:1** against the cream background — fine
+for a hairline or a large display word, unreadable at label size. The rule the
+codebase follows:
+
+| Use | Colour | Contrast on cream | Contrast on forest |
+| --- | --- | --- | --- |
+| Small gold text on a light surface | `#8a6a0f` | 4.8:1 ✓ | — |
+| Gold rules, icons, ornament | `#d4af37` | 2.0:1 (non-text only) | 6.25:1 ✓ |
+
+Gold *text* on the forest-green background stays `#d4af37`.
+
+### The family tree
+
+`/tree` draws the lineage on a canvas that is explored by dragging and zooming,
+which a keyboard or a screen reader cannot navigate. Below the canvas the page
+renders **“Read the lineage as a text outline”**: the same parent/child structure
+as nested lists inside a native `<details>`, with no JavaScript involved. It is
+collapsed by default so it does not compete with the canvas.
+
 ---
 
 ## SEO and Metadata
@@ -1196,7 +1217,97 @@ production:
 | `CONTACT_TO_EMAIL` | Inbox that receives enquiries, e.g. `yogam@pulazhiyil.org` | Your mail provider |
 | `CONTACT_FROM_EMAIL` | Verified sender, e.g. `Archive Desk <desk@pulazhiyil.org>` | Resend → Domains (verify the domain first) |
 
+Optional: `RESEND_BASE_URL` overrides `https://api.resend.com` — useful when
+exercising delivery against a local stub, or behind an egress proxy.
+
 Until all three are set the endpoint returns `503` and the form shows a delivery
-error — it never reports a success that did not happen. A hidden honeypot field
-absorbs basic bots; there is no rate limiting, so add a WAF/rate-limit rule if
-the form ever gets targeted.
+error — it never reports a success that did not happen, and the server logs a
+warning at startup (`instrumentation.ts`) so a misconfigured deploy is visible
+immediately instead of only when someone tries to write in.
+
+Successful submissions get an automatic acknowledgement from the sender address,
+telling the visitor their message arrived and when to expect a reply. The
+acknowledgement is best effort: if Resend rejects it, the enquiry has still been
+delivered and the request still succeeds.
+
+### Rate limiting
+
+Submissions are limited to five per client IP per ten minutes. The counter lives
+in the `contact_throttle` table so the limit is shared by every serverless
+instance:
+
+```text
+supabase/contact-throttle.sql
+```
+
+Run that once in the Supabase SQL editor. It stores only a SHA-256 hash of the
+address, never the address itself, and expired rows are pruned automatically.
+
+`SUPABASE_SERVICE_ROLE_KEY` is required for the shared counter and for
+`npm run backup`. If it is missing the endpoint falls back to a per-instance
+in-memory limiter — weaker, but the form keeps working.
+
+A hidden honeypot field also absorbs basic bots.
+
+---
+
+## Database backup
+
+The genealogy registry is the one asset here that cannot be rebuilt from source.
+`npm run backup` dumps every table to timestamped JSON, locally:
+
+```bash
+npm run backup                      # → backups/2026-11-22T104500Z/
+npm run backup -- --out D:\dumps     # → D:\dumps/
+```
+
+It needs two variables in `.env.local` (or the environment):
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key — reads rows RLS hides. **Never expose it to the browser.** |
+
+Each table becomes `<table>.json` next to a `manifest.json` with per-table row
+counts. The script exits non-zero if any table failed, so a partial backup is
+never mistaken for a good one. `backups/` is gitignored because the dump contains
+personal data — copy it somewhere private, not into the repository.
+
+---
+
+## Member CSV import and export
+
+The member registry page (`/admin/members`) has **Export CSV** and **Import CSV**.
+
+- Export downloads every member with the columns
+  `id, name, birth_date, death_date, bio, father_id, mother_id, spouse_id, photo_url`.
+- Import accepts that same file (edited in a spreadsheet), up to 5000 rows.
+  `name` is required; dates must be `YYYY-MM-DD`; ids must be valid UUIDs or they
+  are cleared. Rows whose name and birth date already exist are skipped, so
+  re-running an import does not duplicate anyone and reports
+  `inserted / skipped / invalid`.
+
+Both endpoints require the `canEditMembers` permission and answer `401` to any
+other caller:
+
+```text
+GET  /api/admin/members/export
+POST /api/admin/members/import   { "csv": "..." }
+```
+
+---
+
+## Permission matrix check
+
+The admin area gates access in four places that must agree — the flags in
+`utils/admin.ts`, the server guard in each `app/admin/*/page.tsx`, the sidebar in
+`AdminShell.tsx`, and the dashboard cards in `AdminDashboardClient.tsx`.
+`npm run check:permissions` reads all four and fails if they drift, printing the
+resulting role matrix:
+
+```bash
+npm run check:permissions
+```
+
+It also asserts that every admin API route authenticates and checks a `can*`
+permission. Run it after adding a destination or changing a role.

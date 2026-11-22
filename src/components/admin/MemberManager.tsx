@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
-import { Search, Plus, Pencil, Trash2, X } from "lucide-react";
+import { useMemo, useState, useCallback, useRef } from "react";
+import { Search, Plus, Pencil, Trash2, X, Download, Upload } from "lucide-react";
 import type { Member } from "@/app/tree/FamilyTree";
 import AdminPageHeader from "./AdminPageHeader";
 import MemberForm from "./MemberForm";
@@ -23,6 +23,8 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toasts, showToast, closeToast } = useToast();
   const supabase = createClient();
 
@@ -127,6 +129,46 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
     }
   }, [supabase, showToast, refresh]);
 
+  const handleImportFile = useCallback(
+    async (file: File) => {
+      setIsImporting(true);
+      try {
+        const csv = await file.text();
+        const response = await fetch("/api/admin/members/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ csv }),
+        });
+        const data = (await response.json().catch(() => null)) as
+          | { error?: string; inserted?: number; skipped?: number; invalid?: number; errors?: string[] }
+          | null;
+
+        if (!response.ok) {
+          showToast(data?.error ?? "Import failed.", "error");
+          return;
+        }
+
+        await refresh();
+        const summary = `Imported ${data?.inserted ?? 0} · skipped ${
+          data?.skipped ?? 0
+        } · invalid ${data?.invalid ?? 0}`;
+        showToast(
+          data?.invalid ? `${summary}. First problem: ${data.errors?.[0] ?? "see console"}` : summary,
+          data?.invalid ? "error" : "success"
+        );
+        if (data?.invalid && data.errors?.length) {
+          console.warn("[Members import] Rows skipped during import:", data.errors);
+        }
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : "Import failed.", "error");
+      } finally {
+        setIsImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    },
+    [refresh, showToast]
+  );
+
   const formatDate = useCallback((date: string | null) => {
     if (!date) return "—";
     return new Date(date).toLocaleDateString(undefined, {
@@ -155,15 +197,56 @@ export default function MemberManager({ initialMembers }: MemberManagerProps) {
             className="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#1b3622] min-h-[44px]"
           />
         </div>
-        <button
-          type="button"
-          onClick={() => setIsCreating(true)}
-          className="flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px] w-full sm:w-auto shrink-0"
-        >
-          <Plus className="h-4 w-4" />
-          Add Member
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto shrink-0">
+          <a
+            href="/api/admin/members/export"
+            download
+            className="press flex items-center justify-center gap-2 border border-[#1b3622]/20 bg-white text-[#1b3622] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:border-[#1b3622] transition-colors min-h-[44px]"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </a>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            className="press flex items-center justify-center gap-2 border border-[#1b3622]/20 bg-white text-[#1b3622] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:border-[#1b3622] transition-colors min-h-[44px] disabled:opacity-50"
+          >
+            {isImporting ? (
+              <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {isImporting ? "Importing…" : "Import CSV"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="sr-only"
+            aria-label="Choose a member CSV file to import"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleImportFile(file);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setIsCreating(true)}
+            className="press flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px]"
+          >
+            <Plus className="h-4 w-4" />
+            Add Member
+          </button>
+        </div>
       </div>
+
+      <p className="text-[11px] font-light leading-relaxed text-gray-500">
+        Import accepts the CSV this page exports — columns: name (required),
+        birth_date and death_date as YYYY-MM-DD, bio, father_id, mother_id,
+        spouse_id, photo_url. Rows whose name and birth date already exist are
+        skipped, so re-running an import is safe.
+      </p>
 
       <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">

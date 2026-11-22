@@ -86,7 +86,7 @@ export default function CommitteePage() {
       {/* Header Block Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-[#1b3622]/10">
         <div className="space-y-2 animate-fade-up">
-          <span className="text-xs uppercase tracking-[0.28em] text-[#a57f12] font-semibold block">
+          <span className="text-xs uppercase tracking-[0.28em] text-[#8a6a0f] font-semibold block">
             Pullazhiyil Kudumbayogam
           </span>
           <h1 className="text-3xl md:text-5xl text-[#1b3622] font-serif font-light tracking-tight">
@@ -186,7 +186,7 @@ export default function CommitteePage() {
               {/* Data Specifications Content Block */}
               <div className="p-5 flex flex-col flex-grow justify-between space-y-4">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-[#a57f12] tracking-[0.12em] uppercase block">
+                  <span className="text-[11px] font-bold text-[#8a6a0f] tracking-[0.12em] uppercase block">
                     {member.branch || "Unspecified Branch"}
                   </span>
                   <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug break-words">

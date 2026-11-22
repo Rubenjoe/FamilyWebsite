@@ -474,28 +474,22 @@ body {
 
 /* ── Micro-interaction helpers ──────────────────────────────────────────── */
 
-/* Tactile press feedback for links-as-buttons and icon controls. */
+/* Tactile press feedback, opted into per control.
+   The transition list is explicit because this class outranks Tailwind's
+   `transition-colors` utility in source order — without these properties here,
+   adding `press` to a button would silently kill its hover colour change. */
 .press {
-  transition: transform 0.22s var(--ease-premium);
+  transition:
+    transform 0.22s var(--ease-premium),
+    background-color 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft),
+    color 0.3s var(--ease-soft),
+    box-shadow 0.3s var(--ease-soft);
   -webkit-tap-highlight-color: transparent;
 }
 
 .press:active {
-  transform: scale(0.975) translateY(0.5px);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  /* Consistent lift for cards that should feel raised under the cursor. */
-  .hover-lift {
-    transition:
-      transform 0.45s var(--ease-premium),
-      box-shadow 0.45s var(--ease-premium),
-      border-color 0.3s var(--ease-soft);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-3px);
-  }
+  transform: scale(0.975);
 }
 
 /* Respect users who prefer reduced motion: collapse CSS-driven animation to

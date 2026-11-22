@@ -138,7 +138,7 @@ export default function DashboardSignInPage() {
                                 onClick={() => setShowRecoveryHint((open) => !open)}
                                 aria-expanded={showRecoveryHint}
                                 aria-controls="signin-recovery-hint"
-                                className="text-[10px] uppercase tracking-[0.12em] font-mono text-[#a57f12] hover:text-[#1b3622] transition-colors"
+                                className="text-[10px] uppercase tracking-[0.12em] font-mono text-[#8a6a0f] hover:text-[#1b3622] transition-colors"
                             >
                                 Forgotten?
                             </button>

@@ -405,7 +405,7 @@ function AchieverCarousel({
                   <h3 className="text-xl text-[#1b3622] font-serif font-normal leading-snug">
                     {achievement.name}
                   </h3>
-                  <p className="text-xs uppercase tracking-[0.1em] text-[#a57f12] font-semibold font-mono">
+                  <p className="text-xs uppercase tracking-[0.1em] text-[#8a6a0f] font-semibold font-mono">
                     {achievement.title}
                   </p>
                   <p className="text-sm text-gray-500 font-light leading-relaxed">

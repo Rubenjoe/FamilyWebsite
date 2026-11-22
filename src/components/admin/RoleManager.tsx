@@ -163,7 +163,7 @@ export default function RoleManager({ initialAdminUsers, currentUserId }: RoleMa
         <button
           type="submit"
           disabled={isSaving}
-          className="px-5 py-2.5 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="press px-5 py-2.5 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {isSaving && (
             <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />

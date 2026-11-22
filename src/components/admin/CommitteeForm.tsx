@@ -266,7 +266,7 @@ export default function CommitteeForm({
         <button
           type="submit"
           disabled={isSaving || isPhotoUploading}
-          className="px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
+          className="press px-5 py-3 text-xs uppercase tracking-widest font-semibold bg-[#1b3622] text-[#fbf9f4] hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
         >
           {isSaving && (
             <span className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />

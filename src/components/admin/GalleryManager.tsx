@@ -197,7 +197,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
         <button
           type="button"
           onClick={() => setIsCreating(true)}
-          className="flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px] w-full sm:w-auto shrink-0"
+          className="press flex items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors min-h-[44px] w-full sm:w-auto shrink-0"
         >
           <Plus className="h-4 w-4" />
           Add Photo
@@ -253,7 +253,7 @@ export default function GalleryManager({ initialRecords }: GalleryManagerProps) 
                     </div>
                     <div className="p-4 space-y-1">
                       <h3 className="text-xs font-medium text-[#2d312e] break-words">{record.title}</h3>
-                      <p className="text-[10px] text-[#a57f12] truncate">
+                      <p className="text-[10px] text-[#8a6a0f] truncate">
                         {record.branch || "—"}
                       </p>
                       <p className="text-[10px] text-gray-400 truncate">

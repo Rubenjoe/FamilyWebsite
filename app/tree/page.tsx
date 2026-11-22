@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { createClient } from "@/utils/supabase/server";
 import FamilyTree from "./FamilyTree";
 import SearchBox from "./SearchBox";
+import TreeOutline from "./TreeOutline";
 import type { Member } from "./FamilyTree";
 
 interface PageProps {
@@ -60,7 +61,7 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
       <header className="relative border-b border-[#1b3622]/8 bg-white/70 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-6 px-4 py-10 sm:px-8 sm:py-14 md:flex-row md:items-end">
           <div className="space-y-3">
-            <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.24em] text-[#b8912e]">
+            <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.24em] text-[#8a6a0f]">
               <span className="h-px w-8 bg-[#d4af37]/60" />
               Interactive Lineage Map
             </span>
@@ -136,6 +137,13 @@ export default async function GenealogyTreePage({ searchParams }: PageProps) {
             <FamilyTree members={members} rootId={rootPerson.id} />
           )}
         </div>
+
+        {/* Keyboard/screen-reader route through the same lineage. */}
+        {members && members.length > 0 && (
+          <div className="px-2 sm:px-0">
+            <TreeOutline members={members} />
+          </div>
+        )}
       </main>
 
       {/* ── Footer (sticks to viewport bottom on short pages) ──── */}
