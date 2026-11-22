@@ -346,6 +346,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                       type="button"
                       onClick={() => setSelectedCategory(category)}
                       aria-pressed={isActive}
+                      whileTap={{ scale: 0.96 }}
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-20px" }}
@@ -413,6 +414,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                       type="button"
                       onClick={() => setSelectedBranch(branch)}
                       aria-pressed={isActive}
+                      whileTap={{ scale: 0.96 }}
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-20px" }}
@@ -648,9 +650,14 @@ export default function GalleryClient({ items }: GalleryClientProps) {
             <div className="relative flex min-h-0 flex-1 items-center justify-center px-14 sm:px-24">
               <motion.div
                 key={currentItem.id}
-                initial={{ opacity: 0, x: direction * 28, scale: 0.985 }}
+                initial={{ opacity: 0, x: direction * 32, scale: 0.985 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{ duration: 0.45, ease: NORELL_EASE }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 32,
+                  mass: 0.7,
+                }}
                 drag
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                 dragElastic={0.22}

@@ -221,10 +221,10 @@ export default function Navbar() {
               {isMoreOpen && (
                 <motion.div
                   id="navbar-more-panel"
-                  initial={{ opacity: 0, y: -8, scaleY: 0.95 }}
+                  initial={{ opacity: 0, y: -6, scaleY: 0.96 }}
                   animate={{ opacity: 1, y: 0, scaleY: 1 }}
-                  exit={{ opacity: 0, y: -8, scaleY: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  exit={{ opacity: 0, y: -6, scaleY: 0.96 }}
+                  transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute right-0 top-full z-50 mt-1 w-56 origin-top overflow-hidden border border-[#1b3622]/10 bg-white shadow-[0_12px_40px_rgba(27,54,34,0.12)]"
                 >
                   {MORE_LINKS.map((link) => {

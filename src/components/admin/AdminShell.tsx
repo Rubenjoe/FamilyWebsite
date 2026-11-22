@@ -71,7 +71,7 @@ export default function AdminShell({
           href={item.href}
           onClick={() => setIsMobileOpen(false)}
           aria-current={isActive ? "page" : undefined}
-          className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-sm text-left shrink-0 transition-colors duration-200 ${
+          className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-sm text-left shrink-0 transition-[background-color,color,transform] duration-300 ease-premium hover:translate-x-0.5 ${
             isActive
               ? "bg-[#d4af37]/15 text-[#fbf9f4]"
               : "text-[#fbf9f4]/70 hover:bg-white/5 hover:text-[#fbf9f4]"
@@ -150,27 +150,45 @@ export default function AdminShell({
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="lg:hidden bg-[#1b3622] border-t border-[#d4af37]/10 px-4 pb-4 max-h-[calc(100dvh-3.5rem)] overflow-y-auto"
           >
-            <nav className="flex flex-col gap-1 text-xs uppercase font-semibold pt-2">
+            <motion.nav
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: {
+                  transition: { staggerChildren: 0.045, delayChildren: 0.04 },
+                },
+              }}
+              className="flex flex-col gap-1 text-xs uppercase font-semibold pt-2"
+            >
               {visibleNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <motion.div
                     key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-colors min-h-[44px] ${
-                      isActive
-                        ? "bg-[#d4af37] text-[#1b3622]"
-                        : "text-[#fbf9f4]/80 hover:bg-white/5"
-                    }`}
+                    variants={{
+                      hidden: { opacity: 0, x: -10 },
+                      show: { opacity: 1, x: 0 },
+                    }}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span className="tracking-widest">{item.label}</span>
-                  </Link>
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMobileOpen(false)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-sm transition-colors duration-200 min-h-[44px] ${
+                        isActive
+                          ? "bg-[#d4af37] text-[#1b3622]"
+                          : "text-[#fbf9f4]/80 hover:bg-white/5"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="tracking-widest">{item.label}</span>
+                    </Link>
+                  </motion.div>
                 );
               })}
-            </nav>
+            </motion.nav>
             <div className="pt-3 mt-3 border-t border-[#fbf9f4]/10 text-[10px] text-[#fbf9f4]/50 leading-normal font-light">
               Signed in as {session.user.email || "unknown"} ({roleLabel(session.role)}).<br />
               Secured session. All actions are logged.

@@ -1,5 +1,7 @@
 "use client";
 
+import Toggle from "@/components/ui/Toggle";
+
 import { useEffect, useState } from "react";
 import type { Database } from "@/types/supabase";
 import ImageUpload from "./ImageUpload";
@@ -299,15 +301,14 @@ export default function HeritageForm({
             className="w-full bg-[#fbf9f4] border border-gray-200 text-xs p-2.5 focus:outline-none focus:border-[#1b3622]"
           />
         </div>
-        <label className="flex items-center gap-2 text-xs text-[#2d312e]">
-          <input
-            type="checkbox"
+        <div className="flex items-center gap-2.5 text-xs text-[#2d312e]">
+          <Toggle
             checked={form.is_published}
-            onChange={(e) => setField("is_published", e.target.checked)}
-            className="h-4 w-4 accent-[#1b3622]"
+            onChange={(next) => setField("is_published", next)}
+            label="Publish on website"
           />
           <span className="uppercase tracking-wider font-semibold">Publish on website</span>
-        </label>
+        </div>
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-2">
