@@ -42,6 +42,7 @@ export default async function AdminPage() {
       canEditEvents={session.canEditEvents}
       canViewDues={session.canViewDues}
       canViewAudit={session.canViewAudit}
+      canManageRoles={session.canManageRoles}
     />
   );
 }

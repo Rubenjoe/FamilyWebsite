@@ -25,6 +25,7 @@ interface AdminDashboardClientProps {
   canEditEvents: boolean;
   canViewDues: boolean;
   canViewAudit: boolean;
+  canManageRoles: boolean;
 }
 
 interface QuickLink {
@@ -50,6 +51,7 @@ export default function AdminDashboardClient({
   canEditEvents,
   canViewDues,
   canViewAudit,
+  canManageRoles,
 }: AdminDashboardClientProps) {
   // Every card here must point at a page the signed-in role can actually open:
   // the destinations redirect to /dashboard when the permission is missing.
@@ -103,6 +105,16 @@ export default function AdminDashboardClient({
       title: "Dues & Finances",
       description: "Treasurer-only view for family dues and financial records.",
       cta: "Open dues view",
+    });
+  }
+  if (canManageRoles) {
+    quickLinks.push({
+      href: "/admin/roles",
+      icon: ShieldCheck,
+      title: "Roles & Access",
+      description:
+        "Grant or revoke administrative roles and review who can edit what.",
+      cta: "Open role manager",
     });
   }
   if (canViewAudit) {
