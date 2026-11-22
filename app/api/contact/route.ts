@@ -27,7 +27,72 @@ function text(value: unknown, max: number): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+/**
+ * Basic per-IP throttle so one visitor cannot flood the form.
+ *
+ * Deliberately in-memory: it needs no infrastructure and stops the realistic
+ * case (a script hammering the endpoint). Serverless instances each keep their
+ * own counter, so treat it as a speed bump rather than a hard quota — a
+ * determined attacker spread across instances still gets through.
+ */
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_REQUESTS = 5;
+
+type Bucket = { count: number; resetAt: number };
+
+// `globalThis` keeps the map alive across dev hot reloads.
+const buckets: Map<string, Bucket> =
+  (globalThis as { __contactThrottle?: Map<string, Bucket> }).__contactThrottle ??
+  new Map();
+(globalThis as { __contactThrottle?: Map<string, Bucket> }).__contactThrottle = buckets;
+
+function clientKey(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  return (
+    forwarded?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+/** Returns the seconds to wait when the caller is over the limit, else null. */
+function throttle(key: string): number | null {
+  const now = Date.now();
+
+  // Keep the map from growing without bound under a distributed flood.
+  if (buckets.size > 500) {
+    for (const [entryKey, bucket] of buckets) {
+      if (bucket.resetAt <= now) buckets.delete(entryKey);
+    }
+  }
+
+  const bucket = buckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return null;
+  }
+
+  if (bucket.count >= MAX_REQUESTS) {
+    return Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+  }
+
+  bucket.count += 1;
+  return null;
+}
+
 export async function POST(request: NextRequest) {
+  const retryAfter = throttle(clientKey(request));
+  if (retryAfter !== null) {
+    const wait =
+      retryAfter > 60 ? `${Math.ceil(retryAfter / 60)} minutes` : `${retryAfter} seconds`;
+    return NextResponse.json(
+      {
+        error: `Too many messages from this connection. Please try again in ${wait}, or reach the archive desk by phone.`,
+      },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
   let payload: unknown;
   try {
     payload = await request.json();
