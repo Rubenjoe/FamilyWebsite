@@ -33,6 +33,16 @@ const VARIANT_ICONS: Partial<Record<LoaderVariant, React.ComponentType<{ classNa
   rows: Clock,
 };
 
+/* Portrait skeleton that echoes the monogram cards it stands in for, so the
+   swap from placeholder to real card feels continuous. */
+function PortraitSkeleton({ className = "" }: { className?: string }) {
+  return (
+    <div className={`skeleton skeleton-portrait ${className}`} aria-hidden>
+      <span className="skeleton-portrait__mark" />
+    </div>
+  );
+}
+
 /**
  * Shared branded loading surface for route-level `loading.tsx` files. Renders
  * inside the layout (navbar + footer stay put) so a navigation never blanks
@@ -52,21 +62,32 @@ export default function PageLoader({
       className="min-h-[75vh] bg-[#fbf9f4] px-4 py-8 sm:px-6 sm:py-12"
       role="status"
       aria-live="polite"
+      aria-busy="true"
     >
-      <div className="mx-auto max-w-7xl space-y-10">
-        {/* Pulsing bead + label with sweeping gold rule */}
-        <div className="flex items-center gap-3">
-          {IconComponent ? (
-            <IconComponent className="h-4 w-4 text-[#d4af37] animate-pulse" />
-          ) : (
-            <span className="loader-mark" aria-hidden />
-          )}
-          <span className="font-mono text-[10px] uppercase tracking-[0.28em] font-medium text-[#1b3622]/60">
-            {label}
-          </span>
-          <span className="h-px flex-1 overflow-hidden bg-[#1b3622]/10">
-            <span className="loader-rule__bar" />
-          </span>
+      <div className="mx-auto max-w-7xl space-y-8 sm:space-y-10">
+        {/* Brass dial + contextual label + indeterminate hairline */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="loader-ring" aria-hidden>
+              {IconComponent ? (
+                <IconComponent className="h-3.5 w-3.5 text-[#8a6a0f]" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37]" />
+              )}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#1b3622]/65">
+                <span className="loader-label">{label}</span>
+              </p>
+              <p className="mt-1 truncate text-[9px] font-medium uppercase tracking-[0.2em] text-[#1b3622]/35">
+                Pullazhiyil Kudumbayogam · Digital Archive
+              </p>
+            </div>
+            <span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-[#8a6a0f]/80 sm:block">
+              Retrieving records
+            </span>
+          </div>
+          <div className="loader-track" aria-hidden />
         </div>
 
         {/* ── Variant 1: HISTORY (Editorial timeline blocks) ── */}
@@ -144,7 +165,7 @@ export default function PageLoader({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {Array.from({ length: 8 }, (_, i) => (
                 <div key={i} className="bg-white border border-[#1b3622]/10 p-5 space-y-4 rounded-sm">
-                  <div className="skeleton aspect-[3/4] w-full rounded-sm" />
+                  <PortraitSkeleton className="aspect-[3/4] w-full rounded-sm" />
                   <div className="flex justify-between">
                     <div className="skeleton h-4 w-20 rounded" />
                     <div className="skeleton h-3 w-12 rounded" />
@@ -235,7 +256,7 @@ export default function PageLoader({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 6 }, (_, i) => (
                 <div key={i} className="bg-white border border-[#1b3622]/10 p-6 space-y-5 rounded-sm">
-                  <div className="skeleton mx-auto aspect-[3/4] w-[180px] rounded-sm" />
+                  <PortraitSkeleton className="mx-auto aspect-[3/4] w-[180px] rounded-sm" />
                   <div className="skeleton mx-auto h-5 w-40 rounded" />
                   <div className="skeleton mx-auto h-3 w-28 rounded" />
                   <div className="space-y-2 pt-2">
@@ -269,7 +290,7 @@ export default function PageLoader({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {Array.from({ length: 8 }, (_, i) => (
                 <div key={i} className="bg-white border border-[#1b3622]/10 overflow-hidden rounded-sm space-y-4 p-4">
-                  <div className="skeleton aspect-square w-full rounded-sm" />
+                  <PortraitSkeleton className="aspect-square w-full rounded-sm" />
                   <div className="skeleton h-3 w-24 rounded" />
                   <div className="skeleton h-5 w-3/4 rounded" />
                   <div className="skeleton h-4 w-1/2 rounded" />
@@ -345,7 +366,7 @@ export default function PageLoader({
                   key={index}
                   className="border border-[#1b3622]/8 bg-white/60 p-5"
                 >
-                  <div className="skeleton mb-4 aspect-[4/3] w-full rounded-sm" />
+                  <PortraitSkeleton className="mb-4 aspect-[4/3] w-full rounded-sm" />
                   <div className="skeleton mb-2 h-3 w-1/3 rounded" />
                   <div className="skeleton h-4 w-3/4 rounded" />
                 </div>

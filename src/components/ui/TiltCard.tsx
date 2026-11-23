@@ -12,14 +12,20 @@ import { useCallback, useEffect, useRef, type ReactNode } from "react";
 export default function TiltCard({
   children,
   className = "",
+  surfaceClassName = "",
   max = 7,
   glare = true,
+  style,
 }: {
   children: ReactNode;
+  /** Applied to the perspective scene (grid cell / layout wrapper). */
   className?: string;
+  /** Applied to the transformed surface, so a card keeps its own styling. */
+  surfaceClassName?: string;
   /** Maximum rotation in degrees at the far corners. */
   max?: number;
   glare?: boolean;
+  style?: React.CSSProperties;
 }) {
   const sceneRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -79,6 +85,7 @@ export default function TiltCard({
     <div
       ref={sceneRef}
       className={`tilt-scene ${className}`}
+      style={style}
       onPointerMove={handlePointerMove}
       onPointerEnter={(event) => {
         if (!enabledRef.current || event.pointerType !== "mouse") return;
@@ -87,7 +94,7 @@ export default function TiltCard({
       onPointerLeave={reset}
       onBlur={reset}
     >
-      <div ref={surfaceRef} className="tilt-surface">
+      <div ref={surfaceRef} className={`tilt-surface ${surfaceClassName}`}>
         {children}
         {glare && <span aria-hidden className="tilt-glare" />}
       </div>

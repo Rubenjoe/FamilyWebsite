@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { Calendar, MapPin, Clock } from "lucide-react";
+import TiltCard from "@/components/ui/TiltCard";
 import type { Database } from "@/types/supabase";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
@@ -93,10 +94,12 @@ function EventSection({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {events.map((event, index) => (
-            <article
+            <TiltCard
               key={event.id}
-              className="animate-fade-up bg-white border border-[#1b3622]/10 shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 ease-premium p-6 md:p-7 space-y-4"
+              max={4}
+              className="animate-fade-up h-full"
               style={{ animationDelay: `${Math.min(index, 6) * 70}ms` }}
+              surfaceClassName="bg-white border border-[#1b3622]/10 shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 p-6 md:p-7 space-y-4"
             >
               {/* Prominent date block — dates carry the editorial weight here */}
               <div className="flex items-baseline gap-3 border-l-2 border-[#d4af37] pl-4">
@@ -124,7 +127,7 @@ function EventSection({
                   Upcoming
                 </span>
               )}
-            </article>
+            </TiltCard>
           ))}
         </div>
       )}

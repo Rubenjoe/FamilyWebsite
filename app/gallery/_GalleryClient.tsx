@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import FadeImage from "@/components/ui/FadeImage";
+import TiltCard from "@/components/ui/TiltCard";
 import {
   Archive,
   Calendar,
@@ -326,7 +327,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
           >
             {/* Collection selector — “Everything”, or one album at a time */}
             <div className="flex items-center gap-3">
-              <span className="hidden shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400 lg:block">
+              <span className="hidden shrink-0 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 lg:block">
                 Show
               </span>
               <div
@@ -355,7 +356,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                         delay: Math.min(index, 8) * 0.045,
                         ease: NORELL_EASE,
                       }}
-                      className={`relative shrink-0 cursor-pointer whitespace-nowrap snap-start rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors duration-300 sm:px-4 sm:py-2 ${isActive
+                      className={`relative shrink-0 cursor-pointer whitespace-nowrap snap-start rounded-full border px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 sm:px-4 sm:py-2 ${isActive
                           ? "border-[#1b3622] text-[#fbf9f4]"
                           : "border-[#1b3622]/15 bg-white text-gray-500 hover:border-[#1b3622]/40 hover:text-[#1b3622]"
                         }`}
@@ -394,7 +395,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
 
             {/* Family branch selector — full width, beneath the title */}
             <div className="flex items-center gap-3">
-              <span className="hidden shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400 lg:block">
+              <span className="hidden shrink-0 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 lg:block">
                 Family Branch
               </span>
               <div
@@ -423,7 +424,7 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                         delay: 0.08 + Math.min(index, 8) * 0.045,
                         ease: NORELL_EASE,
                       }}
-                      className={`relative shrink-0 cursor-pointer whitespace-nowrap snap-start rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors duration-300 sm:px-4 sm:py-2 ${isActive
+                      className={`relative shrink-0 cursor-pointer whitespace-nowrap snap-start rounded-full border px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 sm:px-4 sm:py-2 ${isActive
                           ? "border-[#1b3622] text-[#fbf9f4]"
                           : "border-[#1b3622]/15 bg-white text-gray-500 hover:border-[#1b3622]/40 hover:text-[#1b3622]"
                         }`}
@@ -521,8 +522,13 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                             delay: Math.min(index, 12) * 0.03,
                             ease: NORELL_EASE,
                           }}
-                          className="group relative aspect-square cursor-pointer overflow-hidden rounded-md bg-[#1b3622]/5 ring-1 ring-inset ring-transparent transition-all duration-300 group-hover:ring-[#d4af37]/50 active:scale-[0.97]"
+                          className="aspect-square"
                         >
+                          <TiltCard
+                            max={4}
+                            className="h-full"
+                            surfaceClassName="group relative h-full cursor-pointer overflow-hidden rounded-md bg-[#1b3622]/5 ring-1 ring-inset ring-transparent transition-all duration-300 group-hover:ring-[#d4af37]/50 active:scale-[0.97]"
+                          >
                           {/* Image */}
                           <button
                             type="button"
@@ -566,11 +572,12 @@ export default function GalleryClient({ items }: GalleryClientProps) {
                               aria-hidden
                               className="pointer-events-none absolute right-1.5 top-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                             >
-                              <span className="rounded-sm border border-[#d4af37]/40 bg-[#fbf9f4]/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1b3622] shadow-sm backdrop-blur-sm">
+                              <span className="rounded-sm border border-[#d4af37]/40 bg-[#fbf9f4]/90 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#1b3622] shadow-sm backdrop-blur-sm">
                                 {item.branch.split(" ")[0]}
                               </span>
                             </div>
                           )}
+                          </TiltCard>
                         </motion.div>
                       );
                     })}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Award, Users, Search, X } from "lucide-react";
 import LightboxImage from "@/components/ui/LightboxImage";
 import InitialsMonogram from "@/components/ui/InitialsMonogram";
+import TiltCard from "@/components/ui/TiltCard";
 import { withCloudinaryTransform } from "@/utils/storage";
 import type { Database } from "@/types/supabase";
 
@@ -245,8 +246,13 @@ export default function AchieversClient({
                   delay: Math.min(index, 7) * 0.09,
                   ease: NORELL_EASE,
                 }}
-                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 transition-all duration-500 ease-premium rounded-sm"
+                className="h-full"
               >
+                <TiltCard
+                  className="h-full"
+                  max={5}
+                  surfaceClassName="bg-white border border-[#1b3622]/10 p-6 flex h-full flex-col justify-between space-y-5 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 rounded-sm"
+                >
                 {/* Photo frame */}
                 <div className="aspect-[3/4] w-full bg-[#fbf9f4] border border-dashed border-[#1b3622]/20 flex flex-col items-center justify-center text-center relative overflow-hidden group-hover:border-[#d4af37]/45 transition-colors duration-500 rounded-sm">
                   {item.image ? (
@@ -269,10 +275,15 @@ export default function AchieversClient({
                 <div className="space-y-3 flex-grow flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10">
-                        {item.branch} Branch
+                      <span className="bg-[#1b3622]/5 text-[#1b3622] px-2 py-1 border border-[#1b3622]/10 inline-flex items-center gap-1.5">
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em]">
+                          {item.branch}
+                        </span>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#1b3622]/45">
+                          Branch
+                        </span>
                       </span>
-                      <span className="text-gray-500 font-mono text-xs tracking-wide">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3622]/45">
                         {item.year}
                       </span>
                     </div>
@@ -290,6 +301,7 @@ export default function AchieversClient({
                     Pulazhiyil Excellence Registry
                   </div>
                 </div>
+                </TiltCard>
               </motion.div>
             ))}
           </motion.div>

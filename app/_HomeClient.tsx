@@ -397,10 +397,15 @@ function AchieverCarousel({
               <div className="space-y-3 flex-grow flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="bg-[#1b3622]/5 text-[#1b3622] text-[10px] uppercase tracking-[0.12em] font-bold px-2 py-1 border border-[#1b3622]/10">
-                      {achievement.branch} Branch
+                    <span className="bg-[#1b3622]/5 text-[#1b3622] px-2 py-1 border border-[#1b3622]/10 inline-flex items-center gap-1.5">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em]">
+                        {achievement.branch}
+                      </span>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#1b3622]/45">
+                        Branch
+                      </span>
                     </span>
-                    <span className="text-gray-500 font-mono text-xs tracking-wide">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3622]/45">
                       {achievement.year}
                     </span>
                   </div>

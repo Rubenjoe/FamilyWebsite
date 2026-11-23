@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Search, Users } from "lucide-react";
 import LightboxImage from "@/components/ui/LightboxImage";
+import InitialsMonogram from "@/components/ui/InitialsMonogram";
+import TiltCard from "@/components/ui/TiltCard";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/types/supabase";
 import { HERITAGE_BUCKET, resolveStorageUrl } from "@/utils/storage";
@@ -124,10 +126,10 @@ export default function CommitteePage() {
               key={year}
               onClick={() => setSelectedYear(year)}
               aria-pressed={selectedYear === year}
-              className={`min-h-[44px] px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all duration-300 cursor-pointer flex items-center justify-center ${
+              className={`press-ink flex min-h-[40px] cursor-pointer items-center justify-center gap-2 rounded-sm border px-3.5 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
                 selectedYear === year
-                  ? "bg-[#1b3622] text-[#fbf9f4] font-semibold shadow-sm"
-                  : "bg-white border border-gray-200 text-gray-600 hover:border-[#1b3622]/30 hover:text-[#1b3622]"
+                  ? "border-[#1b3622] bg-[#1b3622] text-[#fbf9f4]"
+                  : "border-[#1b3622]/15 bg-white text-[#1b3622]/60 hover:border-[#d4af37]/60 hover:text-[#1b3622]"
               }`}
             >
               {year}
@@ -158,59 +160,81 @@ export default function CommitteePage() {
       ) : filteredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {filteredMembers.map((member, index) => (
-            <div
+            <TiltCard
               key={member.id}
-              className="animate-fade-up bg-white border border-[#1b3622]/10 group shadow-sm hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1.5 transition-all duration-500 ease-premium flex flex-col h-full rounded-sm overflow-hidden"
+              max={5}
+              className="animate-fade-up h-full"
               style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+              surfaceClassName="group relative flex h-full flex-col overflow-hidden rounded-sm border border-[#1b3622]/10 bg-white shadow-sm hover:border-[#d4af37]/40 hover:shadow-[0_22px_50px_-24px_rgba(27,54,34,0.45)]"
             >
-              {/* Profile Image View Box */}
-              <div className="aspect-square bg-[#fbf9f4] relative overflow-hidden shrink-0 border-b border-gray-50">
+              {/* Portrait plate */}
+              <div className="relative aspect-[4/5] shrink-0 overflow-hidden border-b border-[#1b3622]/8 bg-[#fbf9f4]">
                 {member.image_url ? (
                   <LightboxImage
                     src={resolveStorageUrl(HERITAGE_BUCKET, member.image_url)}
                     alt={`${member.name} profile`}
-                    className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-premium group-hover:scale-[1.05]"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#1b3622]/5">
-                    <Users className="h-12 w-12 text-[#1b3622]/25" />
-                  </div>
+                  <InitialsMonogram name={member.name} />
                 )}
+
+                {/* Grounding gradient so the overlays stay legible on any photo */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#102517]/70 via-[#102517]/5 to-transparent"
+                />
+
+                {/* Branch chip + committee year, styled like the registry chips */}
+                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+                  <span className="rounded-sm border border-[#1b3622]/10 bg-[#fbf9f4]/95 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#1b3622] shadow-sm">
+                    {member.branch || "Unassigned"}
+                  </span>
+                  <span className="rounded-sm bg-[#102517]/70 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#fbf9f4] backdrop-blur-[2px]">
+                    {member.committee_year}
+                  </span>
+                </div>
+
+                {/* Filing number, echoing the archive's catalogue style */}
+                <span
+                  aria-hidden
+                  className="absolute bottom-3 left-3 font-serif text-xl italic leading-none text-[#fbf9f4]/75 drop-shadow"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
                 {/* Gold hairline reveal on hover */}
                 <span
                   aria-hidden
-                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[#d4af37] transition-transform duration-500 ease-premium group-hover:scale-x-100"
+                  className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[#d4af37] transition-transform duration-500 ease-premium group-hover:scale-x-100"
                 />
               </div>
 
-              {/* Data Specifications Content Block */}
-              <div className="p-5 flex flex-col flex-grow justify-between space-y-4">
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-[#8a6a0f] tracking-[0.12em] uppercase block">
-                    {member.branch || "Unspecified Branch"}
-                  </span>
-                  <h3 className="text-xl text-[#1b3622] font-serif font-medium leading-snug break-words">
+              {/* Record details */}
+              <div className="flex flex-grow flex-col gap-3 p-5">
+                <div className="space-y-1.5">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a6a0f]">
+                    {member.role}
+                  </p>
+                  <h3 className="break-words font-serif text-[19px] font-medium leading-snug text-[#1b3622]">
                     {member.name}
                   </h3>
                 </div>
 
-                <div className="space-y-1.5 pt-2.5 border-t border-gray-100">
-                  {/* Role placed above Location with prominent typography */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#1b3622] tracking-[0.06em] uppercase leading-snug">
-                      {member.role}
+                <div className="mt-auto flex items-center gap-2 border-t border-[#1b3622]/10 pt-3 text-[13px] text-[#52584f]">
+                  {member.location ? (
+                    <>
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#8a6a0f]" aria-hidden />
+                      <span className="truncate">{member.location}</span>
+                    </>
+                  ) : (
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#1b3622]/35">
+                      Location awaited
                     </span>
-                  </div>
-                  {/* Location secondary under Role */}
-                  {member.location && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600 font-normal break-words">
-                      <MapPin className="h-4 w-4 text-[#d4af37] shrink-0" />
-                      <span>{member.location}</span>
-                    </div>
                   )}
                 </div>
               </div>
-            </div>
+            </TiltCard>
           ))}
         </div>
       ) : (

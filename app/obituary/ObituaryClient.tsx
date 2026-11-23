@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Heart, User, Bookmark } from "lucide-react";
 import LightboxImage from "@/components/ui/LightboxImage";
+import TiltCard from "@/components/ui/TiltCard";
 
 interface ObituaryEntry {
     id: string;
@@ -23,6 +24,11 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
     const filteredObituaries = obituaries.filter((item) =>
         selectedBranch === "All" || item.branch === selectedBranch
     );
+
+    const branchCounts = obituaries.reduce<Record<string, number>>((counts, item) => {
+        counts[item.branch] = (counts[item.branch] ?? 0) + 1;
+        return counts;
+    }, {});
 
     const NORELL_EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -81,21 +87,32 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
             </div>
             ) : <div className="max-w-7xl mx-auto px-6 mt-12 space-y-10 relative z-10">
                 {/* Branch Filters */}
-                <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-4">
-                    {["All", ...Array.from(new Set(obituaries.map((item) => item.branch)))].map((branch) => (
+                <div
+                    className="flex flex-wrap gap-2 border-b border-gray-100 pb-5"
+                    role="group"
+                    aria-label="Filter commemorations by branch"
+                >
+                    {["All", ...Array.from(new Set(obituaries.map((item) => item.branch)))].map((branch) => {
+                        const isActive = selectedBranch === branch;
+                        const count = branch === "All" ? obituaries.length : branchCounts[branch] ?? 0;
+                        return (
                         <button
                             key={branch}
                             type="button"
                             onClick={() => setSelectedBranch(branch)}
-                            aria-pressed={selectedBranch === branch}
-                            className={`min-h-11 px-4 py-2.5 text-sm uppercase tracking-[0.12em] font-medium transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622] ${selectedBranch === branch
-                                ? "bg-[#1b3622] text-[#fbf9f4] font-semibold"
-                                : "bg-white border border-gray-200 text-gray-500 hover:border-[#1b3622]/30"
+                            aria-pressed={isActive}
+                            className={`press-ink flex min-h-11 cursor-pointer items-center gap-2 rounded-sm border px-3.5 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622] ${isActive
+                                ? "border-[#1b3622] bg-[#1b3622] text-[#fbf9f4]"
+                                : "border-[#1b3622]/15 bg-white text-[#1b3622]/55 hover:border-[#1b3622]/40 hover:text-[#1b3622]"
                                 }`}
                         >
-                            {branch} {branch !== "All" ? "Branch" : "Remembrances"}
+                            {branch}
+                            <span className={`font-normal ${isActive ? "text-[#d4af37]" : "text-[#1b3622]/35"}`}>
+                                ({count})
+                            </span>
                         </button>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* Obituary Grid */}
@@ -112,8 +129,13 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.5, ease: NORELL_EASE }}
-                                className="bg-white border border-[#1b3622]/10 p-6 flex flex-col justify-between space-y-6 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 transition-all duration-500 rounded-sm relative overflow-hidden"
+                                className="h-full"
                             >
+                              <TiltCard
+                                className="h-full"
+                                max={5}
+                                surfaceClassName="bg-white border border-[#1b3622]/10 p-6 flex h-full flex-col justify-between space-y-6 shadow-sm group hover:shadow-[0_20px_50px_rgba(27,54,34,0.10)] hover:border-[#d4af37]/30 hover:-translate-y-1 rounded-sm relative overflow-hidden"
+                              >
                                 {/* Top gold thin accent line */}
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#d4af37]/60" />
 
@@ -148,8 +170,13 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                 <div className="space-y-4 flex-grow">
                                     {/* Title Header */}
                                     <div className="text-center space-y-1">
-                                        <span className="bg-[#1b3622]/5 text-[#1b3622] text-xs uppercase tracking-[0.1em] font-bold px-2 py-1 border border-[#1b3622]/10 inline-block">
-                                            {obituary.branch} Branch
+                                        <span className="bg-[#1b3622]/5 text-[#1b3622] px-2 py-1 border border-[#1b3622]/10 inline-flex items-center gap-1.5">
+                                            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em]">
+                                                {obituary.branch}
+                                            </span>
+                                            <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#1b3622]/45">
+                                                Branch
+                                            </span>
                                         </span>
                                         <h3 className="text-2xl text-[#1b3622] font-serif font-medium pt-2">
                                             {obituary.name}
@@ -170,7 +197,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
 
                                     {/* Biography */}
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
-                                        <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
+                                        <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gray-500 font-bold">
                                             Biography
                                         </h4>
                                         <p className="text-[14px] text-gray-600 font-normal leading-relaxed">
@@ -182,7 +209,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                     <div className="space-y-2 border-t border-gray-100 pt-3">
                                         <div className="flex items-center gap-1.5">
                                             <Heart className="h-3.5 w-3.5 text-[#d4af37]" />
-                                            <h4 className="text-xs uppercase tracking-[0.12em] text-gray-500 font-bold">
+                                            <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-gray-500 font-bold">
                                                 Tribute & Remembrance
                                             </h4>
                                         </div>
@@ -195,6 +222,7 @@ export default function ObituaryClient({ obituaries, loadError }: { obituaries: 
                                 <div className="text-center text-[9px] font-mono text-gray-400 pt-2 border-t border-gray-100/60">
                                     Pulazhiyil Heritage Registry
                                 </div>
+                              </TiltCard>
                             </motion.div>
                         ))}
                     </AnimatePresence>
