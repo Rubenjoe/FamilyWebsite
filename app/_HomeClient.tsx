@@ -835,7 +835,7 @@ export default function HomeClient({
               live institutional anchor for hundreds of families worldwide. We
               trace our roots back to the historic Knanaya migration of A.D. 345
               to Kodungalloor, later establishing our ancestral home at
-              Iruvallipra, Thiruvalla. We collaborate across borders to
+              Eruvallipra, Thiruvalla. We collaborate across borders to
               safeguard the values, properties, and traditions of our four
               principal branches—Pullazhiyil, Thykurinjiyil, Thanuvelil, and
               Poovathumparambil.
@@ -1070,7 +1070,7 @@ export default function HomeClient({
             The Pullazhiyil family is one of the seventy-two Knanaya families
             who arrived at the historic port of Kodungalloor under the
             leadership of Knai Thoma. Our ancestors later settled along the
-            Manimala River at Iruvallipra, near Thiruvalla, where our family
+            Manimala River at Eruvallipra, near Thiruvalla, where our family
             name was born. From one household founded by Sri. Kuriyala emerged
             four branches — Pullazhiyil, Thykurinjiyil, Thanuvelil, and
             Poovathumparambil — that today span continents yet remain forever

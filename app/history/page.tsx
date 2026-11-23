@@ -95,7 +95,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "The last meeting of the original Kudumbayogam was held in <span class='highlight-date'>1951</span> at the residence of <span class='highlight-name'>Sri. Thanuvelil Chacko</span>. Thereafter, owing to various circumstances, the formal activities of the Kudumbayogam remained dormant for several decades.",
       "Nevertheless, the bonds among family members were never lost. Even during the years when the Kudumbayogam was inactive, family unity continued through marriages, family gatherings, faith, and social relationships. These enduring bonds eventually became the foundation for the revival of the Kudumbayogam."
     ],
-    image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=800",
+    image: "images/Formationog.jpeg",
     alt: "Vintage pen and records book representing early 1940s Kudumbayogam assemblies"
   },
   {

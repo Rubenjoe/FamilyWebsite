@@ -30,7 +30,7 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   },
   {
     id: "manimala-river",
-    name: "Manimala River · mapped section near Iruvallipra",
+    name: "Manimala River · mapped section near Eruvallipra",
     stage: "migration",
     era: "Modern geographic reference · approximate river section",
     coordinates: [9.3602565, 76.5497844],
@@ -39,16 +39,16 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
     source: "Family History page; river geometry: OpenStreetMap way 203615187 (Manimala River), checked 22 Nov 2026",
   },
   {
-    id: "iruvallipra",
-    name: "Iruvallipra, near Thiruvalla",
+    id: "eruvallipra",
+    name: "Eruvallipra, near Thiruvalla",
     stage: "migration",
     era: "Eighteenth century · family tradition",
     coordinates: [9.3792, 76.6005],
     precision: "approximate",
-    note: "Family history says a group of ancestors travelled eastward along the Manimala River and settled at Iruvallipra. The exact Iruvallipra point and historical travel path could not be independently geocoded or established; this is an approximate locality marker, not a plotted river route.",
+    note: "Family history says a group of ancestors travelled eastward along the Manimala River and settled at Eruvallipra. The exact Eruvallipra point and historical travel path could not be independently geocoded or established; this is an approximate locality marker, not a plotted river route.",
     image: { src: "/images/history_migration.png", alt: "Existing family-history migration illustration" },
     branches: ["Pullazhiyil", "Thanuvelil", "Poovathumparambil"],
-    source: "Family History page; regional locality checked against Kerala Department of Mining and Geology Thiruvalla map, which labels Iruvallipra and the Manimala River",
+    source: "Family History page; regional locality checked against Kerala Department of Mining and Geology Thiruvalla map, which labels Eruvallipra and the Manimala River",
   },
   {
     id: "thiruvanvandoor",
@@ -121,7 +121,7 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
 
 export const ILLUSTRATIVE_MIGRATION_CONNECTOR: [number, number][] = [
   [9.3602565, 76.5497844], // mapped Manimala River node (OSM way 203615187)
-  [9.3792, 76.6005], // approximate Iruvallipra locality pin
+  [9.3792, 76.6005], // approximate Eruvallipra locality pin
 ];
 
 export const JOURNEY_STAGE_LABELS: Record<JourneyStage, string> = {

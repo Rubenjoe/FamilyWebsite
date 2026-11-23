@@ -14,7 +14,7 @@ export default function MigrationJourneyMap() {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const markerRefs = useRef(new Map<string, { marker: LeafletMarker }>());
-  const [activeId, setActiveId] = useState("iruvallipra");
+  const [activeId, setActiveId] = useState("eruvallipra");
   const [stage, setStage] = useState<JourneyStage>("migration");
   const [activeBranch, setActiveBranch] = useState<(typeof PRINCIPAL_BRANCHES)[number] | null>(null);
   const active = useMemo(() => JOURNEY_MILESTONES.find((item) => item.id === activeId) ?? JOURNEY_MILESTONES[0], [activeId]);
@@ -54,7 +54,7 @@ export default function MigrationJourneyMap() {
       for (const item of JOURNEY_MILESTONES) {
         const icon = L.divIcon({
           className: "heritage-map-marker-wrap",
-          html: `<span class="heritage-map-marker heritage-map-marker--${item.stage}${item.id === "iruvallipra" ? " is-selected" : ""}" aria-hidden="true"></span>`,
+          html: `<span class="heritage-map-marker heritage-map-marker--${item.stage}${item.id === "eruvallipra" ? " is-selected" : ""}" aria-hidden="true"></span>`,
           iconSize: [30, 38],
           iconAnchor: [15, 34],
         });
@@ -62,7 +62,7 @@ export default function MigrationJourneyMap() {
         const markerElement = marker.getElement();
         markerElement?.setAttribute("role", "button");
         markerElement?.setAttribute("aria-label", `${item.name}. ${JOURNEY_STAGE_LABELS[item.stage]}${item.precision === "approximate" ? ", approximate location" : ""}`);
-        markerElement?.setAttribute("aria-pressed", String(item.id === "iruvallipra"));
+        markerElement?.setAttribute("aria-pressed", String(item.id === "eruvallipra"));
         marker.on("click", () => {
           setActiveId(item.id);
           setStage(item.stage);
@@ -162,7 +162,7 @@ export default function MigrationJourneyMap() {
             <p className="mt-1 text-sm font-semibold text-[#52584f]">{active.era}</p>
             <p className="mt-4 text-[15px] leading-7 text-[#343a35]">{active.note}</p>
             {active.branches && <div className="mt-4"><p className="text-sm font-semibold text-[#1b3622]">Branches named at this settlement</p><ul className="mt-2 flex flex-wrap gap-2">{active.branches.map((branch) => <li key={branch} className="rounded-full border border-[#1b3622]/15 bg-white px-3 py-1.5 text-sm text-[#1b3622]">{branch}</li>)}</ul></div>}
-            {active.image ? <figure className="mt-5 grid grid-cols-[92px_1fr] items-center gap-3"><Image src={active.image.src} alt={active.image.alt} width={368} height={245} loading="lazy" className="h-20 w-[92px] rounded-sm border border-[#1b3622]/10 object-cover"/><figcaption className="text-sm leading-6 text-[#5a6059]">Existing image from the family-history archive. Illustrative context, not a documentary photograph of the event.</figcaption></figure> : <figure className="mt-5 grid grid-cols-[92px_1fr] items-center gap-3"><div role="img" aria-label="No verified archive photograph available for this location" className="flex h-20 w-[92px] flex-col items-center justify-center rounded-sm border border-dashed border-[#1b3622]/25 bg-[#f2eddf] px-2 text-center"><span className="font-mono text-[9px] font-semibold tracking-wider text-[#8a6a0f]">ARCHIVE</span><span className="mt-1 text-[10px] leading-3 text-[#515850]">No verified photo</span></div><figcaption className="text-sm leading-6 text-[#5a6059]">No suitable family photograph is currently documented for this place.</figcaption></figure>}
+            {active.image ? <figure className="mt-5 grid grid-cols-[92px_1fr] items-center gap-3"><Image src={active.image.src} alt={active.image.alt} width={368} height={245} loading="lazy" className="h-20 w-[92px] rounded-sm border border-[#1b3622]/10 object-cover" /><figcaption className="text-sm leading-6 text-[#5a6059]">Existing image from the family-history archive. Illustrative context, not a documentary photograph of the event.</figcaption></figure> : <figure className="mt-5 grid grid-cols-[92px_1fr] items-center gap-3"><div role="img" aria-label="No verified archive photograph available for this location" className="flex h-20 w-[92px] flex-col items-center justify-center rounded-sm border border-dashed border-[#1b3622]/25 bg-[#f2eddf] px-2 text-center"><span className="font-mono text-[9px] font-semibold tracking-wider text-[#8a6a0f]">ARCHIVE</span><span className="mt-1 text-[10px] leading-3 text-[#515850]">No verified photo</span></div><figcaption className="text-sm leading-6 text-[#5a6059]">No suitable family photograph is currently documented for this place.</figcaption></figure>}
             <p className="mt-4 border-t border-[#1b3622]/10 pt-3 text-xs leading-5 text-[#545b55]">{active.source}</p>
             <Link href="/tree" className="mt-4 inline-flex min-h-11 items-center rounded-sm border border-[#1b3622]/20 px-4 text-sm font-semibold text-[#1b3622] transition-colors hover:border-[#1b3622]/50 hover:bg-[#1b3622]/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622]">Explore the family tree <span aria-hidden="true" className="ml-2">→</span></Link>
           </article>
