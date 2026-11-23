@@ -44,28 +44,28 @@ const HISTORY_SECTIONS: HistorySection[] = [
   },
   {
     id: "migration",
-    title: "Migration to Iruvallipra",
+    title: "Migration to Eruvallipra",
     icon: Compass,
     intro: "During the <span class='highlight-date'>eighteenth century</span>, the invasion of <span class='highlight-name'>Tipu Sultan</span> created significant challenges for Christian communities in Kerala. In search of safety and freedom to practise their faith, many families were compelled to migrate southward.",
     fullText: [
       "Rivers, which served as important routes of transportation during that period, became the pathways of this long journey. Many of these migrating families eventually settled in places such as Kottayam, Chingavanam, Upper Kuttanad, Veliyanadu, Kallissery, Ranny, and surrounding regions.",
-      "Family tradition holds that a section of our ancestors travelled eastward along the banks of the <span class='highlight-name'>Manimala River</span> and eventually settled at <span class='highlight-name'>Iruvallipra</span>, near Thiruvalla. The natural beauty of the region and its fertile agricultural land encouraged them to make Iruvallipra their permanent home.",
+      "Family tradition holds that a section of our ancestors travelled eastward along the banks of the <span class='highlight-name'>Manimala River</span> and eventually settled at <span class='highlight-name'>Eruvallipra</span>, near Thiruvalla. The natural beauty of the region and its fertile agricultural land encouraged them to make Eruvallipra their permanent home.",
       "It was here that our family came to be known by the ancestral house name <span class='highlight-name'>&quot;Pullazhiyil.&quot;</span> Generations have passed, yet this name continues to stand as an enduring symbol of our family's heritage and pride."
     ],
     image: "/images/history_migration.png",
-    alt: "Migration pathway along Manimala River to Iruvallipra"
+    alt: "Migration pathway along Manimala River to Eruvallipra"
   },
   {
     id: "emergence",
     title: "The Emergence of the Pullazhiyil Family",
     icon: Shield,
-    intro: "The foundation of the Pullazhiyil family at Iruvallipra was laid by our respected ancestor, <span class='highlight-name'>Sri. Kuriyala</span>. He had four sons and daughters, and through his children emerged the four principal branches of the family that we know today.",
+    intro: "The foundation of the Pullazhiyil family at Eruvallipra was laid by our respected ancestor, <span class='highlight-name'>Sri. Kuriyala</span>. He had four sons and daughters, and through his children emerged the four principal branches of the family that we know today.",
     fullText: [
-      "His eldest son, <span class='highlight-name'>Sri. Itty Kuriyala</span>, married and continued to live with his parents at Iruvallipra, carrying forward the traditions of the ancestral Pullazhiyil household.",
+      "His eldest son, <span class='highlight-name'>Sri. Itty Kuriyala</span>, married and continued to live with his parents at Eruvallipra, carrying forward the traditions of the ancestral Pullazhiyil household.",
       "As agriculture was the principal means of livelihood during that period, the other sons gradually moved to fertile lands in nearby areas and established their own households.",
       "<span class='highlight-name'>Sri. Kuriyala Kurian</span> migrated to Thiruvanvandoor and adopted the family name <span class='font-semibold text-[#1b3622]'>Thykurinjiyil</span>, thereby establishing the Thykurinjiyil branch. As generations passed, this branch flourished and further developed into the <span class='font-medium'>Thykurinjiyil–Thoppil</span> and <span class='font-medium'>Thykurinjiyil–Kolupra</span> sub-branches. Both continue to proudly preserve the heritage, traditions, and values inherited from their common ancestors.",
-      "<span class='highlight-name'>Sri. Chacko Kuriyala</span> remained at Iruvallipra, where he established the <span class='font-semibold text-[#1b3622]'>Thanuvelil</span> branch of the family. His son, <span class='highlight-name'>Sri. Itty</span>, later relocated to Meenthalakkara, while retaining the Thanuvelil family name. Over successive generations, this branch further expanded into the <span class='font-medium'>Thanuvelil–Madathil</span> and <span class='font-medium'>Thanuvelil–Thaiparambil</span> sub-branches, carrying forward and enriching the family's heritage.",
-      "The youngest son, <span class='highlight-name'>Sri. Itty Kuriyala</span>, adopted the family name <span class='font-semibold text-[#1b3622]'>Poovathumparambil</span> and continued to reside at Iruvallipra. His descendants carried forward the faith and family values inherited from their forefathers and contributed to the growth of the family lineage.",
+      "<span class='highlight-name'>Sri. Chacko Kuriyala</span> remained at Eruvallipra, where he established the <span class='font-semibold text-[#1b3622]'>Thanuvelil</span> branch of the family. His son, <span class='highlight-name'>Sri. Itty</span>, later relocated to Meenthalakkara, while retaining the Thanuvelil family name. Over successive generations, this branch further expanded into the <span class='font-medium'>Thanuvelil–Madathil</span> and <span class='font-medium'>Thanuvelil–Thaiparambil</span> sub-branches, carrying forward and enriching the family's heritage.",
+      "The youngest son, <span class='highlight-name'>Sri. Itty Kuriyala</span>, adopted the family name <span class='font-semibold text-[#1b3622]'>Poovathumparambil</span> and continued to reside at Eruvallipra. His descendants carried forward the faith and family values inherited from their forefathers and contributed to the growth of the family lineage.",
       "Thus, from one ancestral family emerged four principal branches—<span class='highlight-name'>Pullazhiyil</span>, <span class='highlight-name'>Thykurinjiyil</span>, <span class='highlight-name'>Thanuvelil</span>, and <span class='highlight-name'>Poovathumparambil</span>. Though generations have passed and the branches have spread far and wide, they continue to remain inseparable parts of one family, growing from the same ancestral roots."
     ],
     image: "/images/history_emergence.png",
@@ -75,7 +75,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
     id: "expansion",
     title: "Growth and Expansion",
     icon: Users,
-    intro: "Over the generations, the Pullazhiyil family continued to grow, with members settling in different parts of Kerala. Family members established their homes in Iruvallipra, Meenthalakkara, Vallamkulam, Venpala, Ramamangalam, Gurunathanmannu, Vechoochira, Rajapuram, Thiruvanvandoor, Chingavanam, Kurichy, Kottayam, and several other places.",
+    intro: "Over the generations, the Pullazhiyil family continued to grow, with members settling in different parts of Kerala. Family members established their homes in Eruvallipra, Meenthalakkara, Vallamkulam, Venpala, Ramamangalam, Gurunathanmannu, Vechoochira, Rajapuram, Thiruvanvandoor, Chingavanam, Kurichy, Kottayam, and several other places.",
     fullText: [
       "With changing times and expanding opportunities in education, employment, and business, members of the family gradually moved beyond Kerala to other parts of India and, eventually, across the world. Today, members of the Pullazhiyil family live in the United States, Australia, various European countries, and many other parts of the world, making meaningful contributions in diverse fields.",
       "Although geographical distances have grown, the bonds between our hearts have never diminished. Wherever we may live, we remain united by our common ancestry, Knanaya heritage, faith, and family bonds. These enduring ties continue to be the greatest strength that holds our family together across generations."
@@ -108,7 +108,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "Initially, the revived organisation functioned under the name <span class='font-medium'>Pullazhiyil–Thykurinjiyil Kudumbayogam</span>. As it expanded to embrace all branches of the family, the name was subsequently changed to <span class='font-medium'>Pullazhiyil–Thykurinjiyil–Thanuvelil–Poovathumparambil Kudumbayogam</span>. Eventually, a name representing the common identity of all branches was adopted—<span class='highlight-name'>Pullazhiyil Kudumbayogam</span>.",
       "Since its revival, the Kudumbayogam has continued to strengthen family relationships through annual family gatherings, spiritual programmes, cultural celebrations, charitable initiatives, and activities involving children and younger generations. Through these efforts, our heritage and family values continue to be passed on from one generation to the next."
     ],
-    image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&q=80&w=800",
+    image: "/images/Formation.jpeg",
     alt: "Historic gathering in 1998 marking the revival of Pullazhiyil Kudumbayogam"
   },
   {
@@ -122,7 +122,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "Preserving this precious heritage, strengthening the bonds among family members, and connecting younger generations with their ancestral roots remain at the heart of the mission of the Pullazhiyil Kudumbayogam.",
       "It is the proud responsibility of every member of our family to preserve the faith, culture, love, and family values entrusted to us by our ancestors and to pass them on, with the same devotion and dignity, to generations yet to come."
     ],
-    image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=800",
+    image: "/images/Our_journey.jpeg",
     alt: "Majestic ancient tree representing deep family roots and continuous generational growth"
   }
 ];
