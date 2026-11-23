@@ -10,8 +10,9 @@ import {
   Scan,
   Maximize2,
   Minimize2,
+  X,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import CountUp from "@/components/ui/CountUp";
 import { hierarchy, tree } from "d3-hierarchy";
 import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
@@ -142,6 +143,17 @@ function romanNumeral(n: number) {
   return numerals[n - 1] ?? String(n);
 }
 
+/** Compact life dates for the person panel: "1926 – 1998" or a single year. */
+function formatLife(birth: string | null, death: string | null) {
+  const year = (value: string | null) => (value ? value.slice(0, 4) : null);
+  const born = year(birth);
+  const died = year(death);
+  if (born && died) return `${born} – ${died}`;
+  if (born) return `Born ${born}`;
+  if (died) return `Died ${died}`;
+  return null;
+}
+
 /** Rounded elbow connector between parent and child. */
 function elbowPath(x1: number, y1: number, x2: number, y2: number, r = 16) {
   if (Math.abs(x2 - x1) < 2) return `M ${x1} ${y1} L ${x2} ${y2}`;
@@ -180,10 +192,16 @@ const MemberCard = React.memo(function MemberCard({
   member,
   branchName,
   map,
+  isSelected = false,
+  inLineage = false,
+  onSelect,
 }: {
   member: Member;
   branchName?: string;
   map: Record<string, Hsl>;
+  isSelected?: boolean;
+  inLineage?: boolean;
+  onSelect?: (id: string) => void;
 }) {
   const initials = getInitials(member.name);
   const isDeceased = !!member.death_date;
@@ -192,13 +210,24 @@ const MemberCard = React.memo(function MemberCard({
     : `linear-gradient(90deg, ${branchColor(branchName, map, 0.95)}, ${branchColor(branchName, map, 0.35)})`;
 
   return (
-    <div
-      className="relative flex w-[156px] flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border px-3 py-3 text-center"
+    <button
+      type="button"
+      onClick={() => onSelect?.(member.id)}
+      aria-pressed={isSelected}
+      aria-label={`${member.name || "Unknown member"}${isDeceased ? ", deceased" : ""}. Show details`}
+      className="ft-card relative flex w-[156px] flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border px-3 py-3 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8a6a0f]"
       style={{
         height: CARD_HEIGHT,
-        borderColor: isDeceased ? "rgba(27,54,34,0.12)" : branchColor(branchName, map, 0.22),
+        borderColor:
+          isSelected || inLineage
+            ? "rgba(212,175,55,0.75)"
+            : isDeceased
+              ? "rgba(27,54,34,0.12)"
+              : branchColor(branchName, map, 0.22),
         background: isDeceased ? "#f8f4ea" : "#ffffff",
-        boxShadow: "0 1px 2px rgba(27,54,34,0.05)",
+        boxShadow: isSelected
+          ? "0 0 0 2px rgba(212,175,55,0.6), 0 10px 24px -14px rgba(27,54,34,0.55)"
+          : "0 1px 2px rgba(27,54,34,0.05)",
       }}
     >
       <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: accent }} />
@@ -214,7 +243,7 @@ const MemberCard = React.memo(function MemberCard({
       )}
 
       {/* monogram medallion — the card's hero now that portraits are gone */}
-      <div
+      <span
         className="grid h-11 w-11 shrink-0 select-none place-items-center rounded-full font-serif text-[12.5px] font-bold tracking-wider text-white shadow-sm"
         style={{
           background: isDeceased
@@ -228,15 +257,15 @@ const MemberCard = React.memo(function MemberCard({
         aria-hidden="true"
       >
         {initials}
-      </div>
+      </span>
 
-      <h4
+      <span
         className="line-clamp-2 w-full break-words font-serif text-[13.5px] font-semibold leading-snug text-[#1b3622]"
         title={member.name || "Unknown Member"}
       >
         {member.name || "Unknown Member"}
-      </h4>
-    </div>
+      </span>
+    </button>
   );
 });
 
@@ -246,29 +275,44 @@ const CoupleBlock = React.memo(function CoupleBlock({
   node,
   map,
   wrap = false,
+  selectedId = null,
+  inLineage = false,
+  onSelect,
 }: {
   node: TreeNode;
   map: Record<string, Hsl>;
   className?: string;
   wrap?: boolean;
+  selectedId?: string | null;
+  inLineage?: boolean;
+  onSelect?: (id: string) => void;
 }) {
   const branch = node.branchName;
   const isMatchy = node.isMatch || node.spouseMatch;
 
   return (
     <div
-      className={`relative gap-1.5 rounded-2xl border border-black/[0.06] bg-white/95 p-2 backdrop-blur-sm transition-shadow duration-300 ${wrap ? "flex flex-col items-center" : "flex items-center"
+      className={`ft-couple relative gap-1.5 rounded-2xl border border-black/[0.06] bg-white/95 p-2 ${wrap ? "flex flex-col items-center" : "flex items-center"
         }`}
       style={{
         boxShadow: isMatchy
           ? `0 0 0 2px ${GOLD}, 0 14px 34px -14px ${branchColor(branch, map, 0.45)}`
-          : `0 1px 2px rgba(27,54,34,0.05), 0 12px 32px -14px ${branchColor(branch, map, 0.4)}`,
+          : inLineage
+            ? `0 0 0 1.5px rgba(212,175,55,0.5), 0 12px 32px -14px ${branchColor(branch, map, 0.4)}`
+            : `0 1px 2px rgba(27,54,34,0.05), 0 12px 32px -14px ${branchColor(branch, map, 0.4)}`,
       }}
     >
       {isMatchy && (
         <span className="ft-pulse-ring pointer-events-none absolute -inset-[3px] rounded-[20px]" />
       )}
-      <MemberCard member={node.member} branchName={branch} map={map} />
+      <MemberCard
+        member={node.member}
+        branchName={branch}
+        map={map}
+        isSelected={selectedId === node.member.id}
+        inLineage={inLineage}
+        onSelect={onSelect}
+      />
       {node.spouse && (
         <>
           <div className="flex flex-col items-center justify-center">
@@ -291,7 +335,14 @@ const CoupleBlock = React.memo(function CoupleBlock({
               style={{ background: branchColor(branch, map, 0.35) }}
             />
           </div>
-          <MemberCard member={node.spouse} branchName={branch} map={map} />
+          <MemberCard
+            member={node.spouse}
+            branchName={branch}
+            map={map}
+            isSelected={selectedId === node.spouse.id}
+            inLineage={inLineage}
+            onSelect={onSelect}
+          />
         </>
       )}
     </div>
@@ -401,6 +452,7 @@ function TreeCanvas({
   const layoutRef = useRef<LayoutMeta | null>(null);
   const initialFitDone = useRef(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   /* ---- layout ---- */
   const layout = useMemo(() => {
@@ -412,6 +464,25 @@ function TreeCanvas({
 
   const nodes = useMemo(() => layout.descendants(), [layout]);
   const links = useMemo(() => layout.links(), [layout]);
+
+  /* Selected member → the direct line of descent back to the founder. */
+  const lineageIds = useMemo(() => {
+    const ids = new Set<string>();
+    if (!selectedId) return ids;
+    let current: HierarchyPointNode<TreeNode> | null | undefined = nodes.find(
+      (node) => node.data.id === selectedId
+    );
+    while (current) {
+      ids.add(current.data.id);
+      current = current.parent ?? null;
+    }
+    return ids;
+  }, [nodes, selectedId]);
+
+  const selectedNode = useMemo(
+    () => (selectedId ? nodes.find((node) => node.data.id === selectedId) ?? null : null),
+    [nodes, selectedId]
+  );
 
   const { offsetX, offsetY, contentW, contentH } = useMemo(() => {
     let minL = Infinity;
@@ -577,6 +648,48 @@ function TreeCanvas({
     moveTransform(zoomIdentity.translate(vw / 2 - cx, vh / 2 - cy).scale(1), true);
   }, [moveTransform]);
 
+  /** Glide the camera so one member sits comfortably in the middle. */
+  const centerOnNode = useCallback(
+    (nodeId: string) => {
+      const meta = layoutRef.current;
+      const el = viewportRef.current;
+      if (!meta || !el) return;
+      const target = meta.nodes.find((node) => node.data.id === nodeId);
+      if (!target) return;
+      const k = Math.max(transformRef.current.k, 0.9);
+      const cx = (target.x ?? 0) + meta.offsetX;
+      const cy = (target.y ?? 0) + meta.offsetY;
+      moveTransform(
+        zoomIdentity.translate(el.clientWidth / 2 - cx * k, el.clientHeight / 2 - cy * k).scale(k),
+        true
+      );
+    },
+    [moveTransform]
+  );
+
+  const handleSelect = useCallback(
+    (nodeId: string) => {
+      setSelectedId((prev) => (prev === nodeId ? null : nodeId));
+      centerOnNode(nodeId);
+    },
+    [centerOnNode]
+  );
+
+  /** Jump the camera to a generation band without changing the zoom level. */
+  const centerOnGeneration = useCallback(
+    (y: number) => {
+      const el = viewportRef.current;
+      if (!el) return;
+      const t = transformRef.current;
+      const worldY = y + (layoutRef.current?.offsetY ?? 0);
+      moveTransform(
+        zoomIdentity.translate(t.x, el.clientHeight * 0.3 - worldY * t.k).scale(t.k),
+        true
+      );
+    },
+    [moveTransform]
+  );
+
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       shellRef.current?.requestFullscreen?.().catch(() => { });
@@ -635,16 +748,19 @@ function TreeCanvas({
             }}
           />
           {genYs.map(([gen, y]) => (
-            <div
+            <button
               key={gen}
-              className="absolute grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-[#1b3622]/12 bg-white shadow-[0_2px_6px_rgba(27,54,34,0.10)]"
+              type="button"
+              onClick={() => centerOnGeneration(y)}
+              className="absolute grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-[#1b3622]/12 bg-white shadow-[0_2px_6px_rgba(27,54,34,0.10)] transition-transform duration-200 hover:scale-125 hover:border-[#d4af37]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8a6a0f]"
               style={{ left: 44, top: y + offsetY, zIndex: 5 }}
-              title={`Generation ${gen}`}
+              title={`Jump to generation ${gen}`}
+              aria-label={`Jump to generation ${romanNumeral(gen)}`}
             >
               <span className="font-serif text-[10px] font-bold tracking-wide text-[#8a6a0f]">
                 {romanNumeral(gen)}
               </span>
-            </div>
+            </button>
           ))}
 
           {/* connectors */}
@@ -684,40 +800,47 @@ function TreeCanvas({
                     strokeDasharray={1}
                     className="[animation:ft-dash_0.7s_ease_forwards]"
                   />
+                  {lineageIds.has(link.source.data.id) && lineageIds.has(link.target.data.id) && (
+                    <path
+                      d={d}
+                      fill="none"
+                      stroke={GOLD}
+                      strokeWidth={3}
+                      strokeLinecap="round"
+                      opacity={0.9}
+                    />
+                  )}
                 </g>
               );
             })}
           </svg>
 
-          {/* nodes */}
-          <AnimatePresence>
-            {nodes.map((node) => {
-              const left = (node.x ?? 0) + offsetX - coupleBlockWidth(node.data) / 2;
-              const top = (node.y ?? 0) + offsetY;
-              const dimmed = hasQuery && !node.data.isMatch && !node.data.spouseMatch;
-              const isBranchHead = node.data.generation === 2 && node.data.branchName;
+          {/* nodes
+              Position is a plain CSS transform. With the whole lineage expanded
+              this replaces hundreds of Framer Motion springs with one
+              composited transition per plaque. */}
+          {nodes.map((node) => {
+            const left = (node.x ?? 0) + offsetX - coupleBlockWidth(node.data) / 2;
+            const top = (node.y ?? 0) + offsetY;
+            const dimmed = hasQuery && !node.data.isMatch && !node.data.spouseMatch;
+            const isBranchHead = node.data.generation === 2 && node.data.branchName;
+            const inLineage = lineageIds.has(node.data.id);
 
-              return (
-                <motion.div
+            return (
+                <div
                   key={node.data.id}
-                  initial={{ opacity: 0, scale: 0.9, x: left, y: top }}
-                  animate={{
-                    opacity: dimmed ? 0.28 : 1,
-                    scale: 1,
-                    x: left,
-                    y: top,
-                  }}
-                  exit={{ opacity: 0, scale: 0.88 }}
-                  transition={{ type: "spring", bounce: 0.18, duration: 0.55 }}
+                  className="ft-node"
                   style={{
                     position: "absolute",
                     left: 0,
                     top: 0,
                     width: coupleBlockWidth(node.data),
                     zIndex: node.data.isMatch || node.data.spouseMatch ? 30 : 10,
+                    opacity: dimmed ? 0.28 : 1,
+                    transform: `translate(${left}px, ${top}px)`,
                   }}
                 >
-                  <div className="relative flex flex-col items-center" style={{ transform: "translateY(-50%)" }}>
+                  <div className="ft-node-inner relative flex flex-col items-center" style={{ transform: "translateY(-50%)" }}>
                     {isBranchHead && (
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
                         <div
@@ -737,7 +860,13 @@ function TreeCanvas({
                         </div>
                       </div>
                     )}
-                    <CoupleBlock node={node.data} map={map} />
+                    <CoupleBlock
+                      node={node.data}
+                      map={map}
+                      selectedId={selectedId}
+                      inLineage={inLineage}
+                      onSelect={handleSelect}
+                    />
                     <ExpandButton
                       node={node.data}
                       onClick={(e) => {
@@ -747,10 +876,9 @@ function TreeCanvas({
                       map={map}
                     />
                   </div>
-                </motion.div>
+                </div>
               );
             })}
-          </AnimatePresence>
         </div>
 
         {/* ── floating overlays (fixed to viewport, not transformed) ── */}
@@ -759,20 +887,56 @@ function TreeCanvas({
         <div className="absolute left-4 top-4 z-40 flex items-center gap-2 rounded-full border border-[#1b3622]/10 bg-white/85 px-3.5 py-1.5 shadow-[0_4px_14px_rgba(27,54,34,0.08)] backdrop-blur">
           <Users className="h-3.5 w-3.5 text-[#8a6a0f]" />
           <span className="text-[11px] font-semibold tracking-wide text-[#1b3622]/75">
-            {stats.generations} {stats.generations === 1 ? "Generation" : "Generations"}
+            <CountUp value={stats.generations} /> {stats.generations === 1 ? "Generation" : "Generations"}
           </span>
           <span className="h-1 w-1 rounded-full bg-[#1b3622]/20" />
           <span className="text-[11px] font-semibold tracking-wide text-[#1b3622]/75">
-            {stats.members} Members
+            <CountUp value={stats.members} /> Members
           </span>
         </div>
 
+        {/* selected person panel */}
+        {selectedNode && (
+          <div
+            role="dialog"
+            aria-label={`Details for ${selectedNode.data.member.name ?? "unknown member"}`}
+            className="absolute inset-x-3 bottom-16 z-40 rounded-xl border border-[#1b3622]/10 bg-white/97 p-3.5 shadow-[0_18px_44px_-20px_rgba(27,54,34,0.55)] sm:inset-x-auto sm:bottom-16 sm:left-4 sm:max-w-[286px]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#8a6a0f]">
+                  Generation {romanNumeral(selectedNode.data.generation)} · {selectedNode.data.branchName ?? "Root lineage"}
+                </p>
+                <p className="mt-1 font-serif text-[15px] font-semibold leading-snug text-[#1b3622]">
+                  {selectedNode.data.member.name ?? "Unknown member"}
+                </p>
+                {formatLife(selectedNode.data.member.birth_date, selectedNode.data.member.death_date) && (
+                  <p className="mt-0.5 text-[11px] font-medium text-[#5a6059]">
+                    {formatLife(selectedNode.data.member.birth_date, selectedNode.data.member.death_date)}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                aria-label="Close member details"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#1b3622]/55 transition-colors hover:bg-[#1b3622]/5 hover:text-[#1b3622] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622]"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+            <p className="mt-2 border-t border-[#1b3622]/10 pt-2 text-[11px] leading-5 text-[#5a6059]">
+              The gold line traces this member&rsquo;s direct descent back to the founding ancestor.
+            </p>
+          </div>
+        )}
+
         {/* hint — touch wording on phones, pointer wording on desktop */}
         <div className="absolute bottom-4 left-4 z-40 hidden select-none text-[10px] font-medium uppercase tracking-[0.16em] text-[#1b3622]/35 sm:block">
-          Drag to pan · Scroll to zoom
+          Drag to pan · Scroll to zoom · Select a plaque for details
         </div>
         <div className="absolute bottom-4 left-4 z-40 select-none text-[10px] font-medium uppercase tracking-[0.16em] text-[#1b3622]/35 sm:hidden">
-          Drag to pan · Pinch to zoom
+          Drag · Pinch · Tap a plaque
         </div>
 
         {/* zoom toolbar */}

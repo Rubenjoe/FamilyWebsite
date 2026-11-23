@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import MigrationJourneyMap from "./MigrationJourneyMap";
+import TiltCard from "@/components/ui/TiltCard";
 import {
   Anchor,
   Compass,
@@ -80,7 +82,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "With changing times and expanding opportunities in education, employment, and business, members of the family gradually moved beyond Kerala to other parts of India and, eventually, across the world. Today, members of the Pullazhiyil family live in the United States, Australia, various European countries, and many other parts of the world, making meaningful contributions in diverse fields.",
       "Although geographical distances have grown, the bonds between our hearts have never diminished. Wherever we may live, we remain united by our common ancestry, Knanaya heritage, faith, and family bonds. These enduring ties continue to be the greatest strength that holds our family together across generations."
     ],
-    image: "images/growthandexpansion.jpeg",
+    image: "/images/growthandexpansion.jpeg",
     alt: "Nostalgic family gathering illustrating growth and global expansion"
   },
   {
@@ -95,7 +97,7 @@ const HISTORY_SECTIONS: HistorySection[] = [
       "The last meeting of the original Kudumbayogam was held in <span class='highlight-date'>1951</span> at the residence of <span class='highlight-name'>Sri. Thanuvelil Chacko</span>. Thereafter, owing to various circumstances, the formal activities of the Kudumbayogam remained dormant for several decades.",
       "Nevertheless, the bonds among family members were never lost. Even during the years when the Kudumbayogam was inactive, family unity continued through marriages, family gatherings, faith, and social relationships. These enduring bonds eventually became the foundation for the revival of the Kudumbayogam."
     ],
-    image: "images/Formationog.jpeg",
+    image: "/images/Formationog.jpeg",
     alt: "Vintage pen and records book representing early 1940s Kudumbayogam assemblies"
   },
   {
@@ -144,6 +146,40 @@ const POETIC_VERSES = [
 
 export default function HistoryPage() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [activeChapter, setActiveChapter] = useState(HISTORY_SECTIONS[0].id);
+  const chapterNavRef = useRef<HTMLOListElement>(null);
+
+  // Scroll-spy: the chapter chip for whatever is currently being read turns
+  // gold, so the reader always knows where they are in the narrative.
+  useEffect(() => {
+    const sections = HISTORY_SECTIONS.map((section) => document.getElementById(section.id)).filter(
+      (el): el is HTMLElement => Boolean(el)
+    );
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveChapter(visible.target.id);
+      },
+      { rootMargin: "-20% 0px -55% 0px", threshold: [0, 0.15, 0.4] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  // Keep the active chapter chip centred in the horizontal jump bar.
+  useEffect(() => {
+    const nav = chapterNavRef.current;
+    if (!nav) return;
+    const active = nav.querySelector<HTMLElement>('a[aria-current="location"]');
+    if (!active) return;
+    const left = active.offsetLeft - nav.clientWidth / 2 + active.clientWidth / 2;
+    nav.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [activeChapter]);
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => ({
@@ -205,15 +241,28 @@ export default function HistoryPage() {
       </section>
 
       <nav aria-label="History chapters" className="relative z-10 mx-auto mt-6 max-w-7xl px-5 sm:px-8 lg:px-16">
-        <ol className="flex gap-2 overflow-x-auto border-b border-[#1b3622]/10 pb-3" aria-label="Jump to a chapter">
+        <ol ref={chapterNavRef} className="flex gap-2 overflow-x-auto border-b border-[#1b3622]/10 pb-3" aria-label="Jump to a chapter">
           {HISTORY_SECTIONS.map((section, index) => (
             <li key={section.id} className="shrink-0">
-              <a href={`#${section.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-[#1b3622]/10 bg-white/70 px-3 text-sm text-[#1b3622] transition-colors hover:border-[#b8912e]/50 hover:bg-[#b8912e]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622]">
+              <a
+                href={`#${section.id}`}
+                aria-current={activeChapter === section.id ? "location" : undefined}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-sm border px-3 text-sm text-[#1b3622] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622] ${activeChapter === section.id ? "border-[#b8912e]/60 bg-[#b8912e]/15" : "border-[#1b3622]/10 bg-white/70 hover:border-[#b8912e]/50 hover:bg-[#b8912e]/10"}`}
+              >
                 <span className="font-mono text-xs text-[#8a6a0f]">{String(index + 1).padStart(2, "0")}</span>
                 {section.title}
               </a>
             </li>
           ))}
+          <li className="shrink-0">
+            <a
+              href="#migration-atlas-title"
+              className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-[#1b3622]/10 bg-[#1b3622]/[0.04] px-3 text-sm font-semibold text-[#1b3622] transition-colors hover:border-[#b8912e]/50 hover:bg-[#b8912e]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b3622]"
+            >
+              <Compass className="h-3.5 w-3.5 text-[#8a6a0f]" aria-hidden />
+              The Atlas
+            </a>
+          </li>
         </ol>
       </nav>
 
@@ -243,20 +292,21 @@ export default function HistoryPage() {
                   transition={{ duration: 1.2, ease: NORELL_EASE }}
                   className="w-full space-y-4"
                 >
-                  <div className="relative h-[300px] sm:h-[450px] md:h-[550px] w-full overflow-hidden shadow-2xl rounded-sm group border border-[#1b3622]/15">
-                    {/* Background tint overlay */}
-                    <div className="absolute inset-0 bg-[#1b3622]/10 z-10 transition-opacity duration-700 group-hover:opacity-0" />
+                  <TiltCard max={4} className="w-full">
+                    <div className="relative h-[300px] sm:h-[450px] md:h-[550px] w-full overflow-hidden shadow-2xl rounded-sm group border border-[#1b3622]/15">
+                      {/* Background tint overlay */}
+                      <div className="absolute inset-0 bg-[#1b3622]/10 z-10 transition-opacity duration-700 group-hover:opacity-0" />
 
-                    <motion.img
-                      whileHover={{ scale: 1.03 }}
-                      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                      src="/images/emergence.jpeg"
-                      alt="Traditional Kerala landscape representing ancestral heritage"
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                      <Image
+                        src="/images/emergence.jpeg"
+                        alt="Traditional Kerala landscape representing ancestral heritage"
+                        fill
+                        sizes="100vw"
+                        loading="lazy"
+                        className="object-cover img-zoom parallax-soft"
+                      />
+                    </div>
+                  </TiltCard>
                   <div className="text-center max-w-xl mx-auto">
                     <p className="text-[14px] italic font-serif text-[#1b3622] leading-relaxed">
                       The serene waterways of Central Kerala, symbolizing the natural pathways that guided our ancestors through generation-defining migrations.
@@ -351,19 +401,20 @@ export default function HistoryPage() {
                   className={`lg:col-span-5 w-full ${isEven ? "order-1 lg:order-1" : "order-1 lg:order-2"
                     }`}
                 >
-                  <div className="relative overflow-hidden rounded-sm shadow-xl hover:shadow-2xl transition-all duration-500 border border-[#1b3622]/10 group aspect-[4/3] w-full">
-                    {/* Ambient image vignette */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-60" />
-                    <motion.img
-                      whileHover={{ scale: 1.04 }}
-                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                      src={section.image}
-                      alt={section.alt}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <TiltCard max={6} className="w-full">
+                    <div className="relative overflow-hidden rounded-sm shadow-xl border border-[#1b3622]/10 group aspect-[4/3] w-full">
+                      {/* Ambient image vignette */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-60" />
+                      <Image
+                        src={section.image}
+                        alt={section.alt}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        loading="lazy"
+                        className="object-cover img-zoom"
+                      />
+                    </div>
+                  </TiltCard>
                 </motion.div>
 
               </div>

@@ -27,6 +27,7 @@ import type { Database } from "@/types/supabase";
 import { withCloudinaryTransform } from "@/utils/storage";
 import InitialsMonogram from "@/components/ui/InitialsMonogram";
 import FadeImage from "@/components/ui/FadeImage";
+import TiltCard from "@/components/ui/TiltCard";
 
 // ─── Derived view-model types from Supabase schema ───────────────────────────
 
@@ -318,7 +319,7 @@ function AchieverCarousel({
         <div className="flex justify-start">
           <Link
             href={viewAllHref}
-            className="press group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+            className="press press-ink group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
           >
             <Users className="h-3 w-3" />
             <span>{viewAllLabel}</span>
@@ -364,8 +365,9 @@ function AchieverCarousel({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: index * 0.1, ease: NORELL_EASE }}
-            className="transform-gpu snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)]"
+            className="snap-center shrink-0 w-[80vw] sm:w-[60vw] md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.5rem)]"
           >
+            <TiltCard className="h-full" max={5}>
             <Link
               href={viewAllHref}
               onClick={(event) => {
@@ -418,6 +420,7 @@ function AchieverCarousel({
                 </div>
               </div>
             </Link>
+            </TiltCard>
           </motion.div>
         ))}
       </div>
@@ -429,14 +432,14 @@ function AchieverCarousel({
           <button
             onClick={handlePrev}
             aria-label="Previous achiever"
-            className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+            className="press press-ink group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
           >
             <ChevronLeft className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           </button>
           <button
             onClick={handleNext}
             aria-label="Next achiever"
-            className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+            className="press press-ink group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
           >
             <ChevronRight className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           </button>
@@ -447,7 +450,7 @@ function AchieverCarousel({
               onClick={() => setIsPaused((prev) => !prev)}
               aria-label={isPaused ? "Resume auto-scroll" : "Pause auto-scroll"}
               aria-pressed={isPaused}
-              className="press group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
+              className="press press-ink group flex items-center justify-center w-10 h-10 border border-[#1b3622]/20 text-[#1b3622] hover:bg-[#1b3622] hover:text-[#fbf9f4] transition-colors duration-300"
             >
               {isPaused ? (
                 <Play className="h-3.5 w-3.5" />
@@ -487,7 +490,7 @@ function AchieverCarousel({
           )}
           <Link
             href={viewAllHref}
-            className="press group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
+            className="press press-ink group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#1b3622] text-[#fbf9f4] text-sm uppercase tracking-[0.15em] font-bold px-5 py-3 hover:bg-[#d4af37] hover:text-[#1b3622] transition-colors duration-400 shadow-sm"
           >
             <Users className="h-3 w-3" />
             <span>{viewAllLabel}</span>
@@ -612,6 +615,48 @@ export default function HomeClient({
   );
   const pillarsHeadingY = useTransform(pillarsScroll, [0.05, 0.25], [30, 0]);
 
+  // ── 5. Hero pointer depth ─────────────────────────────────────────────────
+  // The display title leans a few degrees toward the pointer, as if the cover
+  // were a printed page catching the light. Mouse only; skipped entirely for
+  // visitors who prefer reduced motion.
+  const heroTitleRef = useRef<HTMLHeadingElement>(null);
+  const heroTiltFrame = useRef<number | null>(null);
+
+  const handleHeroPointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.pointerType !== "mouse") return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const el = heroTitleRef.current;
+      if (!el) return;
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      if (heroTiltFrame.current) cancelAnimationFrame(heroTiltFrame.current);
+      heroTiltFrame.current = requestAnimationFrame(() => {
+        el.style.transition = "none";
+        el.style.transform = `rotateX(${(-y * 2.6).toFixed(2)}deg) rotateY(${(x * 3.4).toFixed(
+          2
+        )}deg)`;
+      });
+    },
+    []
+  );
+
+  const resetHeroTilt = useCallback(() => {
+    if (heroTiltFrame.current) cancelAnimationFrame(heroTiltFrame.current);
+    const el = heroTitleRef.current;
+    if (!el) return;
+    el.style.transition = "transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
+    el.style.transform = "";
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (heroTiltFrame.current) cancelAnimationFrame(heroTiltFrame.current);
+    },
+    []
+  );
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#fbf9f4] text-[#1b3622] min-h-screen pb-20 md:pb-32 selection:bg-[#1b3622] selection:text-[#fbf9f4] bg-parchment relative overflow-x-hidden">
@@ -644,7 +689,10 @@ export default function HomeClient({
       <div
         ref={heroRef}
         className="relative flex h-[90svh] min-h-[560px] flex-col justify-center px-6 md:h-[95vh] md:px-12 lg:px-20 border-b border-[#1b3622]/10 text-[#fbf9f4]"
-        style={{ overflow: "hidden" }}
+        style={{ overflow: "hidden", perspective: "1200px" }}
+        onPointerMove={handleHeroPointerMove}
+        onPointerLeave={resetHeroTilt}
+        onPointerCancel={resetHeroTilt}
       >
         {/* Background Slideshow — the active frame receives a slow Ken Burns
             push-in (transform-only, GPU friendly) for a documentary feel. */}
@@ -715,7 +763,10 @@ export default function HomeClient({
           </div>
 
           {/* Display headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light font-serif tracking-tight leading-[0.9]">
+          <h1
+            ref={heroTitleRef}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light font-serif tracking-tight leading-[0.9]"
+          >
             <div className="overflow-hidden py-1">
               <motion.span
                 className="block"
@@ -768,7 +819,7 @@ export default function HomeClient({
             >
               <Link
                 href="/tree"
-                className="group press flex w-full items-center justify-center gap-3 bg-[#d4af37] px-6 py-3.5 text-[11px] sm:w-auto sm:justify-start sm:px-8 sm:py-4 sm:text-sm uppercase tracking-[0.14em] sm:tracking-[0.18em] font-bold text-[#1b3622] hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
+                className="group press press-ink sheen flex w-full items-center justify-center gap-3 bg-[#d4af37] px-6 py-3.5 text-[11px] sm:w-auto sm:justify-start sm:px-8 sm:py-4 sm:text-sm uppercase tracking-[0.14em] sm:tracking-[0.18em] font-bold text-[#1b3622] hover:bg-[#fbf9f4] transition-all duration-500 shadow-xl"
               >
                 <span>Explore Our Family Tree</span>
                 <ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" />

@@ -63,6 +63,29 @@ body {
   font-weight: 420;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  font-synthesis-weight: none;
+}
+
+/* Editorial rag: avoid stranded single words in running prose without
+   affecting headings (which already use `text-wrap: balance`). */
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  font-optical-sizing: auto;
+}
+
+/* Figures in stats, counters and dates should never jitter as they tick. */
+.tabular,
+.font-mono time,
+time {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Keep keyboard navigation obvious without changing the visual language. */
@@ -600,6 +623,285 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .heritage-map-marker { transition: none; }
+}
+
+/* ── Playful pointer micro-interactions ─────────────────────────────────── */
+
+/* Ink press: a soft gold bloom released from the centre on press.
+
+   Opt-in only (`.press-ink`), deliberately separate from `.press`. Admin form
+   buttons and dialog actions use `.press` for their tactile press, and those
+   must keep their original box: introducing a clipping layer or an extra
+   stacking context there can cut off spinners, badges or focus rings and can
+   swallow absolutely positioned children. `.press` therefore stays a pure
+   transition/transform helper.
+
+   The bloom is painted as a background image inside the element's own padding
+   box (grown with `background-size`), so it needs no `overflow: hidden` and can
+   never clip a descendant. `z-index: -1` plus `isolation: isolate` keeps it
+   above the element's background and below its text. */
+.press-ink {
+  position: relative;
+  isolation: isolate;
+}
+
+.press-ink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(212, 175, 55, 0.38),
+    rgba(212, 175, 55, 0) 62%
+  );
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 0% 0%;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-soft),
+    background-size 0.45s var(--ease-soft);
+}
+
+.press-ink:active::after {
+  opacity: 1;
+  background-size: 160% 160%;
+  transition-duration: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-ink::after {
+    display: none;
+  }
+}
+
+/* Sheen: a light band sweeps across a CTA on hover, like lamplight on brass. */
+.sheen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.sheen::before {
+  content: "";
+  position: absolute;
+  inset: -60% -20%;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(
+    112deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 58%
+  );
+  transform: translateX(-130%) skewX(-6deg);
+  transition: transform 0.75s var(--ease-premium);
+}
+
+.sheen:hover::before,
+.sheen:focus-visible::before {
+  transform: translateX(130%) skewX(-6deg);
+}
+
+/* ── 3D tilt surfaces (see src/components/ui/TiltCard.tsx) ──────────────── */
+
+.tilt-scene {
+  perspective: 900px;
+  perspective-origin: center;
+}
+
+.tilt-surface {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s var(--ease-premium),
+    box-shadow 0.55s var(--ease-premium);
+  will-change: auto;
+}
+
+.tilt-scene.is-tilting .tilt-surface {
+  transition: transform 0.09s linear, box-shadow 0.35s var(--ease-soft);
+}
+
+/* A slow-moving highlight that sells the raised surface. */
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background-image: radial-gradient(
+    circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0) 55%
+  );
+  mix-blend-mode: soft-light;
+  transition: opacity 0.4s var(--ease-soft);
+}
+
+.tilt-scene.is-tilting .tilt-glare {
+  opacity: 0.9;
+}
+
+/* ── Scroll-driven parallax ─────────────────────────────────────────────── */
+
+/* Progressive enhancement: only browsers with view-timeline support get the
+   scroll-linked drift, and only when motion is welcome. Zero JS, composited. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax-soft {
+      animation: parallax-soft linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    @keyframes parallax-soft {
+      from {
+        transform: translateY(-18px) scale(1.06);
+      }
+      to {
+        transform: translateY(18px) scale(1.06);
+      }
+    }
+  }
+}
+
+/* Gentle image push-in on hover; replaces per-image Framer listeners. */
+.img-zoom {
+  transition: scale 0.9s var(--ease-premium);
+}
+
+.group:hover .img-zoom,
+.group:focus-within .img-zoom {
+  scale: 1.045;
+}
+
+/* ── Heritage atlas map extras ──────────────────────────────────────────── */
+
+@keyframes atlas-pin-in {
+  from {
+    opacity: 0;
+    scale: 0.35;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.heritage-map-marker {
+  animation: atlas-pin-in 0.5s var(--ease-premium) both;
+}
+
+/* Selected pin keeps a slow gold halo, like a lamp glowing on the map. */
+@keyframes atlas-pin-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 5px rgba(212, 175, 55, 0.38), 0 3px 10px rgba(18, 35, 23, 0.42);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0.1), 0 3px 10px rgba(18, 35, 23, 0.42);
+  }
+}
+
+.heritage-map-marker.is-selected {
+  animation: atlas-pin-in 0.5s var(--ease-premium) both,
+    atlas-pin-glow 2.4s var(--ease-soft) infinite 0.6s;
+}
+
+.heritage-map-marker {
+  position: relative;
+}
+
+.heritage-map-canvas .leaflet-tooltip.heritage-map-tip {
+  padding: 7px 10px;
+  border: 1px solid rgba(27, 54, 34, 0.14);
+  border-radius: 6px;
+  background: #fbf9f4;
+  color: #1b3622;
+  box-shadow: 0 8px 22px -12px rgba(27, 54, 34, 0.55);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.heritage-map-canvas .leaflet-tooltip.heritage-map-tip::before {
+  border-top-color: #fbf9f4;
+}
+
+.heritage-map-tip__name {
+  display: block;
+  font-weight: 700;
+}
+
+.heritage-map-tip__era {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6c6252;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heritage-map-marker,
+  .heritage-map-marker.is-selected {
+    animation: none;
+  }
+}
+
+/* ── Family-tree canvas ─────────────────────────────────────────────────── */
+
+/* CSS transform transitions replace one Framer Motion instance per node.
+   With the whole lineage expanded that is hundreds of springs; a single
+   composited transition per node is dramatically cheaper and still smooth. */
+.ft-node {
+  transition: transform 0.5s var(--ease-premium), opacity 0.3s var(--ease-soft);
+}
+
+@keyframes ft-node-in {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.ft-node-inner {
+  animation: ft-node-in 0.45s var(--ease-premium) both;
+}
+
+.ft-couple {
+  transition: transform 0.35s var(--ease-premium),
+    box-shadow 0.35s var(--ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ft-couple:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.ft-card {
+  transition: box-shadow 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft),
+    background-color 0.3s var(--ease-soft);
+}
+
+.ft-card:hover {
+  box-shadow: 0 10px 24px -14px rgba(27, 54, 34, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-node,
+  .ft-couple,
+  .ft-node-inner {
+    transition: none;
+    animation: none;
+  }
 }
 
 /* Respect users who prefer reduced motion: collapse CSS-driven animation to
